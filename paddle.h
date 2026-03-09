@@ -7,14 +7,12 @@ using namespace std;
 
 class Paddle{
 public:
-    Paddle(Circle c, int r) : circle_(c), radius_(r) {}
+    Paddle(Circle c);
 
-    Circle get_circle_() const { return circle_; }
-    int get_radius_() const { return radius_; }
+    const Circle& get_circle() const { return circle_; } //renvoie de référence
 
 private : 
     Circle circle_;
-    int radius_;
 };
 
 #endif

@@ -1,5 +1,5 @@
 #ifndef BRICK_H
-#define BRIck_H
+#define BRICK_H
 
 #include "tools.h"
 
@@ -9,7 +9,9 @@ class Brick {
 public:
     Brick(Square s, int type) : bounds_(s), type_(type) {}
 
-    Square get_bounds() const { return bounds_; }
+    //virtual ~Brick() {} //Pas sur que ce soit nécaissaire RENDU 1 
+
+    const Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; }
 private:
     Square bounds_; // Utilisation de struct Square de tools [cite: 382]
