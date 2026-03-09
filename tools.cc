@@ -2,6 +2,9 @@
 #include "tools.h"
 #include <cmath>
 #include <algorithm>
+#include "ball.cc" //!: il faudra mettre .h
+#include "game.cc" //!: il faudra mettre .h
+
 
 using namespace std; 
 
@@ -54,4 +57,3 @@ bool intersects(Circle c, Square s) {
     Point closest_point = {closest_x, closest_y};
     return distance(c.center, closest_point) < c.radius;
 }
-
