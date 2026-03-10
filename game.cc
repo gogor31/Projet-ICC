@@ -3,7 +3,9 @@ using namespace std;
 
 class Arena{
     private:
-        array <double, 2> arena_size;
+        double arena_size_x;
+        double arena_size_y;
     public:
-        array <double, 2> getSize(){return arena_size;}
+        double getSize_x(){return arena_size_x;}
+        double getSize_y(){return arena_size_y;}
 };

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "ball.cc" //!: il faudra mettre .h
 #include "game.cc" //!: il faudra mettre .h
+#include <fstream>
 
 
 using namespace std; 
@@ -56,4 +57,29 @@ bool intersects(Circle c, Square s) {
     // 3. Calculer la distance entre le centre du cercle et ce point proche
     Point closest_point = {closest_x, closest_y};
     return distance(c.center, closest_point) < c.radius;
+}
+
+
+//collision cs (circle square)
+void collisionCS(Ball b){;}
+
+//collision cc (circle circle)
+void collisionCC(Ball a,Ball b){;}
+
+//lire les fichiers test
+void readGame(string filename){
+    ifstream file("tests/test00.txt"); //open file
+
+    if (!file.is_open()) {cout << "Error opening file" << endl;}
+
+    //converti le .txt en string dans content
+    string line;
+    string content;
+    while (getline(file,line)) {content += line + "\n";}
+
+    file.close(); //close file 
+
+    //vvv lire les donnees du fichier
+    
+
 }
