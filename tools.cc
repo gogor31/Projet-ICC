@@ -6,7 +6,11 @@
 #include "game.cc" //!: il faudra mettre .h
 #include <fstream>
 
-
+/*
+TODO: - Implémenter les fonctions de collision (collisionCS, collisionCC, etc.)
+TODO: - Supprimer le namespace std global et utiliser std:: explicitement
+TODO: - Vérifier que toutes les fonction ont une utilié
+*/
 using namespace std; 
 
 double distance(Point p1, Point p2){
@@ -31,20 +35,20 @@ bool is_point_in_square(Point p, Square s) {
     return inside_x && inside_y;
 }
 
-bool intersects(Circle c1, Circle c2) {
+bool intersectsCC(Circle c1, Circle c2) {
     // Distance entre les centres < somme des rayons
     return distance(c1.center, c2.center) < (c1.radius + c2.radius);
 }
 
-bool intersects(Square s1, Square s2) {
-    double dist_x = abs(s1.center.x - s2.center.x);
-    double dist_y = abs(s1.center.y - s2.center.y);
+bool intersectsSS(Square s1, Square s2) {
+    double dist_x = std::abs(s1.center.x - s2.center.x);
+    double dist_y = std::abs(s1.center.y - s2.center.y);
     double min_dist = (s1.side + s2.side) / 2.0;
     
     return (dist_x < min_dist) && (dist_y < min_dist);
 }
 
-bool intersects(Circle c, Square s) {
+bool intersectsCS(Circle c, Square s) {
     // 1. Trouver les bornes du carré
     double half_s = s.side / 2.0;
     

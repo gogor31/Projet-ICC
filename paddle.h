@@ -3,8 +3,6 @@
 
 #include "tools.h"
 
-using namespace std; //a supprimer pour ne pas se melanger
-
 class Paddle{
 public:
     Paddle(Circle c = {{0, 0}, 0});

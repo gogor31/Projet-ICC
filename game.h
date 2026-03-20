@@ -8,8 +8,6 @@
 #include "paddle.h"
 
 
-using namespace std; //a supprimer pour ne pas se melanger 
-
 class Game {
 public:
     // Constructeur par défaut initialisant le score et les vies à 0
@@ -31,8 +29,8 @@ private:
     int lives_ = 0;
     
     Paddle paddle_;
-    vector<Ball> balls_;
-    vector<Brick*> bricks_; // Utilisation de pointeurs pour le polymorphisme des briques
+    std::vector<Ball> balls_;
+    std::vector<Brick*> bricks_; //? Utilisation de pointeurs pour le polymorphisme des briques
     
     // Méthode interne pour valider les contraintes de l'énoncé (collisions, etc.)
     bool validate_constraints();

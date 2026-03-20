@@ -3,13 +3,12 @@
 #include "message.h"
 #include <iostream>
 
-using namespace std;
 
 // Validation de base pour TOUTES les briques
 bool Brick::check() const {
     // 1. Taille minimale 
     if (bounds_.side < brick_size_min) {
-        cout << message::invalid_brick_size(); //attention message
+        std::cout << message::invalid_brick_size(bounds_.side); //attention message
         return false;
     }
 
@@ -18,7 +17,7 @@ bool Brick::check() const {
     double half = bounds_.side / 2.0;
     if ((bounds_.center.x - half) < 0.0 || (bounds_.center.x + half) > arena_size ||
         (bounds_.center.y - half) < 0.0 || (bounds_.center.y + half) > arena_size) {
-        cout << message::brick_out_of_arena();
+        std::cout << message::brick_out_of_arena(bounds_.center.x, bounds_.center.y);
         return false;
     }
     return true;

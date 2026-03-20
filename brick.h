@@ -9,10 +9,10 @@
 class Brick {
 public:
     Brick(Square s, int type) : bounds_(s), type_(type) {}
+    //! VERIFER UTILISATION DE VIRTUAL
     virtual ~Brick() {} // Destructeur virtuel pour permettre la suppression correcte des sous-classes via un pointeur de base
-
     virtual bool check() const; // Validation de base pour toutes les briques (taille, position)
-
+    //!
     const Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; }
 
