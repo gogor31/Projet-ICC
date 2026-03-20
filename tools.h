@@ -7,8 +7,8 @@ struct Point {
     double x;
     double y;
 
-    double getX(){return x;}
-    double getY(){return y;}
+    double getX() const {return x;}
+    double getY() const {return y;}
 };
 
 struct Square {
@@ -20,21 +20,22 @@ struct Circle {
     Point center;
     double radius;
 
-    Point getCenter(){return center;}
+    Point getCenter() const {return center;}
 };
 
 // Calcul de distance entre deux points
-double distance(Point p1, Point p2);
-
-// Vérifie si un point est contenu dans un cercle
-bool is_point_in_circle(Point p, Circle c);
-
-// Vérifie si un point est contenu dans un carré
-bool is_point_in_square(Point p, Square s);
+double distance(const Point& p1, const Point& p2);
 
 // Détection de collisions (intersections)
-bool intersects(Circle c1, Circle c2);
-bool intersects(Square s1, Square s2);
-bool intersects(Circle c, Square s);
+bool intersects_Circle_Circle(const Circle& c1, const Circle& c2);
+bool intersects_Square_Square(const Square& s1, const Square& s2);
+bool intersects_Circle_Square(const Circle& c, const Square& s);
+
+// Vérifie si un point est contenu dans un cercle
+bool is_point_in_circle(const Point& p, const Circle& c);
+
+// Vérifie si un point est contenu dans un carré
+bool is_point_in_square(const Point& p, const Square& s);
+
 
 #endif

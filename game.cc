@@ -167,26 +167,60 @@ TODO: - Validation de la dynamique
 
 
 
-bool Game::intersectsBB(){
-// Vérification des collisions entre briques
+bool Game::check_bricks_intersections() {
+    // On utilise une double boucle pour comparer chaque paire de briques unique 
     for (size_t i = 0; i < bricks.size(); ++i) {
         for (size_t j = i + 1; j < bricks.size(); ++j) {
-            // On récupère les structures Square (bounds_) de chaque brique
-            if (intersectsSS(bricks[i]->get_bounds(), bricks[j]->get_bounds())) {
-                // Utilisation du message d'erreur du module message
-                // Attention : l'ordre des briques dans le message peut être important
-                std::cout << message::brick_collision(bricks[i]->get_bounds().center.x, 
-                                                      bricks[i]->get_bounds().center.y,
-                                                      bricks[j]->get_bounds().center.x, 
-                                                      bricks[j]->get_bounds().center.y);
-                return false; // Interruption immédiate pour le Rendu 1
+            
+            // On récupère les carrés (Square) de chaque brique via une référence constante
+            // pour éviter toute copie inutile.
+            auto const& s1 = bricks[i]->get_bounds();
+            auto const& s2 = bricks[j]->get_bounds();
+
+            // La donnée stipule : Intersection si distance < epsil_zero 
+            if (intersectsSS(s1, s2)) {
+                // En cas d'erreur, on affiche le message du module fourni 
+                // L'ordre des arguments doit être rigoureux : (x1, y1, x2, y2)
+                std::cout << message::brick_collision(s1.center.x, s1.center.y,
+                                                     s2.center.x, s2.center.y);
+                
+                // Au Rendu 1, toute erreur de lecture entraîne l'arrêt immédiat 
+                return false; 
+            }
+        }
+    }
+    return true; // Aucune collision détectée entre les briques
+}
+
+bool Game::check_balls_intersections() {
+    for (size_t i = 0; i < balls.size(); ++i) {
+        for (size_t j = i + 1; j < balls.size(); ++j) {
+            if (intersectsCC(balls[i]->get_bounds(), balls[j]->get_bounds())) {
+                std::cout << message::ball_ball_collision(
+                    balls[i]->get_bounds().center.x, balls[i]->get_bounds().center.y,
+                    balls[j]->get_bounds().center.x, balls[j]->get_bounds().center.y);
+                return false;
             }
         }
     }
     return true;
 }
+
+bool Game::check_ball_paddle_intersections() {
+    for (auto const& ball : balls) {
+        // paddle.get_bounds() doit retourner le Circle de la raquette
+        if (intersectsCC(ball->get_bounds(), paddle.get_bounds())) {
+            std::cout << message::ball_paddle_collision(
+                ball->get_bounds().center.x, ball->get_bounds().center.y,
+                paddle.get_bounds().center.x, paddle.get_bounds().center.y);
+            return false;
+        }
+    }
+    return true;
+}
+
 //! Vérification des types
-bool Game::CollisionBP(){
+bool Game::intersectsBP(){
 // Vérification des collisions entre le paddle et les briques
     for (auto b : bricks) {
         if (intersectsCS(paddle.get_bounds(), b->get_bounds())) {
@@ -201,16 +235,15 @@ bool Game::CollisionBP(){
 }
 
 //! Vérification des types
-bool Game::CollisionBBall(){
+bool Game::check_ball_brick_collisions() {
 // Vérification des collisions entre les balles et les briques
-    for (auto ball : balls) {
-        for (auto b : bricks) {
-            if (intersectsCS(ball->get_bounds(), b->get_bounds())) {
-                std::cout << message::ball_brick_collision(ball->get_bounds().center.x, 
-                                                        ball->get_bounds().center.y,
-                                                        b->get_bounds().center.x, 
-                                                        b->get_bounds().center.y);
-                return false; // Interruption immédiate pour le Rendu 1
+    for (auto const& ball : balls) {
+        for (auto const& brick : bricks) {
+            if (intersectsCS(ball->get_circle(), brick->get_bounds())) {
+                std::cout << message::ball_brick_collision(
+                    ball->get_circle().center.x, ball->get_circle().center.y,
+                    brick->get_bounds().center.x, brick->get_bounds().center.y);
+                return false; 
             }
         }
     }
@@ -247,18 +280,14 @@ bool Game::validate_constraints() {
             return false;
         }
     }
+
+    // 3. Absence d'intersections initiales 
     
-    // Vérification des collisions entre briques
-    if (!intersectsBB()) return false;
-
-    // Vérification des collisions entre le paddle et les briques
-    if (!CollisionBP()) return false;
-
-    // Vérification des collisions entre les balles et les briques
-    if (!CollisionBBall()) return false;
-
-    // Vérification des collisions entre les balles et le paddle
-    if (!CollisionBPaddle()) return false;
+    if (!check_bricks_intersections())    return false; // Brique-Brique
+    if (!check_paddle_brick_intersections()) return false; // Paddle-Brique
+    if (!check_balls_intersections())     return false; // Balle-Balle (Manquant !)
+    if (!check_ball_brick_intersections()) return false; // Balle-Brique
+    if (!check_ball_paddle_intersections()) return false; // Balle-Paddle
 
     return true; // Toutes les contraintes sont respectées
 }
