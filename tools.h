@@ -6,6 +6,9 @@ constexpr double epsil_zero = 0.125;
 struct Point {
     double x;
     double y;
+
+    double getX(){return x;}
+    double getY(){return y;}
 };
 
 struct Square {
@@ -16,6 +19,8 @@ struct Square {
 struct Circle {
     Point center;
     double radius;
+
+    Point getCenter(){return center;}
 };
 
 // Calcul de distance entre deux points

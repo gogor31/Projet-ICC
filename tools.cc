@@ -61,7 +61,7 @@ bool intersects(Circle c, Square s) {
 
 
 //collision cs (circle square)
-void collisionCS(Ball b){;}
+void collisionCS(Ball b, Square s){;}
 
 //collision cc (circle circle)
 void collisionCC(Ball a,Ball b){;}
