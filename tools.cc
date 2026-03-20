@@ -1,10 +1,6 @@
-#include <iostream>
-#include "tools.h"
 #include <cmath>
 #include <algorithm>
-#include "ball.cc" //!: il faudra mettre .h
-#include "game.cc" //!: il faudra mettre .h
-#include <fstream>
+#include "tools.h"
 
 /*
 TODO: - Implémenter les fonctions de collision (collisionCS, collisionCC, etc.)
@@ -13,27 +9,28 @@ TODO: - Vérifier que toutes les fonction ont une utilié
 */
 using namespace std; 
 
-double distance(Point p1, Point p2){
+double distance(const Point& p1, const Point& p2){
     return std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2));
 }
 
 // 1. Intersection Cercle-Cercle
-bool intersects_Circle_Circle(Circle c1, Circle c2) {
+bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, double epsilon) {
+    double dist_centers = distance(c1.center, c2.center);
     // Distance entre les centres < somme des rayons
-    return distance(c1.center, c2.center) < (c1.radius + c2.radius);
+    return dist_centers - (c1.radius + c2.radius) < epsilon;
 }
 
 // 2. Intersection Carré-Carré
-bool intersects_Square_Square(Square s1, Square s2) {
+bool intersects_Square_Square(const Square& s1, const Square& s2, double epsilon) {
     double dist_x = std::abs(s1.center.x - s2.center.x);
     double dist_y = std::abs(s1.center.y - s2.center.y);
     double min_dist = (s1.side + s2.side) / 2.0;
     
-    return (dist_x < min_dist) && (dist_y < min_dist);
+    return (dist_x - min_dist < epsilon) && (dist_y - min_dist < epsilon);
 }
 
 // 3. Intersection Cercle-Carré
-bool intersects_Circle_Square(Circle c, Square s) {
+bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) {
     double half_s = s.side / 2.0;
     
     // Projeter le centre du cercle sur le carré (Clamping)
@@ -44,47 +41,28 @@ bool intersects_Circle_Square(Circle c, Square s) {
     
     // Calculer la distance entre le centre du cercle et ce point proche
     Point closest_point = {closest_x, closest_y};
-    return distance(c.center, closest_point) < c.radius;
+    return distance(c.center, closest_point) - c.radius < epsilon;
 }
 
 // Vérifie si un point est contenu dans un cercle
-bool is_point_in_circle(Point p, Circle c) {
+bool is_point_in_circle(const Point& p, const Circle& c, double epsilon) {
     // Un point est dans le cercle si sa distance au centre 
     // est inférieure au rayon (en tenant compte d'epsil_zero)
-    return distance(p, c.center) < (c.radius - epsil_zero);
+    return distance(p, c.center) < (c.radius - epsilon);
 }
 
 // Vérifie si un point est contenu dans un carré
-bool is_point_in_square(Point p, Square s) {
+bool is_point_in_square(const Point& p, const Square& s, double epsilon) {
     double half_side = s.side / 2.0;
-    // Test d'inclusion selon la formule : min + epsil < val < max
-    bool inside_x = (p.x > (s.center.x - half_side + epsil_zero)) && 
-                    (p.x < (s.center.x + half_side - epsil_zero));
-    bool inside_y = (p.y > (s.center.y - half_side + epsil_zero)) && 
-                    (p.y < (s.center.y + half_side - epsil_zero));
-    return inside_x && inside_y;
-}
-
-//collision cs (circle square)
-void collisionCS(Ball b, Square s){;}
-
-//collision cc (circle circle)
-void collisionCC(Ball a,Ball b){;}
-
-//lire les fichiers test
-void readGame(string filename){
-    ifstream file("tests/test00.txt"); //open file
-
-    if (!file.is_open()) {cout << "Error opening file" << endl;}
-
-    //converti le .txt en string dans content
-    string line;
-    string content;
-    while (getline(file,line)) {content += line + "\n";}
-
-    file.close(); //close file 
-
-    //vvv lire les donnees du fichier
     
+    double min_x = s.center.x - half_side;
+    double max_x = s.center.x + half_side;
+    double min_y = s.center.y - half_side;
+    double max_y = s.center.y + half_side;
 
+    // Test d'inclusion en resserrant les bords de la valeur d'epsilon
+    bool inside_x = (p.x > (min_x + epsilon)) && (p.x < (max_x - epsilon));
+    bool inside_y = (p.y > (min_y + epsilon)) && (p.y < (max_y - epsilon));
+    
+    return inside_x && inside_y;
 }

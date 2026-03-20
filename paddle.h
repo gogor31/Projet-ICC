@@ -5,13 +5,14 @@
 
 class Paddle{
 public:
-    Paddle(Circle c = {{0, 0}, 0});
-    bool check() const;
+    Paddle() = default;
+    Paddle(Circle c);
 
+    bool check() const;
     const Circle& get_circle() const { return circle_; }
     
 private : 
-    Circle circle_;
+    Circle circle_ = {{0.0, 0.0}, 0.0};
 };
 
 #endif

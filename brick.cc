@@ -15,8 +15,8 @@ bool Brick::check() const {
     // 2. Doit être intégralement dans l'arène 
     // Un carré est dans l'arène si : centre - côté/2 >= 0 ET centre + côté/2 <= arena_size
     double half = bounds_.side / 2.0;
-    if ((bounds_.center.x - half) < 0.0 || (bounds_.center.x + half) > arena_size ||
-        (bounds_.center.y - half) < 0.0 || (bounds_.center.y + half) > arena_size) {
+    if ((bounds_.center.x - half) <= 0.0 || (bounds_.center.x + half) >= arena_size ||
+        (bounds_.center.y - half) <= 0.0 || (bounds_.center.y + half) >= arena_size) {
         std::cout << message::brick_out_of_arena(bounds_.center.x, bounds_.center.y);
         return false;
     }
@@ -31,6 +31,7 @@ bool RainbowBrick::check() const {
     } 
     
     if (hits_points_ < 1 || hits_points_ > 7) {
+        std::cout << message::invalid_hit_points(hits_points_);
         return false;
     }
     return true;

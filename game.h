@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <fstream> 
+#include <sstream>  
 #include "ball.h"
 #include "brick.h"
 #include "paddle.h"
@@ -17,7 +19,7 @@ public:
     ~Game();
 
     // Lecture du fichier et initialisation
-    bool load_file(const string& filename);
+    bool load_file(const std::string& filename);
     
     // Nettoie les entités (important pour la gestion de mémoire des briques)
     void clear();
@@ -32,8 +34,21 @@ private:
     std::vector<Ball> balls_;
     std::vector<Brick*> bricks_; //? Utilisation de pointeurs pour le polymorphisme des briques
     
-    // Méthode interne pour valider les contraintes de l'énoncé (collisions, etc.)
-    bool validate_constraints();
+    // Déclarations OBLIGATOIRES pour que le .cc compile
+    bool read_header(std::ifstream& file);
+    bool read_paddle(std::ifstream& file);
+    bool read_bricks(std::ifstream& file);
+    bool read_balls(std::ifstream& file);
+    
+    // Pour la création des briques
+    bool create_brick(int type, double x, double y, double s, std::stringstream& ss);
+
+    bool validate_initial_state();
+    bool check_bricks_intersections();
+    bool check_paddle_brick_intersections();
+    bool check_balls_intersections();
+    bool check_ball_brick_intersections();
+    bool check_ball_paddle_intersections();
 };
 
 #endif 
