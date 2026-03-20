@@ -3,14 +3,15 @@
 
 #include "tools.h"
 
-using namespace std;
+using namespace std; //a supprimer pour ne pas se melanger
 
 class Paddle{
 public:
-    Paddle(Circle c);
+    Paddle(Circle c = {{0, 0}, 0});
+    bool check() const;
 
-    const Circle& get_circle() const { return circle_; } //renvoie de référence
-
+    const Circle& get_circle() const { return circle_; }
+    
 private : 
     Circle circle_;
 };
