@@ -178,7 +178,7 @@ bool Game::check_bricks_intersections() {
             auto const& s2 = bricks[j]->get_bounds();
 
             // La donnée stipule : Intersection si distance < epsil_zero 
-            if (intersectsSS(s1, s2)) {
+            if (intersects_Square_Square(s1, s2)) {
                 // En cas d'erreur, on affiche le message du module fourni 
                 // L'ordre des arguments doit être rigoureux : (x1, y1, x2, y2)
                 std::cout << message::brick_collision(s1.center.x, s1.center.y,
