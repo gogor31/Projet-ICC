@@ -28,12 +28,15 @@ class Ball{
 
         bool out_of_bounds();
 
-        //pas encore sur
+        /*
         void update_pos();
         void bounce();
+        */
 
         //attributs
         Circle C;
+
+        static int ball_index;//!: il faudrait l'initier a 0 ou -1
 
         double pos_x = C.getCenter().getX();
         double pos_y = C.getCenter().getY();
@@ -48,6 +51,7 @@ class Ball{
         double getPos_x(){return C.getCenter().getX();}
         double getPos_y(){return C.getCenter().getY();}
         double getRadius(){return C.getRadius();}
+        int getIndex(){return ball_index;}
 
         double getDelta_x(){return delta_x;}
         double getDelta_y(){return delta_y;}

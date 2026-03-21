@@ -14,6 +14,8 @@ struct Point {
 };
 
 struct Square {
+    Square(Point center, double side){};
+
     Point center;
     double side;
 };
