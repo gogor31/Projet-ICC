@@ -4,6 +4,8 @@
 constexpr double epsil_zero = 0.125;
 
 struct Point {
+    Point(double x = 0,double y = 0){};
+
     double x;
     double y;
 
@@ -17,10 +19,13 @@ struct Square {
 };
 
 struct Circle {
+    Circle(Point center = (0,0),double radius = 0){};
+
     Point center;
     double radius;
 
     Point getCenter() const {return center;}
+    double getRadius(){return radius;}
 };
 
 // Calcul de distance entre deux points
