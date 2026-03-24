@@ -61,6 +61,7 @@ class Ball{
 
         Circle get_circle_next();
 
+        bool out_of_bounds();
 
         //gestion de rebonds simples
         void change_dir(double coord);

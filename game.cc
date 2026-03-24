@@ -294,7 +294,7 @@ bool Game::check_ball_paddle_intersections() {
 }
 
 
-bool Game::validate_initial_state()() {
+bool Game::validate_initial_state() {
 
     if (!check_bricks_intersections())       return false; 
     if (!check_paddle_brick_intersections()) return false; 
@@ -328,19 +328,3 @@ bool Game::collsionBallPaddle(Ball A, Paddle P){
     } else {return false;}
 }
 
-bool Game::Ball_out_of_bounds(Ball B){
-    //pour eviter de repeter des fonctions get + lisibilte
-    double pos_x = B.getPos_x();
-    double pos_y = B.getPos_y();
-    double r = B.getRadius();
-    
-    bool trop_haut(pos_y - r > arena_size);
-    bool trop_bas(pos_y < 0);
-    bool trop_gauche(pos_x + r < 0);
-    bool trop_droite(pos_x - r < arena_size);
-
-    if (trop_haut or trop_bas or trop_droite or trop_gauche){
-        std::cout << message::ball_outside(pos_x, pos_y) << std::endl;
-        return true;
-    } else {return false;}
-}

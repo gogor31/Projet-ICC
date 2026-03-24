@@ -3,9 +3,8 @@
 #include "constants.h"
 #include "message.h"
 #include "ball.h"
-#include "brick.h"
-#include "paddle.h"
 
+//constructeur, initie avec une position default et un index propre a l'instance
 Ball::Ball() : pos_x(arena_size/2), pos_y(arena_size/4) {++ball_index;}
 
 Circle Ball::get_circle_next(){//cercle de la balle a la prochaine (potentielle position)
@@ -52,12 +51,14 @@ bool Ball::collsionPaddle(Paddle P){
     } else {return false;}
 }
 */
-/*
+
 bool Ball::out_of_bounds(){
     bool trop_haut(pos_y - C.getRadius() > arena_size);
     bool trop_bas(pos_y < 0);
     bool trop_gauche(pos_x + C.getRadius() < 0);
     bool trop_droite(pos_x - C.getRadius() < arena_size);
-    if (trop_haut or trop_bas or trop_droite or trop_gauche){return true;}
+    if (trop_haut or trop_bas or trop_gauche or trop_droite){
+        std::cout << message::ball_outside(pos_x,pos_y) << std::endl;
+        return true;
+        } else {return false;}
 }
-*/

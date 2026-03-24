@@ -17,7 +17,7 @@ bool Brick::check() const {
     double half = bounds_.side / 2.0;
     if ((bounds_.center.x - half) <= 0.0 || (bounds_.center.x + half) >= arena_size ||
         (bounds_.center.y - half) <= 0.0 || (bounds_.center.y + half) >= arena_size) {
-        std::cout << message::brick_out_of_arena(bounds_.center.x, bounds_.center.y);
+        std::cout << message::brick_outside(bounds_.center.x, bounds_.center.y);
         return false;
     }
     return true;
