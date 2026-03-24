@@ -17,6 +17,8 @@ class Ball{
         //efface la balle
         void destroy();
 
+/*
+
         //collision Balle-Balle
         bool collisionBall(Ball B);
 
@@ -28,6 +30,7 @@ class Ball{
 
         bool out_of_bounds();
 
+*/
         /*
         void update_pos();
         void bounce();
@@ -36,7 +39,7 @@ class Ball{
         //attributs
         Circle C;
 
-        static int ball_index;//!: il faudrait l'initier a 0 ou -1
+        static int ball_index;
 
         double pos_x = C.getCenter().getX();
         double pos_y = C.getCenter().getY();
@@ -56,11 +59,13 @@ class Ball{
         double getDelta_x(){return delta_x;}
         double getDelta_y(){return delta_y;}
 
+        Circle get_circle_next();
+
+
         //gestion de rebonds simples
         void change_dir(double coord);
-
-      
 };
 
+int Ball::ball_index = 0;
 
 #endif

@@ -3,7 +3,7 @@
 #include <sstream> // Pour la conversion de chaînes en nombres
 #include "game.h"
 #include "message.h"
-#include "constants.h" 
+#include "constants.h"
 
 
 // TODO: verifier les messages d'erreur et les contraintes dans validate_constraints(). S'assurer du read_Balls 
@@ -305,4 +305,42 @@ bool Game::validate_initial_state()() {
     std::cout << message::success(); 
     return true;
 
+}
+
+bool Game::collisionBallBall(Ball A, Ball B){
+    if (intersects_Circle_Circle(A.get_circle_next(),B.get_circle_next())){
+        std::cout << message::collision_balls(A.getIndex(),B.getIndex()) << std::endl;
+        return true;
+    } else {return false;}
+}
+
+bool Game::collsionBallBrick(Ball A,Brick B){
+    if (intersects_Circle_Square(A.get_circle_next(),B.get_bounds())){
+         std::cout << message::collision_ball_brick(A.getIndex(),B.getIndex()) << std::endl; //j'ai pas encore les indexes de briques
+         return true;
+    } else {return false;}
+}
+
+bool Game::collsionBallPaddle(Ball A, Paddle P){
+    if (intersects_Circle_Circle(A.get_circle_next(),P.get_circle())){
+        std::cout << message::collision_paddle_ball(A.getIndex()) << std::endl;
+        return true;
+    } else {return false;}
+}
+
+bool Game::Ball_out_of_bounds(Ball B){
+    //pour eviter de repeter des fonctions get + lisibilte
+    double pos_x = B.getPos_x();
+    double pos_y = B.getPos_y();
+    double r = B.getRadius();
+    
+    bool trop_haut(pos_y - r > arena_size);
+    bool trop_bas(pos_y < 0);
+    bool trop_gauche(pos_x + r < 0);
+    bool trop_droite(pos_x - r < arena_size);
+
+    if (trop_haut or trop_bas or trop_droite or trop_gauche){
+        std::cout << message::ball_outside(pos_x, pos_y) << std::endl;
+        return true;
+    } else {return false;}
 }

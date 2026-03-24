@@ -13,11 +13,15 @@ public:
     const Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; }
 
+    int getIndex(){return brick_index;}
+
 protected:  // "protected" permet aux sous-classes d'accéder à bounds_
     Brick(Square s, int type) : bounds_(s), type_(type) {}
     
     Square bounds_; 
     int type_;
+
+    static int brick_index;
 };
 
 // --- Sous-classes spécifiques ---
@@ -41,5 +45,7 @@ class SplitBrick: public Brick{
 public: 
     SplitBrick(Square s) : Brick(s, 2) {}
 };
+
+int Brick::brick_index = 0;//!: pas encore de constructeur pour le modifier l'indexe
 
 #endif

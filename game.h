@@ -49,6 +49,13 @@ private:
     bool check_balls_intersections();
     bool check_ball_brick_intersections();
     bool check_ball_paddle_intersections();
+
+    //collisions Balle-Objet
+    bool collisionBallBall(Ball A,Ball B);
+    bool collsionBallBrick(Ball A, Brick B);
+    bool collsionBallPaddle(Ball A, Paddle P);
+
+    bool Ball_out_of_bounds(Ball B);
 };
 
 #endif 
