@@ -241,18 +241,11 @@ bool Game::check_balls_intersections() {
     for (size_t i = 0; i < balls_.size(); ++i) {
         for (size_t j = i + 1; j < balls_.size(); ++j) {
 
-            const Circle& c1 = balls_[i]->get_circle();
-            const Circle& c2 = balls_[j]->get_circle();
-
-            if (intersects_Circle_Circle(c1, c2, 0.0)) {
-                std::cout << message::collision_balls(c1.center.x, c1.center.y,
-                                                        c2.center.x, c2.center.y);
-
-                return false;
-            }
+            if (intersects_Circle_Circle(balls_[i].get_circle_next(),balls_[j].get_circle_next())){
+                std::cout << message::collision_balls(balls_[i].getIndex(),balls_[j].getIndex()) << std::endl;
+                return true;} else {return false;}
         }
     }
-    return true;
 }
 
 bool Game::check_ball_brick_intersections() {
@@ -307,6 +300,8 @@ bool Game::validate_initial_state() {
 
 }
 
+
+/*
 bool Game::collisionBallBall(Ball A, Ball B){
     if (intersects_Circle_Circle(A.get_circle_next(),B.get_circle_next())){
         std::cout << message::collision_balls(A.getIndex(),B.getIndex()) << std::endl;
@@ -316,7 +311,7 @@ bool Game::collisionBallBall(Ball A, Ball B){
 
 bool Game::collsionBallBrick(Ball A,Brick B){
     if (intersects_Circle_Square(A.get_circle_next(),B.get_bounds())){
-         std::cout << message::collision_ball_brick(A.getIndex(),B.getIndex()) << std::endl; //j'ai pas encore les indexes de briques
+         std::cout << message::collision_ball_brick(A.getIndex(),B.getIndex()) << std::endl;
          return true;
     } else {return false;}
 }

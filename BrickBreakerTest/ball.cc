@@ -11,7 +11,7 @@
 
 namespace brickbreaker {
 
-    Ball::Ball(Circle c, Point d) : circle_(c), delta_(d) {}
+    Ball::Ball(Circle c, Point d) : circle_(c), delta_(d) {++ball_index;}
 
     bool Ball::check() const {
         // Validation de la norme de la vitesse (P5, R2)
@@ -34,5 +34,23 @@ namespace brickbreaker {
         return true;
     }
 
+    Circle Ball::get_circle_next(){//cercle de la balle a la prochaine (potentielle position)
+        return Circle{circle_.center + delta_, circle_.radius};
+    }
+
+    bool Ball::out_of_bounds(){
+        bool trop_haut(pos_y - circle_.radius > arena_size);
+        bool trop_bas(pos_y < 0);
+        bool trop_gauche(pos_x + circle_.radius < 0);
+        bool trop_droite(pos_x - circle_.radius < arena_size);
+        if (trop_haut or trop_bas or trop_gauche or trop_droite){
+            std::cout << message::ball_outside(pos_x,pos_y) << std::endl;
+            return true;
+            } else {return false;}
+    }
+
+    int brickbreaker::Ball::ball_index = 0;
+    
 } // namespace brickbreaker
 
+    

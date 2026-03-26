@@ -11,6 +11,7 @@
 #include "game.h"
 #include "message.h"
 #include "constants.h"
+#include "ball.h"
 
 // --- UNNAMED NAMESPACE (O11.2, O15) ---
 // Contient les fonctions utilitaires utilisées uniquement dans ce fichier.
@@ -207,11 +208,11 @@ namespace brickbreaker {
     bool Game::check_balls_intersections() {
         for (size_t i = 0; i < balls_.size(); ++i) {
             for (size_t j = i + 1; j < balls_.size(); ++j) {
-                if (intersects_Circle_Circle(balls_[i].get_circle(), 
-                                             balls_[j].get_circle(), 0.0)) {
-                    std::cout << message::collision_balls(i, j);
-                    return false;
-                }
+
+                //utilise l'index du vector balls, mais pourrais utiliser les indexes propres aux instances de Ball
+                if (intersects_Circle_Circle(balls_[i].get_circle_next(),balls_[j].get_circle_next())){
+                    std::cout << message::collision_balls(i,j) << std::endl; 
+                    return false;} 
             }
         }
         return true;
