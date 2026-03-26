@@ -6,30 +6,10 @@
 #include <cmath>
 #include <iostream>
 #include "paddle.h"
+#include "tools.h"
 #include "constants.h"
 #include "message.h"
 
-namespace { // Unnamed namespace (O12-O15)
-
-    // Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
-    double calculer_delta_x(double radius, double y_center) {
-        double r_sq = radius * radius;
-        double y_sq = y_center * y_center;
-        double diff = r_sq - y_sq;
-        
-        double delta_x = 0.0;
-        
-        if (diff > 0.0) {
-            delta_x = std::sqrt(diff);
-        } else {
-            // Cas où le cercle est tangent ou ne touche pas l'axe
-            delta_x = 0.0;
-        }
-        
-        return delta_x;
-    }
-
-} // namespace
 
 namespace brickbreaker {
     Paddle::Paddle(Circle c) : circle_(c) {} 
@@ -43,7 +23,7 @@ namespace brickbreaker {
         }
 
         // 3. Vérification des limites de l'arène [0, arena_size]
-        double delta_x = calculer_delta_x(circle_.radius, circle_.center.y);
+        double delta_x = calculer_delta_x(circle_.radius, circle_.center.x);
         
         double x1 = circle_.center.x - delta_x;
         double x2 = circle_.center.x + delta_x;

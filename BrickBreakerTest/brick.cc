@@ -6,12 +6,13 @@
 #include <iostream>
 #include "brick.h"
 #include "constants.h"
+#include "tools.h"
 #include "message.h"
 
-namespace { // Entités privées au fichier (O14, O15)
+namespace {
 
     // Vérifie si un carré dépasse les limites de l'arène (P61)
-    bool est_hors_arene(double x, double y, double side) {
+    bool is_square_in_arena(double x, double y, double side) {
         double half = side / 2.0;
         bool hors_gauche = (x - half) < 0.0;
         bool hors_droite = (x + half) > arena_size;
@@ -20,8 +21,7 @@ namespace { // Entités privées au fichier (O14, O15)
         
         return (hors_gauche || hors_droite || hors_haut || hors_bas);
     }
-
-} // namespace
+}
 
 namespace brickbreaker {
 
@@ -33,7 +33,7 @@ namespace brickbreaker {
         }
 
         // Validation de la position dans l'arène (L21)
-        if (est_hors_arene(bounds_.center.x, bounds_.center.y, bounds_.side)) {
+        if (is_square_in_arena(bounds_.center.x, bounds_.center.y, bounds_.side)) {
             std::cout << message::brick_outside(bounds_.center.x, bounds_.center.y);
             return false;
         }

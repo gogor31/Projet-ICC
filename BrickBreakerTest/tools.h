@@ -32,6 +32,9 @@ namespace brickbreaker {
 
     // Calcul de la distance euclidienne entre deux points
     double distance(const Point& p1, const Point& p2);
+    
+    // Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
+    double calculer_delta_x(double radius, double x_center);
 
     // Détection d'intersections avec une marge d'erreur epsilon
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, 

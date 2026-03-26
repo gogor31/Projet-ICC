@@ -15,6 +15,24 @@ namespace brickbreaker {
         return std::sqrt(dx * dx + dy * dy);
     }
 
+    // Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
+    double calculer_delta_x(double radius, double x_center) {
+        double r_sq = radius * radius;
+        double x_sq = x_center * x_center;
+        double diff = r_sq - x_sq;
+        
+        double delta_x = 0.0;
+        
+        if (diff > 0.0) {
+            delta_x = std::sqrt(diff);
+        } else {
+            // Cas où le cercle est tangent ou ne touche pas l'axe
+            delta_x = 0.0;
+        }
+        
+        return delta_x;
+    }
+
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, double epsilon) {
         double dist_centers = distance(c1.center, c2.center);
         return (dist_centers - (c1.radius + c2.radius)) < epsilon;
