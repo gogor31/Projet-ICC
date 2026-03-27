@@ -14,7 +14,7 @@ $(TARGET): $(OFILES)
 
 # Règles de compilation pour chaque module (création des .o)
 # Les dépendances (.h) assurent que si un header est modifié, le .o est recompilé
-project.o: project.cc game.h message.h
+project.o: project.cc game.h
 	$(CXX) $(CXXFLAGS) -c project.cc
 
 game.o: game.cc game.h ball.h brick.h paddle.h message.h constants.h

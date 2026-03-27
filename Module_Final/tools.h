@@ -12,6 +12,8 @@ constexpr double epsil_zero = 0.125;
 struct Point {
     double x;
     double y;
+    
+    Point operator+(Point& other) const {return {x + other.x, y + other.y};}
 };
 
 struct Square {
