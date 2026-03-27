@@ -22,7 +22,6 @@ namespace brickbreaker { // Namespace nommé (O31.2)
         double getPos_x(){return pos_x;}
         double getPos_y(){return pos_y;}
         double getRadius(){return circle_.radius;}
-        int getIndex(){return ball_index;}
 
         Circle get_circle_next();
         const Circle& get_circle() const { return circle_; }
@@ -38,7 +37,6 @@ namespace brickbreaker { // Namespace nommé (O31.2)
         Circle circle_; 
         Point  delta_;
 
-        static int ball_index;
 
         double pos_x = circle_.center.x;
         double pos_y = circle_.center.y;

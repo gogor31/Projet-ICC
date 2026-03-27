@@ -208,9 +208,7 @@ namespace brickbreaker {
     bool Game::check_balls_intersections() {
         for (size_t i = 0; i < balls_.size(); ++i) {
             for (size_t j = i + 1; j < balls_.size(); ++j) {
-
-                //utilise l'index du vector balls, mais pourrais utiliser les indexes propres aux instances de Ball
-                if (intersects_Circle_Circle(balls_[i].get_circle_next(),balls_[j].get_circle_next())){
+                if (intersects_Circle_Circle(balls_[i].get_circle(),balls_[j].get_circle())){
                     std::cout << message::collision_balls(i,j) << std::endl; 
                     return false;} 
             }

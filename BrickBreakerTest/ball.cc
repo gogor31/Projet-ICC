@@ -11,7 +11,7 @@
 
 namespace brickbreaker {
 
-    Ball::Ball(Circle c, Point d) : circle_(c), delta_(d) {++ball_index;}
+    Ball::Ball(Circle c, Point d) : circle_(c), delta_(d) {}
 
     bool Ball::check() const {
         // Validation de la norme de la vitesse (P5, R2)
@@ -49,7 +49,6 @@ namespace brickbreaker {
             } else {return false;}
     }
 
-    int brickbreaker::Ball::ball_index = 0;
     
 } // namespace brickbreaker
 
