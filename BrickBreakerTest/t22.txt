@@ -1,0 +1,19 @@
+# brick dans paddle
+# output: "Paddle superposed with brick 0"
+# score
+0
+
+# lives
+3
+
+# paddle
+50 -16 20
+
+# bricks
+1
+    0 50 2 3 1
+
+
+# balls
+0
+
