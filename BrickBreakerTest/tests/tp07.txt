@@ -1,0 +1,23 @@
+# output: "Ball 0 superposed with ball 2"
+# score
+0
+
+# lives
+3
+
+# paddle
+50 -16 20
+
+# bricks
+5
+0 65 55 5 1
+0 85 45 5 1
+0 75 25 5 1
+0 40 95 5 1
+0 30 95 5 1
+
+# balls
+3
+30 40 1 0.5 0.5
+70 40 1 -0.5 0.5
+30 41 1 0.3 0.4
