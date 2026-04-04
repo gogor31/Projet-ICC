@@ -1,0 +1,38 @@
+GUI
+- boutons:
+    - Exit
+    - Open
+    - Save
+    - Restart
+    - Step
+
+PADDLE
+- déplacement de la raquette:
+    - detection de la coo x de la souris
+    - raquette bornée dans l'arène
+    - les briques peuvent bloquer la raquette
+    - 
+
+GAME
+- lancer le jeu avec lecture de fichier
+- lancer le jeu sans lecture de fichier
+    - canvas blanc [(?) fonction Game::clear()]
+- detection d'erreur [(?) fonction "error_detected"]:
+    - interrompre la lecture:
+        - (?)
+    - detruire toutes les entités et compteurs à 0 [fonction Game::clear()]
+    - rester ouvert
+    ! doit toujours être récéptif aux commandes
+- collisions balles-briques:
+    - nouveau delta:
+        - direction nominale:
+            - différence bornée
+            - différence
+        
+
+TOOLS
+- dessiner avec GRAPHIC:
+    - balles
+    - brick 
+    - paddle
+    - arène
