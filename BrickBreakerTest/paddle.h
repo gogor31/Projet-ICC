@@ -8,23 +8,20 @@
 
 #include "tools.h"
 
-namespace brickbreaker { // Utilisation d'un namespace nommé (O31.2)
+class Paddle {
+public:
+    Paddle() = default;
+    Paddle(Circle c);
 
-    class Paddle {
-    public:
-        Paddle() = default;
-        Paddle(Circle c);
+    // Vérifie la validité des paramètres de la raquette
+    bool check() const;
 
-        // Vérifie la validité des paramètres de la raquette
-        bool check() const;
+    const Circle& get_circle() const { return circle_; }
 
-        const Circle& get_circle() const { return circle_; }
+private:
+    Circle circle_ = {{0.0, 0.0}, 0.0}; // Position et rayon de la raquette
+};
 
-    private:
-        Circle circle_ = {{0.0, 0.0}, 0.0}; // Position et rayon de la raquette
-    };
-
-} // namespace brickbreaker
 
 #endif
 
