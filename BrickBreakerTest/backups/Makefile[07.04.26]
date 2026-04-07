@@ -1,18 +1,17 @@
 # Compilateur et options de compilation
 CXX = g++
 PKG_CONFIG = pkg-config
-CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O2 $(shell $(PKG_CONFIG) --cflags gtkmm-4.0)
-LDLIBS = $(shell $(PKG_CONFIG) --libs gtkmm-4.0)
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O2
 
 # Nom de l'exécutable exigé par la donnée
 TARGET = project
 
 # Liste des fichiers objets (un pour chaque fichier source .cc)
-OFILES = project.o game.o ball.o brick.o paddle.o tools.o message.o gui.o graphic.o
+OFILES = project.o game.o ball.o brick.o paddle.o tools.o message.o
 
 # Règle principale : lie les fichiers objets pour créer l'exécutable
 $(TARGET): $(OFILES)
-	$(CXX) $(CXXFLAGS) $(OFILES) -o $(TARGET) $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(OFILES) -o $(TARGET)
 
 # Règles de compilation pour chaque module (création des .o)
 # Les dépendances (.h) assurent que si un header est modifié, le .o est recompilé
@@ -36,12 +35,6 @@ tools.o: tools.cc tools.h
 
 message.o: message.cc message.h
 	$(CXX) $(CXXFLAGS) -c message.cc
-
-gui.o: gui.cc gui.h game.h graphic.h
-	$(CXX) $(CXXFLAGS) -c gui.cc
-
-graphic.o: graphic.cc graphic.h graphic_gui.h
-	$(CXX) $(CXXFLAGS) -c graphic.cc
 
 # Règle pour nettoyer le répertoire (supprime les .o et l'exécutable)
 clean:
