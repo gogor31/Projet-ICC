@@ -1,8 +1,3 @@
-/*
- * Fichier: ball.h
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #ifndef BALL_H
 #define BALL_H
 

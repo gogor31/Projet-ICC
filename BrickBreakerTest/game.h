@@ -1,8 +1,3 @@
-/*
- * Fichier: game.h
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #ifndef GAME_H
 #define GAME_H
 

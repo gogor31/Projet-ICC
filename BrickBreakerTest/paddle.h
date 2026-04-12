@@ -1,8 +1,3 @@
-/*
- * Fichier: paddle.h
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #ifndef PADDLE_H
 #define PADDLE_H
 

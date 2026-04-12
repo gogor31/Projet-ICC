@@ -1,8 +1,3 @@
-/*
- * Fichier: brick.cc
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #include <iostream>
 #include "brick.h"
 #include "constants.h"

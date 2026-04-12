@@ -1,3 +1,8 @@
+/*
+ * Fichier: main.cc
+ * Auteur:  Ilhan Salvatore Legio
+ */
+
 #include <iostream>
 #include "game.h"
 #include "gui.h"

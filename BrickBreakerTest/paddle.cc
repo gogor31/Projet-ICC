@@ -1,8 +1,3 @@
-/*
- * Fichier: paddle.cc
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #include <cmath>
 #include <iostream>
 #include "paddle.h"

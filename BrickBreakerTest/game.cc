@@ -1,8 +1,3 @@
-/*
- * Fichier: game.cc
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #include <iostream>
 #include <fstream>
 #include <sstream>

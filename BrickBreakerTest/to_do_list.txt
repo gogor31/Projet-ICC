@@ -1,6 +1,6 @@
 GUI
 - boutons:
-    - Exit
+    V Exit
     - Open
     - Save
     - Restart
@@ -11,10 +11,9 @@ PADDLE
     - detection de la coo x de la souris
     - raquette bornée dans l'arène
     - les briques peuvent bloquer la raquette
-    - 
 
 GAME
-V lancer le jeu avec lecture de fichier
+- lancer le jeu avec lecture de fichier
 V lancer le jeu sans lecture de fichier
     - canvas blanc [(?) fonction Game::clear()]
 - detection d'erreur [(?) fonction "error_detected"]:

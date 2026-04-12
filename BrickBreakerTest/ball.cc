@@ -1,8 +1,3 @@
-/*
- * Fichier: ball.cc
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #include <iostream>
 #include "ball.h"
 #include "tools.h"

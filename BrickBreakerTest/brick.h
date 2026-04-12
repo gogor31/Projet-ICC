@@ -1,8 +1,3 @@
-/*
- * Fichier: brick.h
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #ifndef BRICK_H
 #define BRICK_H
 
