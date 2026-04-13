@@ -1,11 +1,16 @@
-/*
- * Fichier: tools.cc
- * Auteur: Ilhan Salvatore Legio
- */
-
 #include <cmath>
 #include <algorithm>
 #include "tools.h"
+#include "graphic.h"
+
+
+void Square::draw(graphic::Color color) const {
+    graphic::draw_square(center.x, center.y, side, color);
+}
+
+void Circle::draw(graphic::Color color, bool filled) const {
+    graphic::draw_circle(center.x, center.y, radius, color, filled);
+}
 
 double distance(const Point& p1, const Point& p2) {
     double dx = p2.x - p1.x;
@@ -13,7 +18,6 @@ double distance(const Point& p1, const Point& p2) {
     return std::sqrt(dx * dx + dy * dy);
 }
 
-// Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
 double calculer_delta_x(double radius, double x_center) {
     double r_sq = radius * radius;
     double x_sq = x_center * x_center;
@@ -24,7 +28,6 @@ double calculer_delta_x(double radius, double x_center) {
     if (diff > 0.0) {
         delta_x = std::sqrt(diff);
     } else {
-        // Cas où le cercle est tangent ou ne touche pas l'axe
         delta_x = 0.0;
     }
     
@@ -47,7 +50,6 @@ bool intersects_Square_Square(const Square& s1, const Square& s2, double epsilon
 bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) {
     double half_s = s.side / 2.0;
     
-    // Clamping : projection du centre du cercle sur les bords du carré (P61)
     double closest_x = std::max(s.center.x - half_s, 
                                 std::min(c.center.x, s.center.x + half_s));
     double closest_y = std::max(s.center.y - half_s, 
@@ -58,7 +60,6 @@ bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) 
 }
 
 bool is_circle_in_square(const Circle& c, double square_side) {
-    // Le centre doit être à au moins 'radius' de chaque bord (P4)
     bool hors_limite_x = (c.center.x < c.radius) || (c.center.x > (square_side - c.radius));
     bool hors_limite_y = (c.center.y < c.radius) || (c.center.y > (square_side - c.radius));
     

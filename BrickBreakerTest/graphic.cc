@@ -8,20 +8,20 @@ using namespace std;
 
 static const Cairo::RefPtr<Cairo::Context> *ptcr(nullptr);
 
-void set_color(Color color)
+void set_color(graphic::Color color)
 {
     double r(0.), g(0.), b(0.);
     switch (color){
-        case Color::RED:    r = 1.0; break;
-        case Color::ORANGE: r = 1.0; g = 0.5; break;
-        case Color::YELLOW: r = 1.0; g = 1.0; break;
-        case Color::GREEN:  g = 1.0; break;
-        case Color::CYAN:   g = 1.0; b = 1.0; break;
-        case Color::BLUE:   b = 1.0; break;
-        case Color::PURPLE: r = 0.5; b = 1.0; break;
-        case Color::BLACK:  r = g = b = 0.0; break;
-        case Color::GREY:   r = g = b = 0.5; break;
-        case Color::WHITE:  r = g = b = 1.0; break;
+        case graphic::RED:    r = 1.0; break;
+        case graphic::ORANGE: r = 1.0; g = 0.5; break;
+        case graphic::YELLOW: r = 1.0; g = 1.0; break;
+        case graphic::GREEN:  g = 1.0; break;
+        case graphic::CYAN:   g = 1.0; b = 1.0; break;
+        case graphic::BLUE:   b = 1.0; break;
+        case graphic::PURPLE: r = 0.5; b = 1.0; break;
+        case graphic::BLACK:  r = g = b = 0.0; break;
+        case graphic::GREY:   r = g = b = 0.5; break;
+        case graphic::WHITE:  r = g = b = 1.0; break;
     }
     (*ptcr)->set_source_rgb(r, g, b);
 }

@@ -1,10 +1,7 @@
-/*
- * Fichier: tools.h
- * Auteur:  Ilhan Salvatore Legio
- */
-
 #ifndef TOOLS_H
 #define TOOLS_H
+
+#include "graphic.h"
 
 // Constante pour les tolérances de collision (E12, R2)
 constexpr double epsil_zero = 0.125;
@@ -19,14 +16,18 @@ struct Point {
 struct Square {
     Point center;
     double side;
+
+    void draw(graphic::Color color) const;
 };
 
 struct Circle {
     Point center;
     double radius;
+
+    void draw(graphic::Color color, bool filled = true) const;
 };
 
-// --- Fonctions utilitaires exportées (O34) ---
+// --- Fonctions utilitaires ---
 
 // Calcul de la distance euclidienne entre deux points
 double distance(const Point& p1, const Point& p2);
