@@ -4,7 +4,9 @@
 #include "tools.h"
 #include "message.h"
 
-// Vérifie si un carré dépasse les limites de l'arène (P61)
+using namespace std;
+
+
 bool is_square_in_arena(double x, double y, double side) {
     double half = side / 2.0;
     bool hors_gauche = (x - half) < 0.0;
@@ -18,31 +20,57 @@ bool is_square_in_arena(double x, double y, double side) {
 
 
 bool Brick::check() const {
-    // Validation de la taille minimale (P5)
     if (bounds_.side < brick_size_min) {
-        std::cout << message::invalid_brick_size(bounds_.side);
+        cout << message::invalid_brick_size(bounds_.side);
         return false;
     }
 
-    // Validation de la position dans l'arène (L21)
     if (is_square_in_arena(bounds_.center.x, bounds_.center.y, bounds_.side)) {
-        std::cout << message::brick_outside(bounds_.center.x, bounds_.center.y);
+        cout << message::brick_outside(bounds_.center.x, bounds_.center.y);
         return false;
     }
-    
     return true;
 }
 
 bool RainbowBrick::check() const {
-    // Vérification de la base en premier
     if (!Brick::check()) {
         return false;
     } 
     
-    // Validation des points de vie spécifiques (E17, P5)
     if (hits_points_ < 1 || hits_points_ > 7) {
-        std::cout << message::invalid_hit_points(hits_points_);
+        cout << message::invalid_hit_points(hits_points_);
         return false;
     }
     return true;
+}
+
+void Rainbow_brick::draw() const {
+    graphic::Color c = static_cast<graphic::Color>(hit_points_ - 1);
+    bounds_.draw(c); 
+}
+
+void Ball_brick::draw() const {
+    bounds_.draw(graphic::RED);
+    Circle ball_img = {bounds_.center, new_ball_radius};
+    ball_img.draw(graphic::BLACK);
+}
+
+void Split_brick::draw() const {
+    bounds_.draw(graphic::RED); // Fond rouge
+    
+    double small_side = (bounds_.side - split_brick_gap) / 2.0;
+
+    if (small_side >= brick_size_min) {
+        double offset = (small_side + split_brick_gap) / 2.0;
+        
+        double corners_x[4] = {bounds_.center.x - offset, bounds_.center.x + offset, 
+                               bounds_.center.x - offset, bounds_.center.x + offset};
+        double corners_y[4] = {bounds_.center.y - offset, bounds_.center.y - offset, 
+                               bounds_.center.y + offset, bounds_.center.y + offset};
+
+        for (int i = 0; i < 4; ++i) {
+            Square small_sq = {{corners_x[i], corners_y[i]}, small_side};
+            small_sq.draw(graphic::ORANGE);
+        }
+    }
 }
