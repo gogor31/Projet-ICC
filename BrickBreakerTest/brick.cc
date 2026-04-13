@@ -44,18 +44,18 @@ bool RainbowBrick::check() const {
     return true;
 }
 
-void Rainbow_brick::draw() const {
+void RainbowBrick::draw() const {
     graphic::Color c = static_cast<graphic::Color>(hit_points_ - 1);
     bounds_.draw(c); 
 }
 
-void Ball_brick::draw() const {
+void BallBrick::draw() const {
     bounds_.draw(graphic::RED);
-    Circle ball_img = {bounds_.center, new_ball_radius};
+    tools::Circle ball_img = {bounds_.center, new_ball_radius};
     ball_img.draw(graphic::BLACK);
 }
 
-void Split_brick::draw() const {
+void SplitBrick::draw() const {
     bounds_.draw(graphic::RED); // Fond rouge
     
     double small_side = (bounds_.side - split_brick_gap) / 2.0;
@@ -69,7 +69,7 @@ void Split_brick::draw() const {
                                bounds_.center.y + offset, bounds_.center.y + offset};
 
         for (int i = 0; i < 4; ++i) {
-            Square small_sq = {{corners_x[i], corners_y[i]}, small_side};
+            tools::Square small_sq = {{corners_x[i], corners_y[i]}, small_side};
             small_sq.draw(graphic::ORANGE);
         }
     }
