@@ -30,8 +30,8 @@ bool RainbowBrick::check() const {
         return false;
     } 
     
-    if (hits_points_ < 1 || hits_points_ > 7) {
-        std::cout << message::invalid_hit_points(hits_points_);
+    if (hit_points_ < 1 || hit_points_ > 7) {
+        std::cout << message::invalid_hit_points(hit_points_);
         return false;
     }
     return true;

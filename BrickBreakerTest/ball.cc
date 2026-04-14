@@ -6,7 +6,7 @@
 
 
 
-Ball::Ball(Circle c, Point d) : circle_(c), delta_(d) {}
+Ball::Ball(tools::Circle c, tools::Point d) : circle_(c), delta_(d) {}
 
 bool Ball::check() const {
     // Validation de la norme de la vitesse (P5, R2)
@@ -29,8 +29,8 @@ bool Ball::check() const {
     return true;
 }
 
-Circle Ball::get_circle_next(){//cercle de la balle a la prochaine (potentielle position)
-    return Circle{circle_.center + delta_, circle_.radius};
+tools::Circle Ball::get_circle_next(){//cercle de la balle a la prochaine (potentielle position)
+    return tools::Circle{circle_.center + delta_, circle_.radius};
 }
 
 bool Ball::out_of_bounds(){

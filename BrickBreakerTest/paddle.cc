@@ -6,7 +6,7 @@
 #include "message.h"
 
 
-Paddle::Paddle(Circle c) : circle_(c) {} 
+Paddle::Paddle(tools::Circle c) : circle_(c) {} 
 
 // Vérifie si la raquette est à l'intérieur de l'arène et touche l'axe X
 bool Paddle::check() const {
@@ -17,7 +17,7 @@ bool Paddle::check() const {
     }
 
     // 3. Vérification des limites de l'arène [0, arena_size]
-    double delta_x = calculer_delta_x(circle_.radius, circle_.center.x);
+    //double delta_x = calculer_delta_x(circle_.radius, circle_.center.x);
     
     double x1 = circle_.center.x - delta_x;
     double x2 = circle_.center.x + delta_x;

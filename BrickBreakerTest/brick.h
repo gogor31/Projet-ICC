@@ -22,13 +22,13 @@ protected:
 
 class RainbowBrick : public Brick {
 public:
-    RainbowBrick(tools::Square s, int hp) : Brick(s, 0), hits_points_(hp) {}
+    RainbowBrick(tools::Square s, int hp) : Brick(s, 0), hit_points_(hp) {}
     
     bool check() const override;
     void draw() const override;
 
 private:
-    int hits_points_;
+    int hit_points_;
 };
 
 class BallBrick : public Brick {

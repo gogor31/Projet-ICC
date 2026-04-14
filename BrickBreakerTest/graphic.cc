@@ -6,6 +6,7 @@
 #include "constants.h"
 
 using namespace std;
+using namespace graphic;
 
 static const Cairo::RefPtr<Cairo::Context> *ptcr(nullptr);
 

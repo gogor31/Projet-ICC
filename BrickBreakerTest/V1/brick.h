@@ -28,12 +28,12 @@ protected:  // "protected" permet aux sous-classes d'accéder à bounds_
 
 class RainbowBrick : public Brick{
 public:
-    RainbowBrick(Square s, int hits_points) : Brick(s, 0), hits_points_(hits_points){}
+    RainbowBrick(Square s, int hits_points) : Brick(s, 0), hit_points_(hits_points){}
     
     bool check() const;
 
 private:
-    int hits_points_;
+    int hit_points_;
 };
 
 class BallBrick : public Brick{

@@ -7,7 +7,7 @@
 
 class Ball {
 public:
-    Ball(Circle c, Point d);
+    Ball(tools::Circle c, tools::Point d);
 
     
     // Vérifie la validité de la balle (vitesse et position)
@@ -18,9 +18,9 @@ public:
     double getPos_y(){return pos_y;}
     double getRadius(){return circle_.radius;}
 
-    Circle get_circle_next();
-    const Circle& get_circle() const { return circle_; }
-    const Point& get_delta() const { return delta_; }
+    tools::Circle get_circle_next();
+    const tools::Circle& get_circle() const { return circle_; }
+    const tools::Point& get_delta() const { return delta_; }
 
 
     bool out_of_bounds();
@@ -29,8 +29,8 @@ public:
     void change_dir(double coord);
 
 private:
-    Circle circle_; 
-    Point  delta_;
+    tools::Circle circle_; 
+    tools::Point  delta_;
 
 
     double pos_x = circle_.center.x;
