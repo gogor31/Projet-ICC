@@ -241,3 +241,22 @@ bool Game::validate_initial_state() {
             check_ball_brick_intersections() &&
             check_ball_paddle_intersections());
 }
+
+
+//implémantations incomplètes, temporaire
+
+void Game::save(const std::string& filename) const {
+    
+}
+
+bool Game::is_over() const {
+    return false; //temporaire
+}
+
+void Game::draw() const {
+
+}
+
+void Game::update_paddle_pos(double model) {
+    
+} 

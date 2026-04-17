@@ -4,7 +4,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "sh",
+            "command": "g++",
             "args": [
                 "-c",
                 "g++ -std=c++17 $(pkg-config --cflags gtkmm-4.0) ${workspaceFolder}/*.cc -o ${workspaceFolder}/my_app $(pkg-config --libs gtkmm-4.0)"

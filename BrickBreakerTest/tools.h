@@ -10,7 +10,7 @@ namespace tools {
         double x;
         double y;
         
-        Point operator+(Point& other) const {return {x + other.x, y + other.y};}
+        Point operator+(const Point& other) const {return {x + other.x, y + other.y};}
     };
 
     struct Square {
