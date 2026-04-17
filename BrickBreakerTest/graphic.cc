@@ -65,6 +65,7 @@ void set_color(Color color)
 
 namespace graphic {
     void draw_arena() {
+        if (!ptcr) return;
         set_color(WHITE); 
         (*ptcr)->rectangle(0, 0, arena_size, arena_size);
         (*ptcr)->fill();
@@ -76,6 +77,7 @@ namespace graphic {
     }
 
     void draw_square(double x, double y, double size, Color color) {
+        if (!ptcr) return;
         set_color(color);
 
         double top_left_x = x - (size / 2.0);
@@ -85,6 +87,7 @@ namespace graphic {
     }
 
     void draw_circle(double x, double y, double radius, Color color, bool filled) {
+        if (!ptcr) return;
         set_color(color);
 
         (*ptcr)->arc(x, y, radius, 0, 2 * M_PI);
@@ -96,6 +99,7 @@ namespace graphic {
     }
 
     void draw_arc(double x, double y, double radius, Color color) {
+        if (!ptcr) return;
         set_color(color);
         (*ptcr)->set_line_width(1.0); 
 
