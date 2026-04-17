@@ -18,10 +18,11 @@ public:
     void clear();
     
     //je met ça ici temporairement pour pouvoir compiler
-    void save(const std::string& filename) const; //prototype sans implémentation
-    bool is_over() const; //prototype sans implémentation
-    void draw() const; //prototype sans implémentation
-    void update_paddle_pos(double model); //prototype sans implémentation
+    void save(const std::string& filename) const; //prototype, implémentation incomplète
+    bool is_over() const; //prototype, implémentation incomplète
+    void draw() const; //prototype, implémentation incomplète
+    void update_paddle_pos(double model); //prototype, implémentation incomplète
+    void load(const std::string& filename); //prototype, implémentation incomplète
     int get_score() const { return score_; }
     int get_lives() const { return lives_; }
     int get_nb_bricks() const { return bricks_.size(); }
