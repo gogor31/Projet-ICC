@@ -2,7 +2,7 @@
 #define BALL_H
 
 #include "tools.h"
-
+#include "graphic.h"
 
 
 class Ball {
@@ -12,6 +12,8 @@ public:
     
     // Vérifie la validité de la balle (vitesse et position)
     bool check() const;
+
+    void draw() const;
 
     //fonctions get
     double getPos_x(){return pos_x;}
@@ -36,8 +38,6 @@ private:
     double pos_x = circle_.center.x;
     double pos_y = circle_.center.y;
 
-    //std::array <double, 2> delta_norm_max;
-    int nb_bounce_max = 10;
 };
 
 

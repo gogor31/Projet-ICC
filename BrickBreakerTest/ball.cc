@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "message.h"
 
-
+using namespace std;
 
 Ball::Ball(tools::Circle c, tools::Point d) : circle_(c), delta_(d) {}
 
@@ -15,21 +15,24 @@ bool Ball::check() const {
     double max_v2 = delta_norm_max * delta_norm_max;
 
     if (v2 > max_v2) {
-        std::cout << message::invalid_delta(delta_.x, delta_.y);
+        cout << message::invalid_delta(delta_.x, delta_.y);
         return false;
     }
 
     // Validation de la position dans l'arène via tools (P3)
-    if (!is_circle_in_square(circle_, arena_size)) {
-        std::cout << message::ball_outside(circle_.center.x, 
+    if (!tools::is_circle_in_square(circle_, arena_size)) {
+        cout << message::ball_outside(circle_.center.x, 
                                             circle_.center.y);
         return false;
     }
 
     return true;
 }
+void Ball::draw() const {
+    circle_.draw(graphic::BLACK, true);
+}
 
-tools::Circle Ball::get_circle_next(){//cercle de la balle a la prochaine (potentielle position)
+tools::Circle Ball::get_circle_next() const {//cercle de la balle a la prochaine (potentielle position)
     return tools::Circle{circle_.center + delta_, circle_.radius};
 }
 
@@ -39,7 +42,7 @@ bool Ball::out_of_bounds(){
     bool trop_gauche(pos_x + circle_.radius < 0);
     bool trop_droite(pos_x - circle_.radius < arena_size);
     if (trop_haut or trop_bas or trop_gauche or trop_droite){
-        std::cout << message::ball_outside(pos_x,pos_y) << std::endl;
+        cout << message::ball_outside(pos_x,pos_y) << endl;
         return true;
         } else {return false;}
 }
