@@ -260,3 +260,10 @@ void Game::draw() const {
 void Game::update_paddle_pos(double model) {
     
 } 
+
+void Game::load(const std::string& filename) {
+    //????????????????
+    if (load_file(filename)){
+        
+    }
+}

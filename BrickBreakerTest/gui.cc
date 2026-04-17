@@ -49,7 +49,7 @@ My_window::My_window(string file_name)
     // Initialisation du jeu
     if (!file_name.empty()) {
         current_file = file_name;
-        game.load_file(file_name);
+        game.load(current_file);
     }
     update_infos();
 }
@@ -97,7 +97,7 @@ void My_window::restart_clicked()
 {
     cout << __func__ << endl; // TODO: reset the game
     if (!current_file.empty()) {
-        game.load_file(current_file);
+        game.load(current_file);
         drawing.queue_draw();
         update_infos();
     }
@@ -215,7 +215,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         {
             cout << "open file " << file_name << endl; // TODO: set game from a file
             current_file = file_name.string();
-            game.load_file(current_file); 
+            game.load(current_file); 
             drawing.queue_draw();    
             update_infos();          
             dialog->hide();

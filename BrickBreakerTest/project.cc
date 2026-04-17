@@ -5,6 +5,8 @@
 
 int main(int argc, char* argv[]) {
     auto app = Gtk::Application::create("org.gtkmm.brickbreaker");
+    
+    app->set_flags(Gio::Application::Flags::HANDLES_OPEN);
 
     Game game;
     std::string filename = (argc == 2) ? argv[1] : "";
