@@ -33,10 +33,6 @@ Game::~Game() {
 }
 
 void Game::clear() { 
-    // Libération de la mémoire allouée dynamiquement pour les briques (R2)
-    for (Brick* b : bricks_) { 
-        delete b; 
-    }
     bricks_.clear(); 
     balls_.clear();
     score_ = 0;
