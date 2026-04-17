@@ -160,7 +160,7 @@ bool Game::create_brick(int type, double x, double y, double s,
             delete new_ptr;
             return false;
         }
-        bricks_.push_back(new_ptr);
+        bricks_.push_back(std::unique_ptr<Brick>(new_ptr));
         return true;
     }
     return false;
@@ -246,13 +246,45 @@ void Game::save(const std::string& filename) const {
 }
 
 bool Game::is_over() const {
-    return false; //temporaire
+    return (balls_.empty() || bricks_.empty() || lives_ < 0);
 }
 
 void Game::draw() const {
+    // 1. Dessiner l'arène (fond et bordure)
+    graphic::draw_arena();
 
+    // 2. Dessiner les briques (appel polymorphique)
+    for (const auto& b : bricks_) {
+        b->draw();
+    }
+
+    // 3. Dessiner les balles
+    for (const auto& ball : balls_) {
+        ball.draw();
+    }
+
+    // 4. Dessiner la raquette
+    paddle_.draw();
 }
 
-void Game::update_paddle_pos(double model) {
-    
+void Game::update_paddle_pos(double target_x) {
+    // 1. On récupère le cercle actuel de la raquette pour tester le mouvement
+    tools::Circle next_circle = paddle_.get_circle();
+    next_circle.center.x = target_x;
+
+    // 2. Vérification du bord de l'arène (tools::is_paddle_in_arena)
+    if (!tools::is_paddle_in_arena(next_circle, arena_size)) {
+        // Optionnel : on pourrait "coller" la raquette au bord ici
+        return; 
+    }
+
+    // 3. Vérification des collisions avec les briques (Spécificité Rendu 2)
+    for (const auto& b : bricks_) {
+        if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), 0.0)) {
+            return; // On bloque le mouvement
+        }
+    }
+
+    // 4. Si tout est OK, on met à jour la position réelle
+    paddle_.set_center_x(target_x);
 } 

@@ -103,7 +103,7 @@ namespace graphic {
         set_color(color);
         (*ptcr)->set_line_width(1.0); 
 
-        (*ptcr)->arc(x, y, radius, M_PI, 2 * M_PI);
+        (*ptcr)->arc(x, y, radius, 0, M_PI);
         (*ptcr)->stroke();
     }
 }

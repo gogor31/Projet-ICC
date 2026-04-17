@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "ball.h"
 #include "brick.h"
 #include "paddle.h"
@@ -34,7 +35,7 @@ private:
     
     Paddle paddle_;
     std::vector<Ball> balls_;
-    std::vector<Brick*> bricks_; 
+    std::vector<std::unique_ptr<Brick>> bricks_; 
 
     // Méthodes de lecture internes (O14)
     bool read_header(std::ifstream& file);

@@ -47,5 +47,7 @@ namespace tools {
 
     // Vérifie si un cercle est intégralement contenu dans une arène carrée
     bool is_circle_in_square(const Circle& c, double square_side);
+    
+    bool is_paddle_in_arena(const Circle& c, double square_side);
 }
 #endif

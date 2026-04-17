@@ -1,18 +1,20 @@
-#include <cmath>
 #include <iostream>
+#include <cmath>
 #include "paddle.h"
 #include "tools.h"
 #include "constants.h"
 #include "message.h"
+#include "graphic.h"
 
+using namespace std;
 
 Paddle::Paddle(tools::Circle c) : circle_(c) {} 
 
 // Vérifie si la raquette est à l'intérieur de l'arène et touche l'axe X
 bool Paddle::check() const {
     // Validation de la position verticale (doit intercepter y=0)
-    if (circle_.center.y > 0.0 || (circle_.center.y + circle_.radius) <= 0) {
-        std::cout << message::paddle_outside(circle_.center.x, circle_.center.y);
+    if (circle_.center.y > 0.0 || (circle_.center.y + circle_.radius) <= 0.0) {
+        cout << message::paddle_outside(circle_.center.x, circle_.center.y);
         return false;
     }
 
@@ -27,9 +29,15 @@ bool Paddle::check() const {
     bool x2_hors_limites = (x2 < 0.0 || x2 > arena_size);
 
     if (x1_hors_limites || x2_hors_limites) {
-        std::cout << message::paddle_outside(circle_.center.x, circle_.center.y);
+        cout << message::paddle_outside(circle_.center.x, circle_.center.y);
         return false;
     }
 
     return true;
+}
+
+void Paddle::draw() const {
+    // On dessine l'arc supérieur de la raquette en rouge
+    // Note: draw_arc dans ton module graphic s'occupe de la couleur
+    graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::RED);
 }

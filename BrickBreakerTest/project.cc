@@ -6,9 +6,10 @@
 int main(int argc, char* argv[]) {
     auto app = Gtk::Application::create("org.gtkmm.brickbreaker");
 
-    Game game;
+    //Game game;
     std::string filename = (argc == 2) ? argv[1] : "";
-
+    return app->make_window_and_run<My_window>(argc, argv, filename);
+    /*
     //lancement du jeu sans fichier test
     if (argc == 1) {
         return app->make_window_and_run<My_window>(argc, argv, "no_file");
@@ -22,4 +23,5 @@ int main(int argc, char* argv[]) {
             return app->make_window_and_run<My_window>(argc, argv, filename);
         }
     }
+        */
 }
