@@ -7,13 +7,13 @@
 using namespace std;
 
 
-bool is_square_in_arena(double x, double y, double side) {
+bool is_square_outside_arena(double x, double y, double side) {
     double half = side / 2.0;
-    bool hors_gauche = (x - half) < 0.0;
-    bool hors_droite = (x + half) > arena_size;
-    bool hors_haut   = (y - half) < 0.0;
-    bool hors_bas    = (y + half) > arena_size;
-    
+    bool hors_gauche = (x - half) < -tools::epsil_zero;
+    bool hors_droite = (x + half) > arena_size + tools::epsil_zero;
+    bool hors_haut   = (y - half) < -tools::epsil_zero;
+    bool hors_bas    = (y + half) > arena_size + tools::epsil_zero;
+
     return (hors_gauche || hors_droite || hors_haut || hors_bas);
 }
 
@@ -25,7 +25,7 @@ bool Brick::check() const {
         return false;
     }
 
-    if (is_square_in_arena(bounds_.center.x, bounds_.center.y, bounds_.side)) {
+    if (is_square_outside_arena(bounds_.center.x, bounds_.center.y, bounds_.side)) {
         cout << message::brick_outside(bounds_.center.x, bounds_.center.y);
         return false;
     }

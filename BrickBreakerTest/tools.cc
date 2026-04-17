@@ -60,8 +60,8 @@ namespace tools {
     }
 
     bool is_circle_in_square(const Circle& c, double square_side) {
-        bool hors_limite_x = (c.center.x < c.radius) || (c.center.x > (square_side - c.radius));
-        bool hors_limite_y = (c.center.y < c.radius) || (c.center.y > (square_side - c.radius));
+        bool hors_limite_x = (c.center.x < c.radius - epsil_zero) || (c.center.x > (square_side - c.radius) + epsil_zero);
+        bool hors_limite_y = (c.center.y < -epsil_zero) || (c.center.y > (square_side - c.radius) + epsil_zero);
         
         return !(hors_limite_x || hors_limite_y);
     }

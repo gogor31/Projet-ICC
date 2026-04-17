@@ -47,16 +47,18 @@ bool Game::load_file(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) return false;
     
-    // Enchaînement des étapes de lecture avec sortie immédiate en cas d'erreur
-    if (!read_header(file) || !read_paddle(file) || 
-        !read_bricks(file) || !read_balls(file)) {
+    bool success = read_header(file) && read_paddle(file) && 
+                   read_bricks(file) && read_balls(file) &&
+                   validate_initial_state();
+
+    if (!success) {
+        clear(); 
         return false;
     }
-    if (!validate_initial_state()) {
-        return false;
-    }
+
     paddle_.set_active(true); // Active la raquette après validation réussie
-    return std::cout << message::success(), true; // Affiche le message de succès et retourne true
+    std::cout << message::success() << std::endl;
+    return true; // Affiche le message de succès et retourne true
 }
 
 bool Game::read_header(std::ifstream& file) {
@@ -289,3 +291,18 @@ void Game::update_paddle_pos(double target_x) {
     // 4. Si tout est OK, on met à jour la position réelle
     paddle_.set_center_x(target_x);
 } 
+
+void Game::spawn_ball() {
+    if (lives_ > 0 && balls_.empty()) {
+        --lives_; // On consomme une vie 
+    
+        tools::Point pos = {paddle_.get_circle().center.x, 
+                     paddle_.get_circle().center.y + paddle_.get_circle().radius + tools::epsil_zero};
+
+        tools::Circle ball_circle = {pos, new_ball_radius};
+
+        tools::Point initial_delta = {0.0, new_ball_delta_norm};
+
+        balls_.push_back(Ball(ball_circle, initial_delta));
+    }
+}

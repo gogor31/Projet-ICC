@@ -213,11 +213,12 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         dialog->hide();
         break;
     case OPEN_FILE:
-        if (file_name != "")
-        {
+        if (file_name != "") {
             cout << "open file " << file_name << endl; // TODO: set game from a file
             current_file = file_name.string();
-            game.load_file(current_file); 
+            if (!game.load_file(current_file)) {
+                current_file = "";
+            }
             drawing.queue_draw();    
             update_infos();          
             dialog->hide();
@@ -319,7 +320,17 @@ void My_window::set_mouse_controller()
 }
 void My_window::on_drawing_left_click(int n_press, double x, double y)
 {
+    (void)n_press; (void)x; (void)y;
+    
     cout << __func__ << endl; // TODO
+
+    if (game.get_nb_balls() == 0 && game.get_lives() > 0) 
+    {
+        game.spawn_ball(); 
+
+        drawing.queue_draw();
+        update_infos();
+    }
 }
 void My_window::on_drawing_move(double x, double y)
 {

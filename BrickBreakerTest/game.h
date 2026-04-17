@@ -21,7 +21,8 @@ public:
     void save(const std::string& filename) const; //prototype, implémentation incomplète
     bool is_over() const; //prototype, implémentation incomplète
     void draw() const; //prototype, implémentation incomplète
-    void update_paddle_pos(double model); //prototype, implémentation incomplète
+    void update_paddle_pos(double target_x); //prototype, implémentation incomplète
+    void spawn_ball();
     int get_score() const { return score_; }
     int get_lives() const { return lives_; }
     int get_nb_bricks() const { return bricks_.size(); }
