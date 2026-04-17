@@ -253,7 +253,6 @@ bool Game::is_over() const {
 }
 
 void Game::draw() const {
-    // 1. Dessiner l'arène (fond et bordure)
     graphic::draw_arena();
 
     // 2. Dessiner les briques (appel polymorphique)
@@ -266,8 +265,9 @@ void Game::draw() const {
         ball.draw();
     }
 
-    // 4. Dessiner la raquette
-    paddle_.draw();
+    if (paddle_.is_active()) {
+        paddle_.draw(); 
+    }
 }
 
 void Game::update_paddle_pos(double target_x) {

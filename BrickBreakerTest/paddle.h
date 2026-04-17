@@ -21,8 +21,6 @@ public:
 
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};
-    double delta_x;
-    double delta_y;
     bool active;
 };
 

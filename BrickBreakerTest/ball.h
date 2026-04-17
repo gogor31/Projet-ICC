@@ -9,15 +9,14 @@ class Ball {
 public:
     Ball(tools::Circle c, tools::Point d);
 
-    
     // Vérifie la validité de la balle (vitesse et position)
     bool check() const;
 
     void draw() const;
 
     //fonctions get
-    double getPos_x(){return pos_x;}
-    double getPos_y(){return pos_y;}
+    double getPos_x(){return circle_.center.x;}
+    double getPos_y(){return circle_.center.y;}
     double getRadius(){return circle_.radius;}
 
     tools::Circle get_circle_next() const;
@@ -33,10 +32,6 @@ public:
 private:
     tools::Circle circle_; 
     tools::Point  delta_;
-
-
-    double pos_x = circle_.center.x;
-    double pos_y = circle_.center.y;
 
 };
 

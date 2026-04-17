@@ -37,6 +37,9 @@ tools::Circle Ball::get_circle_next() const {//cercle de la balle a la prochaine
 }
 
 bool Ball::out_of_bounds(){
+    double pos_x = circle_.center.x;
+    double pos_y = circle_.center.y;
+        
     bool trop_haut(pos_y - circle_.radius > arena_size);
     bool trop_bas(pos_y < 0);
     bool trop_gauche(pos_x + circle_.radius < 0);
