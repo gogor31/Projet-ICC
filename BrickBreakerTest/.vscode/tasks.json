@@ -4,29 +4,10 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "g++",
+            "command": "sh",
             "args": [
-                "-std=c++17",
-                "${workspaceFolder}/*.cc",
-                "-o",
-                "${workspaceFolder}/my_app",
-                "-I/opt/homebrew/Cellar/gtkmm4/4.22.0/include/gtkmm-4.0",
-                "-I/opt/homebrew/Cellar/gtkmm4/4.22.0/lib/gtkmm-4.0/include",
-                "-I/opt/homebrew/Cellar/pangomm/2.56.1/include/pangomm-2.48",
-                "-I/opt/homebrew/Cellar/glibmm/2.88.0/include/glibmm-2.68",
-                "-I/opt/homebrew/Cellar/glib/2.88.0/include/glib-2.0",
-                "-I/opt/homebrew/Cellar/glib/2.88.0/lib/glib-2.0/include",
-                "-I/opt/homebrew/Cellar/libsigc++/3.8.0/include/sigc++-3.0",
-                "-I/opt/homebrew/Cellar/gtk4/4.22.1/include/gtk-4.0",
-                "-I/opt/homebrew/Cellar/cairo/1.18.4/include/cairo",
-                "-L/opt/homebrew/Cellar/gtkmm4/4.22.0/lib",
-                "-L/opt/homebrew/Cellar/glibmm/2.88.0/lib",
-                "-L/opt/homebrew/Cellar/gtk4/4.22.1/lib",
-                "-L/opt/homebrew/Cellar/cairo/1.18.4/lib",
-                "-lgtkmm-4.0",
-                "-lglibmm-2.68",
-                "-lgtk-4",
-                "-lcairo"
+                "-c",
+                "g++ -std=c++17 $(pkg-config --cflags gtkmm-4.0) ${workspaceFolder}/*.cc -o ${workspaceFolder}/my_app $(pkg-config --libs gtkmm-4.0)"
             ],
             "group": {
                 "kind": "build",

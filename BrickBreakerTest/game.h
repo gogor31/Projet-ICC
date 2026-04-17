@@ -15,6 +15,18 @@ public:
 
     bool load_file(const std::string& filename);
     void clear();
+    
+    //je met ça ici temporairement pour pouvoir compiler
+    void save(const std::string& filename) const; //prototype sans implémentation
+    bool is_over() const; //prototype sans implémentation
+    void draw() const; //prototype sans implémentation
+    void update_paddle_pos(double model); //prototype sans implémentation
+    int get_score() const { return score_; }
+    int get_lives() const { return lives_; }
+    int get_nb_bricks() const { return bricks_.size(); }
+    int get_nb_balls() const { return balls_.size(); }
+    
+
 
 private:
     int score_ = 0; 
