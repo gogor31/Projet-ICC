@@ -20,7 +20,7 @@ public:
     double getPos_y(){return pos_y;}
     double getRadius(){return circle_.radius;}
 
-    tools::Circle get_circle_next();
+    tools::Circle get_circle_next() const;
     const tools::Circle& get_circle() const { return circle_; }
     const tools::Point& get_delta() const { return delta_; }
 
