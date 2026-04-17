@@ -26,6 +26,7 @@ public:
     int get_lives() const { return lives_; }
     int get_nb_bricks() const { return bricks_.size(); }
     int get_nb_balls() const { return balls_.size(); }
+    Paddle get_paddle() const { return paddle_; }
     
 
 

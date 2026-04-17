@@ -8,7 +8,7 @@ class Paddle {
 public:
     Paddle() : active(false) {}
 
-    Paddle(tools::Circle c) : circle_(c), active(true) {}
+    Paddle(tools::Circle c);
 
     bool check() const;
     void draw() const;
