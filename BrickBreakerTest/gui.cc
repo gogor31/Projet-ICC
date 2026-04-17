@@ -99,7 +99,7 @@ void My_window::restart_clicked()
 {
     cout << __func__ << endl; // TODO: reset the game
     if (!current_file.empty()) {
-        game.load(current_file);
+        game.load_file(current_file);
         drawing.queue_draw();
         update_infos();
     }
@@ -217,7 +217,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         {
             cout << "open file " << file_name << endl; // TODO: set game from a file
             current_file = file_name.string();
-            game.load(current_file); 
+            game.load_file(current_file); 
             drawing.queue_draw();    
             update_infos();          
             dialog->hide();
@@ -323,6 +323,9 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
 }
 void My_window::on_drawing_move(double x, double y)
 {
+    if (!game.get_paddle().is_active()) {
+        return; 
+    }
     // Conversion des coordonnées souris (pixels) vers Arène (0-100)
     int width = drawing.get_width();
     int height = drawing.get_height();

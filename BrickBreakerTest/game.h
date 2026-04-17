@@ -22,7 +22,6 @@ public:
     bool is_over() const; //prototype, implémentation incomplète
     void draw() const; //prototype, implémentation incomplète
     void update_paddle_pos(double model); //prototype, implémentation incomplète
-    void load(const std::string& filename); //prototype, implémentation incomplète
     int get_score() const { return score_; }
     int get_lives() const { return lives_; }
     int get_nb_bricks() const { return bricks_.size(); }

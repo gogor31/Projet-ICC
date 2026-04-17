@@ -37,6 +37,7 @@ void Game::clear() {
     balls_.clear();
     score_ = 0;
     lives_ = 0;
+    paddle_.set_active(false); // Désactive la raquette par défaut
 }
 
 // --- LECTURE DU FICHIER (Parsing) ---
@@ -54,7 +55,7 @@ bool Game::load_file(const std::string& filename) {
     if (!validate_initial_state()) {
         return false;
     }
-
+    paddle_.set_active(true); // Active la raquette après validation réussie
     return std::cout << message::success(), true; // Affiche le message de succès et retourne true
 }
 

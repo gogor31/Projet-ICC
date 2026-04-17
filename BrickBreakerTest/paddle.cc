@@ -8,10 +8,12 @@
 
 using namespace std;
 
-Paddle::Paddle(tools::Circle c) : circle_(c) {} 
+Paddle::Paddle(tools::Circle c) : circle_(c), active(true) {} 
 
 // Vérifie si la raquette est à l'intérieur de l'arène et touche l'axe X
 bool Paddle::check() const {
+    if(!active) return true;
+    
     // Validation de la position verticale (doit intercepter y=0)
     if (circle_.center.y > 0.0 || (circle_.center.y + circle_.radius) <= 0.0) {
         cout << message::paddle_outside(circle_.center.x, circle_.center.y);
@@ -37,7 +39,7 @@ bool Paddle::check() const {
 }
 
 void Paddle::draw() const {
-    // On dessine l'arc supérieur de la raquette en rouge
-    // Note: draw_arc dans ton module graphic s'occupe de la couleur
+    if (!active) return;
+
     graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::RED);
 }
