@@ -44,9 +44,16 @@ My_window::My_window(string file_name)
     set_key_controller();
     set_mouse_controller();
     set_infos();
-    set_drawing();
-    // TODO: set the game
+    set_drawing();// TODO: set the game
+
+    // Initialisation du jeu
+    if (!file_name.empty()) {
+        current_file = file_name;
+        game.load(file_name);
+    }
+    update_infos();
 }
+
 void My_window::set_commands()
 {
     for (auto &button : buttons)
@@ -88,7 +95,12 @@ void My_window::save_clicked()
 }
 void My_window::restart_clicked()
 {
-    cout << __func__ << endl; // TODO: reset the game from the last read file
+    cout << __func__ << endl; // TODO: reset the game
+    if (!current_file.empty()) {
+        game.load(current_file);
+        drawing.queue_draw();
+        update_infos();
+    }
 }
 void My_window::start_clicked()
 {
@@ -120,6 +132,8 @@ void My_window::start_clicked()
 void My_window::step_clicked()
 {
     cout << __func__ << endl; // TODO: make a single update
+    drawing.queue_draw();
+    update_infos();
 }
 void My_window::set_key_controller()
 {
@@ -133,13 +147,13 @@ bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state
     switch (keyval)
     {
     case '1':
-        // TODO: make a single update
+        step_clicked(); // TODO: make a single update
         return true;
     case 's':
-        // TODO: pause or unpause the game
+        start_clicked(); // TODO: pause or unpause the game
         return true;
     case 'r':
-        // TODO: reset the game from the last read file
+        restart_clicked(); // TODO: reset the game from the last read file
         return true;
     default:
         break;
@@ -197,9 +211,13 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         dialog->hide();
         break;
     case OPEN_FILE:
-        if (file_name != "")
+        if (file_name != "" && file_name.extension() == ".txt")
         {
             cout << "open file " << file_name << endl; // TODO: set game from a file
+            current_file = file_name.string();
+            game.load(current_file); 
+            drawing.queue_draw();    
+            update_infos();          
             dialog->hide();
         }
         break;
@@ -207,10 +225,12 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         if (file_name != "")
         {
             cout << "save file " << file_name << endl; // TODO: save the game
+            game.save(file_name.string());
             dialog->hide();
         }
         break;
     default:
+        dialog->hide();
         break;
     }
 }
@@ -219,7 +239,13 @@ bool My_window::loop()
 {
     if (loop_activated)
     {
-        // TODO: update the game and the interface
+        if (game.is_over()) {
+            start_clicked(); // Simule un clic sur STOP
+            return false;
+        }
+
+        drawing.queue_draw();
+        update_infos();// TODO: update the game and the interface
         return true;
     }
     return false;
@@ -243,9 +269,16 @@ void My_window::set_infos()
 void My_window::update_infos()
 // TODO: update the different counters
 {
+    unsigned short i(0);
     for (auto &value : info_value)
     {
-        value.set_text("0");
+        switch (i++)
+        {
+            case 0: value.set_text(to_string(game.get_score()));      break;
+            case 1: value.set_text(to_string(game.get_lives()));      break;
+            case 2: value.set_text(to_string(game.get_nb_bricks()));  break;
+            case 3: value.set_text(to_string(game.get_nb_balls()));   break;
+        }
     }
 }
 
@@ -262,7 +295,7 @@ void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int 
     double side(min(width, height));
     cr->translate((width - side) / 2, (height + side) / 2);
     cr->scale(side / (arena_size), -side / (arena_size));
-    // TODO: draw the game
+    game.draw();// TODO: draw the game
 }
 
 void My_window::set_mouse_controller()
@@ -285,5 +318,19 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
 }
 void My_window::on_drawing_move(double x, double y)
 {
+    // Conversion des coordonnées souris (pixels) vers Arène (0-100)
+    int width = drawing.get_width();
+    int height = drawing.get_height();
+    double side = min(width, height);
+    
+    // On calcule le décalage si la fenêtre n'est pas carrée
+    double x_offset = (width - side) / 2.0;
+    
+    // Formule de conversion : (x_pixel - offset) * (taille_modele / taille_pixels)
+    double model_x = (x - x_offset) * (arena_size / side);
+    
+    // Mise à jour de la raquette
+    game.update_paddle_pos(model_x);
+    drawing.queue_draw(); // Redessiner immédiatement
     cout << __func__ << endl; // TODO
 }
