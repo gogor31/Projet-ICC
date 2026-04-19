@@ -203,18 +203,22 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
     if (dialog->get_file())
     {
         file_name = dialog->get_file()->get_path();
-        if (file_name.extension() != ".txt")
-        {
-            file_name = "";
-        }
     }
+
+    if (file_name.empty() && response != CANCEL) {
+        dialog->hide();
+        delete dialog;
+        return;
+    }
+
     switch (response)
     {
     case CANCEL:
         dialog->hide();
         break;
+
     case OPEN_FILE:
-        if (file_name != "") {
+        if (file_name.extension() == ".txt"){
             cout << "open file " << file_name << endl; // TODO: set game from a file
             current_file = file_name.string();
             if (!game.load_file(current_file)) {
@@ -226,18 +230,20 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
             delete dialog;
         }
         break;
+
     case SAVE_FILE:
-        if (file_name != "")
+        if (file_name.extension() != ".txt")
         {
-            cout << "save file " << file_name << endl; // TODO: save the game
-            game.save(file_name.string());
-            dialog->hide();
-            delete dialog;
+            file_name += ".txt";
         }
+        cout << "save file " << file_name << endl;
+        game.save(file_name.string());
+        dialog->hide();
+        delete dialog;
         break;
     default:
         dialog->hide();
-        delete dialog; //supprime la fenetre de dialogue
+        delete dialog;
         break;
     }
 }
