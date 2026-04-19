@@ -337,19 +337,16 @@ void My_window::on_drawing_move(double x, double y)
     if (!game.get_paddle().is_active()) {
         return; 
     }
-    // Conversion des coordonnées souris (pixels) vers Arène (0-100)
+
     int width = drawing.get_width();
     int height = drawing.get_height();
     double side = min(width, height);
     
-    // On calcule le décalage si la fenêtre n'est pas carrée
     double x_offset = (width - side) / 2.0;
-    
-    // Formule de conversion : (x_pixel - offset) * (taille_modele / taille_pixels)
+
     double model_x = (x - x_offset) * (arena_size / side);
-    
-    // Mise à jour de la raquette
+
     game.update_paddle_pos(model_x);
-    drawing.queue_draw(); // Redessiner immédiatement
-    cout << __func__ << endl; // TODO
+    drawing.queue_draw();
+    cout << __func__ << endl;
 }

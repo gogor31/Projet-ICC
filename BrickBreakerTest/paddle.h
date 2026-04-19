@@ -17,7 +17,9 @@ public:
     void set_active(bool state) { active = state; }
 
     const tools::Circle& get_circle() const { return circle_; }
-    void set_center_x(double x) { circle_.center.x = x; }
+    void set_center(double x) { 
+        circle_.center.x = x; 
+    }
 
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};

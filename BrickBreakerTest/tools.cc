@@ -67,15 +67,17 @@ namespace tools {
     }
 
     bool is_paddle_in_arena(const Circle& c, double square_side) {
-        double dy = std::abs(c.center.y);
-        if (c.radius <= dy) return false;
+        
+        if (c.center.y > epsil_zero) return false;
+        if (c.center.y + c.radius < epsil_zero) return false;
 
+        double dy = std::abs(c.center.y);
         double dx = std::sqrt((c.radius * c.radius) - (dy * dy));
 
         double x_left  = c.center.x - dx;
         double x_right = c.center.x + dx;
 
-        if (x_left < 0.0 || x_right > square_side) {
+        if (x_left < -epsil_zero || x_right > square_side + epsil_zero) {
             return false;
         }
 

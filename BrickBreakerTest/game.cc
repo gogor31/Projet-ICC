@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cmath>
 #include "game.h"
 #include "message.h"
 #include "constants.h"
@@ -271,26 +272,38 @@ void Game::draw() const {
 }
 
 void Game::update_paddle_pos(double target_x) {
-    // 1. On récupère le cercle actuel de la raquette pour tester le mouvement
-    tools::Circle next_circle = paddle_.get_circle();
-    next_circle.center.x = target_x;
+    double current_x = paddle_.get_circle().center.x;
+    double diff_x = target_x - current_x;
 
-    // 2. Vérification du bord de l'arène (tools::is_paddle_in_arena)
-    if (!tools::is_paddle_in_arena(next_circle, arena_size)) {
-        // Optionnel : on pourrait "coller" la raquette au bord ici
-        return; 
+    
+    double move_x = 0.0;
+    if (std::abs(diff_x) > delta_norm_max) {
+
+        move_x = (diff_x > 0 ? delta_norm_max : -delta_norm_max);
+    } else {
+        
+        move_x = diff_x; 
     }
 
-    // 3. Vérification des collisions avec les briques (Spécificité Rendu 2)
-    for (const auto& b : bricks_) {
-        if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), 0.0)) {
-            return; // On bloque le mouvement
+    
+    tools::Circle next_circle = paddle_.get_circle();
+    next_circle.center.x += move_x; 
+
+    if (tools::is_paddle_in_arena(next_circle, arena_size)) { 
+        bool collision = false;
+        for (const auto& b : bricks_) {
+            if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), tools::epsil_zero)) {
+                collision = true;
+                break;
+            }
+        }
+        
+
+        if (!collision) {
+            paddle_.set_center(next_circle.center.x); 
         }
     }
-
-    // 4. Si tout est OK, on met à jour la position réelle
-    paddle_.set_center_x(target_x);
-} 
+}
 
 void Game::spawn_ball() {
     if (lives_ > 0 && balls_.empty()) {
