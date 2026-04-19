@@ -9,6 +9,7 @@ public:
     virtual ~Brick() = default; 
     virtual bool check() const; 
     virtual void draw() const = 0;
+    virtual void write(std::ostream& out) const = 0;
 
     const tools::Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; }  
@@ -26,6 +27,7 @@ public:
     
     bool check() const override;
     void draw() const override;
+    void write(std::ostream& out) const override;
 
 private:
     int hit_points_;
@@ -35,12 +37,14 @@ class BallBrick : public Brick {
 public:
     BallBrick(tools::Square s) : Brick(s, 1) {}
     void draw() const override;
+    void write(std::ostream& out) const override;
 };
 
 class SplitBrick : public Brick {
 public: 
     SplitBrick(tools::Square s) : Brick(s, 2) {}
     void draw() const override;
+    void write(std::ostream& out) const override;
 };
 
 

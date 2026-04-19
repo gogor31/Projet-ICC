@@ -234,7 +234,6 @@ bool Game::check_ball_paddle_intersections() {
 }
 
 bool Game::validate_initial_state() {
-    // Regroupement des tests logiques (P2)
     return (check_bricks_intersections() &&
             check_paddle_brick_intersections() &&
             check_balls_intersections() &&
@@ -243,10 +242,37 @@ bool Game::validate_initial_state() {
 }
 
 
-//implémantations incomplètes, temporaire
+
 
 void Game::save(const std::string& filename) const {
-    
+    std::ofstream file(filename);
+    if (!file) return;
+
+    file << "# score" << std::endl << score_ << std::endl << std::endl;
+    file << "# lives" << std::endl << lives_ << std::endl << std::endl;
+
+    if (paddle_.is_active()) {
+        file << "# paddle" << std::endl;
+        file << paddle_.get_circle().center.x << " " 
+             << paddle_.get_circle().center.y << " " 
+             << paddle_.get_circle().radius << std::endl << std::endl;
+    }
+
+    file << "# bricks" << std::endl << bricks_.size() << std::endl;
+    for (const auto& b : bricks_) {
+
+        b->write(file); 
+    }
+    file << std::endl;
+
+    file << "# balls" << std::endl << balls_.size() << std::endl;
+    for (const auto& ball : balls_) {
+        file << ball.get_circle().center.x << " " 
+             << ball.get_circle().center.y << " " 
+             << ball.get_circle().radius << " " 
+             << ball.get_delta().x << " " 
+             << ball.get_delta().y << std::endl;
+    }
 }
 
 bool Game::is_over() const {
@@ -318,4 +344,8 @@ void Game::spawn_ball() {
 
         balls_.push_back(Ball(ball_circle, initial_delta));
     }
+}
+
+void Game::update() {//bouton step pour le rendu 3
+
 }

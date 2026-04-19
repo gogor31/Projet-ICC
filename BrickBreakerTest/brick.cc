@@ -49,10 +49,27 @@ void RainbowBrick::draw() const {
     bounds_.draw(c); 
 }
 
+void RainbowBrick::write(std::ostream& out) const {
+    // Format : type (0) x y side hit_points 
+    out << type_ << " " 
+        << bounds_.center.x << " " 
+        << bounds_.center.y << " " 
+        << bounds_.side << " " 
+        << hit_points_ << std::endl;
+}
+
 void BallBrick::draw() const {
     bounds_.draw(graphic::RED);
     tools::Circle ball_img = {bounds_.center, new_ball_radius};
     ball_img.draw(graphic::BLACK);
+}
+
+void BallBrick::write(std::ostream& out) const {
+    // Format : type (1) x y side 
+    out << type_ << " " 
+        << bounds_.center.x << " " 
+        << bounds_.center.y << " " 
+        << bounds_.side << std::endl;
 }
 
 void SplitBrick::draw() const {
@@ -73,4 +90,12 @@ void SplitBrick::draw() const {
             small_sq.draw(graphic::ORANGE);
         }
     }
+}
+
+void SplitBrick::write(std::ostream& out) const {
+    // Format : type (2) x y side 
+    out << type_ << " " 
+        << bounds_.center.x << " " 
+        << bounds_.center.y << " " 
+        << bounds_.side << std::endl;
 }

@@ -133,9 +133,10 @@ void My_window::start_clicked()
 }
 void My_window::step_clicked()
 {
-    cout << __func__ << endl; // TODO: make a single update
+    game.update(); 
     drawing.queue_draw();
     update_infos();
+    cout << __func__ << endl;
 }
 void My_window::set_key_controller()
 {
