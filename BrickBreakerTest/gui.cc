@@ -26,12 +26,15 @@ enum Buttons
 constexpr unsigned drawing_size(500);
 
 My_window::My_window(string file_name)
-    : main_box(Gtk::Orientation::HORIZONTAL), panel_box(Gtk::Orientation::VERTICAL),
-      command_box(Gtk::Orientation::VERTICAL), loop_activated(false),
+    : current_file(""), main_box(Gtk::Orientation::HORIZONTAL),
+      panel_box(Gtk::Orientation::VERTICAL), command_box(Gtk::Orientation::VERTICAL), 
+      info_grid(), info_frame("Infos :"), drawing(),
       buttons({Gtk::Button("exit"), Gtk::Button("open"), Gtk::Button("save"),
                Gtk::Button("restart"), Gtk::Button("start"), Gtk::Button("step")}),
-      info_frame("Infos :"), info_text({Gtk::Label("score:"), Gtk::Label("lives:"),
-                                        Gtk::Label("bricks:"), Gtk::Label("balls:")})
+      info_text({Gtk::Label("score:"), Gtk::Label("lives:"),
+                 Gtk::Label("bricks:"), Gtk::Label("balls:")}),
+      info_value(),
+      loop_activated(false)
 {
     set_title("Brick Breaker");
     set_child(main_box);
@@ -44,7 +47,7 @@ My_window::My_window(string file_name)
     set_key_controller();
     set_mouse_controller();
     set_infos();
-    set_drawing();// TODO: set the game
+    set_drawing();
 
     // Initialisation du jeu
     if (!file_name.empty()) {
@@ -97,7 +100,7 @@ void My_window::save_clicked()
 }
 void My_window::restart_clicked()
 {
-    cout << __func__ << endl; // TODO: reset the game
+    cout << __func__ << endl; 
     if (!current_file.empty()) {
         game.load_file(current_file);
         drawing.queue_draw();
@@ -118,7 +121,7 @@ void My_window::start_clicked()
         buttons[START].set_label("start");
         buttons[STEP].set_sensitive(true);
     }
-    else // TODO: only if the game is not finished
+    else 
     {
         loop_conn =
             Glib::signal_timeout().connect(sigc::mem_fun(*this, &My_window::loop), dt);
@@ -150,13 +153,13 @@ bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state
     switch (keyval)
     {
     case '1':
-        step_clicked(); // TODO: make a single update
+        step_clicked();
         return true;
     case 's':
-        start_clicked(); // TODO: pause or unpause the game
+        start_clicked(); 
         return true;
     case 'r':
-        restart_clicked(); // TODO: reset the game from the last read file
+        restart_clicked(); 
         return true;
     default:
         break;
@@ -219,7 +222,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
 
     case OPEN_FILE:
         if (file_name.extension() == ".txt"){
-            cout << "open file " << file_name << endl; // TODO: set game from a file
+            cout << "open file " << file_name << endl;
             current_file = file_name.string();
             if (!game.load_file(current_file)) {
                 current_file = "";
@@ -258,7 +261,7 @@ bool My_window::loop()
         }
 
         drawing.queue_draw();
-        update_infos();// TODO: update the game and the interface
+        update_infos();
         return true;
     }
     return false;
@@ -280,7 +283,7 @@ void My_window::set_infos()
 }
 
 void My_window::update_infos()
-// TODO: update the different counters
+
 {
     unsigned short i(0);
     for (auto &value : info_value)
@@ -308,7 +311,7 @@ void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int 
     double side(min(width, height));
     cr->translate((width - side) / 2, (height + side) / 2);
     cr->scale(side / (arena_size), -side / (arena_size));
-    game.draw();// TODO: draw the game
+    game.draw();
 }
 
 void My_window::set_mouse_controller()
@@ -329,7 +332,7 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
 {
     (void)n_press; (void)x; (void)y;
     
-    cout << __func__ << endl; // TODO
+    cout << __func__ << endl; 
 
     if (game.get_nb_balls() == 0 && game.get_lives() > 0) 
     {
