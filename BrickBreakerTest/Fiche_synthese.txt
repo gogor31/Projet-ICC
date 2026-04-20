@@ -1,0 +1,58 @@
+1. HIÉRARCHIE DES CLASSES DES BRIQUES (Héritage et Spécialisation)
+------------------------------------------------------------------
+La conception repose sur une structure hiérarchique permettant de 
+gérer différents types de briques de manière unifiée.
+
+- Super-classe abstraite 'Brick' :
+  * Attributs gérés : 'bounds_' (type tools::Square) définissant la 
+    géométrie et 'type_' (int) identifiant la nature de la brique.
+  * Méthodes communes : 'check()' vérifie la validité de la taille 
+    et la position dans l'arène par rapport à 'arena_size'.
+
+- Classes dérivées (Spécialisation) :
+  * RainbowBrick : Introduit l'attribut spécifique 'hit_points_' (vie).
+  * BallBrick : Spécialisée pour l'apparition de nouvelles balles.
+  * SplitBrick : Modélise une brique se divisant en quatre fragments.
+
+- Polymorphisme et Virtualité :
+  * Méthodes Virtuelles Pures : 'draw()' et 'write()' sont virtuelles 
+    pures dans 'Brick', forçant chaque sous-classe à définir sa propre 
+    représentation graphique et son format de sauvegarde.
+  * Substitution (Override) : 'RainbowBrick' substitue la méthode 
+    'check()' pour y ajouter une vérification du domaine de validité 
+    des points de vie (entre 1 et 7).
+
+2. STRUCTURATION DES DONNÉES DANS 'GAME' (Modèle)
+--------------------------------------------------
+La classe 'Game' centralise l'état et la logique du simulateur.
+
+- Attributs de la classe 'Game' :
+  * Variables d'état : 'score_' et 'lives_' (entiers).
+  * Entités : 'paddle_' (Raquette) et 'balls_' (std::vector de Ball).
+
+- Mémorisation des ensembles :
+  * Les briques sont stockées dans un 'std::vector<std::unique_ptr<Brick>>'.
+  * L'usage de 'unique_ptr' garantit la gestion automatique de la 
+    mémoire et permet le traitement polymorphique de la collection 
+    hétérogène.
+  * Les données sont mémorisées en tant qu'attributs privés pour 
+    garantir l'encapsulation.
+
+3. DESCRIPTION DU MODULE 'TOOLS'
+--------------------------------
+Le module 'tools' définit les types géométriques fondamentaux et les 
+fonctions utilitaires de calcul, regroupés dans le namespace 'tools'.
+
+- Types définis (Structures) :
+  * Point : Structure simple gérant des coordonnées (x, y) avec 
+    surcharge de l'opérateur + pour les déplacements.
+  * Square / Circle : Modèles de données pour les briques (carrées) 
+    et la balle/raquette (circulaires), incluant des méthodes 
+    de dessin déléguées au module 'graphic'.
+
+- Utilitaires :
+  * Détection d'intersections : Fonctions 'intersects_...' gérant les 
+    collisions entre cercles et carrés avec une marge d'erreur 
+    'epsil_zero' (constexpr).
+  * Intégrité : Fonctions 'is_..._in_...' vérifiant que les entités 
+    restent dans les limites de l'arène de jeu.
