@@ -14,25 +14,17 @@ public:
 
     void draw() const;
 
-    //fonctions get
+    // Méthodes getters
     double getPos_x(){return circle_.center.x;}
     double getPos_y(){return circle_.center.y;}
     double getRadius(){return circle_.radius;}
-
-    tools::Circle get_circle_next() const;
     const tools::Circle& get_circle() const { return circle_; }
     const tools::Point& get_delta() const { return delta_; }
-
-
-    bool out_of_bounds();
-
-    //gestion de rebonds simples
-    void change_dir(double coord);
+    tools::Circle get_circle_next() const;
 
 private:
     tools::Circle circle_; 
     tools::Point  delta_;
-
 };
 
 

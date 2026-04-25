@@ -4,7 +4,7 @@ PKG_CONFIG = pkg-config
 CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O2 $(shell $(PKG_CONFIG) --cflags gtkmm-4.0)
 LDLIBS = $(shell $(PKG_CONFIG) --libs gtkmm-4.0)
 
-# Nom de l'exécutable exigé par la donnée
+# Nom de l'exécutable
 TARGET = project
 
 # Liste des fichiers objets (un pour chaque fichier source .cc)

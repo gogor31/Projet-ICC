@@ -18,7 +18,7 @@ public:
     void clear();
     
 
-    void save(const std::string& filename) const; //prototype, implémentation incomplète
+    void save(const std::string& filename) const;
     bool is_over() const; 
     void draw() const; 
     void update_paddle_pos(double target_x); 
