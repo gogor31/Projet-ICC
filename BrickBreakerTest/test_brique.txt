@@ -1,0 +1,17 @@
+# output: "Correct file"
+# score
+0
+
+# lives
+3
+
+# paddle
+50 -16 20
+
+# bricks
+2
+0 92 4 5 1
+0 8 4 5 1
+
+# balls
+0

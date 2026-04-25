@@ -1,37 +1,31 @@
 GUI
 - boutons:
     V Exit
-    - Open
-    - Save
-    - Restart
+    V Open
+    V Save
+    V Restart
     - Step
 
 PADDLE
 - déplacement de la raquette:
-    - detection de la coo x de la souris
-    - raquette bornée dans l'arène
-    - les briques peuvent bloquer la raquette
+    V detection de la coo x de la souris
+    V raquette bornée dans l'arène
+    V les briques peuvent bloquer la raquette
 
 GAME
-- lancer le jeu avec lecture de fichier
+V lancer le jeu avec lecture de fichier
 V lancer le jeu sans lecture de fichier
-    - canvas blanc [(?) fonction Game::clear()]
-- detection d'erreur [(?) fonction "error_detected"]:
-    - interrompre la lecture:
-        - (?)
-    - detruire toutes les entités et compteurs à 0 [fonction Game::clear()]
-    - rester ouvert
-    ! doit toujours être récéptif aux commandes
-- collisions balles-briques:
-    - nouveau delta:
-        - direction nominale:
-            - différence bornée
-            - différence
+    V canvas blanc [(?) fonction Game::clear()]
+V detection d'erreur [(?) fonction "error_detected"]:
+    V detruire toutes les entités et compteurs à 0 [fonction Game::clear()]
+    V rester ouvert
+    V doit toujours être récéptif aux commandes
+V collisions balles-briques:
         
 
 TOOLS
-- dessiner avec GRAPHIC:
-    - balles
-    - brick 
-    - paddle
-    - arène
+V dessiner avec GRAPHIC:
+    V balles
+    V brick 
+    V paddle
+    V arène
