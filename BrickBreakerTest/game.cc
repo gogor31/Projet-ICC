@@ -9,7 +9,7 @@
 #include "constants.h"
 
 
-// Lit la prochaine ligne qui n'est ni vide ni un commentaire (D3, P4)
+// Lit la prochaine ligne qui n'est ni vide ni un commentaire 
 bool get_valid_line(std::ifstream& file, std::string& line) {
     while (std::getline(file, line)) {
         // Suppression des espaces blancs initiaux pour le test (L21)
@@ -25,10 +25,9 @@ bool get_valid_line(std::ifstream& file, std::string& line) {
 
 
 
-// Constructeur : initialisation explicite des membres (L25)
 Game::Game() {}
 
-// Destructeur : assure la libération de la mémoire (R1)
+
 Game::~Game() { 
     clear(); 
 }
@@ -38,10 +37,10 @@ void Game::clear() {
     balls_.clear();
     score_ = 0;
     lives_ = 0;
-    paddle_.set_active(false); // Désactive la raquette par défaut
+    paddle_.set_active(false);
 }
 
-// --- LECTURE DU FICHIER (Parsing) ---
+// --- LECTURE DU FICHIER ---
 
 bool Game::load_file(const std::string& filename) {
     clear();
@@ -147,7 +146,7 @@ bool Game::create_brick(int type, double x, double y, double s,
                         std::stringstream& ss) {
     Brick* new_ptr = nullptr;
 
-    // Factory simple pour le polymorphisme (P2)
+    // Factory simple pour le polymorphisme
     if (type == 0) {
         int hp;
         if (!(ss >> hp)) return false;
@@ -159,7 +158,7 @@ bool Game::create_brick(int type, double x, double y, double s,
     }
 
     if (new_ptr) {
-        // Appel polymorphique de check() (D5)
+        // Appel polymorphique de check()
         if (!new_ptr->check()) {
             delete new_ptr;
             return false;
@@ -170,7 +169,7 @@ bool Game::create_brick(int type, double x, double y, double s,
     return false;
 }
 
-// --- VALIDATIONS GÉOMÉTRIQUES (L21, P61) ---
+// --- VALIDATIONS GÉOMÉTRIQUES ---
 
 bool Game::check_bricks_intersections() {
     for (size_t i = 0; i < bricks_.size(); ++i) {
@@ -346,6 +345,65 @@ void Game::spawn_ball() {
     }
 }
 
-void Game::update() {//bouton step pour le rendu 3
 
+
+bool Game::ball_arena_collisions(Ball& b) { 
+    tools::Circle ball_circ = b.get_circle();
+    
+    // Mur Gauche ou Droit
+    if (ball_circ.center.x - ball_circ.radius <= tools::epsil_zero || 
+        ball_circ.center.x + ball_circ.radius >= arena_size - tools::epsil_zero) {
+        b.reverse_dx();
+        return true; 
+    }
+    // Plafond
+    if (ball_circ.center.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
+        b.reverse_dy();
+        return true;
+    }
+
+    return false;
 }
+
+bool Game::ball_ball_collisions(Ball& b1, Ball& b2) {
+    if (!(tools::intersects_Circle_Circle(b1.get_circle(), b2.get_circle(), tools::epsil_zero))) {
+        return false;
+    }
+    
+    tools::Point pos1 = b1.get_circle().center;
+    tools::Point pos2 = b2.get_circle().center;
+
+    double dist = tools::distance(pos1, pos2);
+    if (dist < tools::epsil_zero) {
+        return false; 
+    }
+
+    tools::Point n = {(pos2.x - pos1.x) / dist, (pos2.y - pos1.y) / dist};
+
+    double vn1 = b1.get_delta().x * n.x + b1.get_delta().y * n.y;
+    double vn2 = b2.get_delta().x * n.x + b2.get_delta().y * n.y;  
+    
+    double m1 = b1.get_circle().radius * b1.get_circle().radius;
+    double m2 = b2.get_circle().radius * b2.get_circle().radius;
+    
+    double common_factor = (2.0 * (-vn1 + vn2)) / (m1 + m2);
+    
+    tools::Point impulse1 = { (common_factor * m2) * n.x, (common_factor * m2) * n.y };
+    tools::Point impulse2 = { (-common_factor * m1) * n.x, (-common_factor * m1) * n.y };
+
+    tools::Point new_d1 = { b1.get_delta().x + impulse1.x, b1.get_delta().y + impulse1.y };
+    tools::Point new_d2 = { b2.get_delta().x + impulse2.x, b2.get_delta().y + impulse2.y };
+
+    b1.set_delta(new_d1);
+    b2.set_delta(new_d2);
+
+    return true;
+}
+
+void Game::ball_brick_collisions(Ball& ball, const tools::Square& brick_sq) {
+}
+
+void Game::update() {
+}
+
+//TODO: collision balle balle(), balle arene(), balle brique(), balle raquette() 

@@ -54,6 +54,9 @@ private:
     bool check_balls_intersections();
     bool check_ball_brick_intersections();
     bool check_ball_paddle_intersections();
+
+    bool ball_arena_collisions(Ball& b);
+    void ball_brick_collisions(Ball& ball, const tools::Square& brick_sq);
 };
 
 
