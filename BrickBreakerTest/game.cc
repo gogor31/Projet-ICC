@@ -399,15 +399,62 @@ bool Game::ball_ball_collisions(Ball& b1, Ball& b2) {
     return true;
 }
 
-void Game::ball_brick_collisions(Ball& ball, const tools::Square& brick_sq) {
+void Game::calc_ball_on_brick(Ball& ball, const tools::Square& brick_sq) {
     double diff_x = ball.getPos_x() - brick_sq.center.x;
     double diff_y = ball.getPos_y() - brick_sq.center.y;
     
-    double half_side = brick_sq.side / 2.0;
+    double half_side = brick_sq.side / 2.0; // fonction intersect ? 
     double bounded_x = std::max(-half_side, std::min(diff_x, half_side));
     double bounded_y = std::max(-half_side, std::min(diff_y, half_side));
 
+    tools::Point v_n = {diff_x - bounded_x, diff_y - bounded_y};
+
+    double norm = std::sqrt(v_n.x * v_n.x + v_n.y * v_n.y);
+    if (norm < tools::epsil_zero) {
+        v_n.x /= norm;
+        v_n.y /= norm;
+    }
+
+    tools::Point v = ball.get_delta(); 
+    double dot_product = v.x * v_n.x + v.y * v_n.y; 
+    
+    tools::Point new_delta = {
+        v.x - 2 * dot_product * v_n.x,
+        v.y - 2 * dot_product * v_n.y 
+    };
+    
+    ball.set_delta(new_delta);
 }
+
+bool Game::handle_ball_brick_collisions(Ball& ball) {
+    for (auto it = bricks_.begin(); it != bricks_.end(); ) { 
+        if (tools::intersects_Circle_Square(b.get_circle(), (*it)->get_bounds(), tools::epsil_zero)) {
+            
+            calc_ball_on_brick(b, (*it)->get_bounds());
+            
+            score_ += score_per_hit; 
+
+
+            int type = (*it)->get_type(); 
+            tools::Square b_bounds = (*it)->get_bounds(); 
+            
+            if ((*it)->hit()) { 
+
+                if (type == 1) spawn_ball_from_brick(b_bounds, b.get_delta()); // fonction à coder 
+                if (type == 2) split_brick_logic(b_bounds); // fonction à coder
+                
+                it = bricks_.erase(it); 
+            } else {
+                ++it;
+            }
+            return true;
+        } else {
+            ++it;
+        }
+    }
+    return false;
+}
+
 
 void Game::ball_paddle_collisions(Ball& ball) {
 
@@ -420,4 +467,4 @@ void Game::update() {//bouton step pour le rendu 3
     }
 }
 
-//TODO: collision balle balle(OK), balle arene(OK), balle brique(), balle raquette() 
+//TODO: collision balle balle(OK), balle arene(OK), balle brique(PAS FINI), balle raquette(A FAIRE) 
