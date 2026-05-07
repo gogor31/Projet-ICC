@@ -29,26 +29,6 @@ namespace tools {
 
         void draw(graphic::Color color, bool filled = true) const;
     };
-
-    class Clock{
-    public:
-        Clock();
-        virtual ~Clock() = default;
-
-        bool tick();
-
-        double elapsed_seconds() const;
-        void reset();
-        // pause/play des ticks
-        void pause()  { timeout_conn.block(); }
-        void resume() { timeout_conn.unblock(); }
-
-    private:
-        Glib::Timer timer;
-        sigc::connection timeout_conn;
-        double elapsed_sec;
-        int dt_ = dt;
-    };
     
     // --- Fonctions utilitaires ---
 

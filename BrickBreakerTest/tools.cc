@@ -12,27 +12,6 @@ namespace tools {
         graphic::draw_circle(center.x, center.y, radius, color, filled);
     }
 
-    Clock::Clock()
-        : timer(), timeout_conn(), elapsed_sec(0.0)
-    {
-        timer.start();
-        timeout_conn = Glib::signal_timeout().connect(sigc::mem_fun(*this, &Clock::tick), dt_);
-    }
-
-    bool Clock::tick() {
-        elapsed_sec = timer.elapsed();
-        return true;
-    }
-
-    double Clock::elapsed_seconds() const {
-        return elapsed_sec;
-    }
-
-    void Clock::reset() {
-        timer.start();
-        elapsed_sec = 0.0;
-    }
-
     double distance(const Point& p1, const Point& p2) {
         double dx = p2.x - p1.x;
         double dy = p2.y - p1.y;

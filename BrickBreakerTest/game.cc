@@ -347,5 +347,8 @@ void Game::spawn_ball() {
 }
 
 void Game::update() {//bouton step pour le rendu 3
-
+    //déplace toutes les balles
+    for (auto& ball : balls_) {
+        ball.move();
+    }
 }
