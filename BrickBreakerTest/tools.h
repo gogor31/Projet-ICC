@@ -1,7 +1,10 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+#include <gtkmm.h>
 #include "graphic.h"
+#include "constants.h"
+#include <cairomm/context.h>
 
 namespace tools {    
     constexpr double epsil_zero = 0.125;
@@ -27,6 +30,26 @@ namespace tools {
         void draw(graphic::Color color, bool filled = true) const;
     };
 
+    class Clock{
+    public:
+        Clock();
+        virtual ~Clock() = default;
+
+        bool tick();
+
+        double elapsed_seconds() const;
+        void reset();
+        // pause/play des ticks
+        void pause()  { timeout_conn.block(); }
+        void resume() { timeout_conn.unblock(); }
+
+    private:
+        Glib::Timer timer;
+        sigc::connection timeout_conn;
+        double elapsed_sec;
+        int dt_ = dt;
+    };
+    
     // --- Fonctions utilitaires ---
 
     // Calcul de la distance euclidienne entre deux points
