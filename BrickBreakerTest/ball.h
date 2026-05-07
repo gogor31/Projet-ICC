@@ -22,6 +22,11 @@ public:
     const tools::Point& get_delta() const { return delta_; }
     tools::Circle get_circle_next() const;
 
+    void set_delta(tools::Point new_delta);
+    void move();
+    void reverse_dx() {delta_.x = -delta_.x;};
+    void reverse_dy() {delta_.y = -delta_.y;};
+    
 private:
     tools::Circle circle_; 
     tools::Point  delta_;
