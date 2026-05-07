@@ -36,3 +36,23 @@ tools::Circle Ball::get_circle_next() const { //cercle de la balle a la prochain
     return tools::Circle{circle_.center + delta_, circle_.radius};
 }
 
+void Ball::set_delta(tools::Point new_delta) {
+    double v2 = new_delta.x * new_delta.x + new_delta.y * new_delta.y;
+    double max_v2 = delta_norm_max * delta_norm_max;
+
+    if (v2 > max_v2) {
+        double factor = delta_norm_max / sqrt(v2);
+        delta_.x = new_delta.x * factor; //! pas sur de la bride pour deltaVmax
+        delta_.y = new_delta.y * factor; //! pas sur de la bride pour deltaVmax
+    } else {
+        delta_ = new_delta;
+    }
+}
+
+void Ball::move() {
+    circle_.center.x += delta_.x;
+    circle_.center.y += delta_.y;
+}
+
+
+
