@@ -242,7 +242,6 @@ bool Game::validate_initial_state() {
 
 
 
-
 void Game::save(const std::string& filename) const {
     std::ofstream file(filename);
     if (!file) return;
@@ -345,26 +344,20 @@ void Game::spawn_ball() {
     }
 }
 
-void Game::update() {//bouton step pour le rendu 3
-    //déplace toutes les balles
-    for (auto& ball : balls_) {
-        ball.move();
-    }
-}
 
 
-bool Game::ball_arena_collisions(Ball& b) { 
-    tools::Circle ball_circ = b.get_circle();
+bool Game::ball_arena_collisions(Ball& ball) { 
+    tools::Circle ball_circ = ball.get_circle();
     
     // Mur Gauche ou Droit
     if (ball_circ.center.x - ball_circ.radius <= tools::epsil_zero || 
         ball_circ.center.x + ball_circ.radius >= arena_size - tools::epsil_zero) {
-        b.reverse_dx();
+        ball.reverse_dx();
         return true; 
     }
     // Plafond
     if (ball_circ.center.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
-        b.reverse_dy();
+        ball.reverse_dy();
         return true;
     }
 
@@ -407,7 +400,24 @@ bool Game::ball_ball_collisions(Ball& b1, Ball& b2) {
 }
 
 void Game::ball_brick_collisions(Ball& ball, const tools::Square& brick_sq) {
+    double diff_x = ball.getPos_x() - brick_sq.center.x;
+    double diff_y = ball.getPos_y() - brick_sq.center.y;
+    
+    double half_side = brick_sq.side / 2.0;
+    double bounded_x = std::max(-half_side, std::min(diff_x, half_side));
+    double bounded_y = std::max(-half_side, std::min(diff_y, half_side));
+
 }
 
+void Game::ball_paddle_collisions(Ball& ball) {
 
-//TODO: collision balle balle(), balle arene(), balle brique(), balle raquette() 
+}
+
+void Game::update() {//bouton step pour le rendu 3
+    //déplace toutes les balles
+    for (auto& ball : balls_) {
+        ball.move();
+    }
+}
+
+//TODO: collision balle balle(OK), balle arene(OK), balle brique(), balle raquette() 

@@ -14,7 +14,7 @@ public:
     const tools::Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; } 
     
-    virtual void hit() = 0;
+    virtual bool hit() = 0;
 
 protected:  
     Brick(tools::Square s, int type) : bounds_(s), type_(type) {}
@@ -32,7 +32,8 @@ public:
     void write(std::ostream& out) const override;
 
     bool hit() override {
-        return (--hit_points_ <= 0);
+        --hit_points_;
+        return (hit_points_ <= 0);
     }
 
 private:
