@@ -1,7 +1,10 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+#include <gtkmm.h>
 #include "graphic.h"
+#include "constants.h"
+#include <cairomm/context.h>
 
 namespace tools {    
     constexpr double epsil_zero = 0.125;
@@ -26,7 +29,7 @@ namespace tools {
 
         void draw(graphic::Color color, bool filled = true) const;
     };
-
+    
     // --- Fonctions utilitaires ---
 
     // Calcul de la distance euclidienne entre deux points

@@ -345,6 +345,12 @@ void Game::spawn_ball() {
     }
 }
 
+void Game::update() {//bouton step pour le rendu 3
+    //déplace toutes les balles
+    for (auto& ball : balls_) {
+        ball.move();
+    }
+}
 
 
 bool Game::ball_arena_collisions(Ball& b) { 
@@ -403,7 +409,5 @@ bool Game::ball_ball_collisions(Ball& b1, Ball& b2) {
 void Game::ball_brick_collisions(Ball& ball, const tools::Square& brick_sq) {
 }
 
-void Game::update() {
-}
 
 //TODO: collision balle balle(), balle arene(), balle brique(), balle raquette() 
