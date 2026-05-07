@@ -59,6 +59,7 @@ private:
     void calc_ball_on_brick(Ball& ball, const tools::Square& brick_sq);
     bool handle_ball_brick_collisions(Ball& ball, const tools::Square& brick_sq);
     void ball_paddle_collisions(Ball& ball);
+    bool ball_ball_collisions(Ball& b1, Ball& b2);
 };
 
 

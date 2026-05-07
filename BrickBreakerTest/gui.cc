@@ -120,6 +120,7 @@ void My_window::start_clicked()
         buttons[RESTART].set_sensitive(true);
         buttons[START].set_label("start");
         buttons[STEP].set_sensitive(true);
+        loop();
     }
     else 
     {
@@ -262,6 +263,7 @@ bool My_window::loop()
 
         drawing.queue_draw();
         update_infos();
+        game.update();
         return true;
     }
     return false;

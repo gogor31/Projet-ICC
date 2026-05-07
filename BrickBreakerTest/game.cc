@@ -426,7 +426,7 @@ void Game::calc_ball_on_brick(Ball& ball, const tools::Square& brick_sq) {
     ball.set_delta(new_delta);
 }
 
-bool Game::handle_ball_brick_collisions(Ball& ball) {
+bool Game::handle_ball_brick_collisions(Ball& b, const tools::Square& brick_sq) {
     for (auto it = bricks_.begin(); it != bricks_.end(); ) { 
         if (tools::intersects_Circle_Square(b.get_circle(), (*it)->get_bounds(), tools::epsil_zero)) {
             
@@ -440,8 +440,8 @@ bool Game::handle_ball_brick_collisions(Ball& ball) {
             
             if ((*it)->hit()) { 
 
-                if (type == 1) spawn_ball_from_brick(b_bounds, b.get_delta()); // fonction à coder 
-                if (type == 2) split_brick_logic(b_bounds); // fonction à coder
+                //if (type == 1) spawn_ball_from_brick(b_bounds, b.get_delta()); // fonction à coder 
+                //if (type == 2) split_brick_logic(b_bounds); // fonction à coder
                 
                 it = bricks_.erase(it); 
             } else {
@@ -463,6 +463,7 @@ void Game::ball_paddle_collisions(Ball& ball) {
 void Game::update() {//bouton step pour le rendu 3
     //déplace toutes les balles
     for (auto& ball : balls_) {
+        ball_arena_collisions(ball);
         ball.move();
     }
 }
