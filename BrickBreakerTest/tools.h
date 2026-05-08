@@ -52,5 +52,24 @@ namespace tools {
     bool is_circle_in_square(const Circle& c, double square_side);
     
     bool is_paddle_in_arena(const Circle& c, double square_side);
+
+    double norm(const Point& p);
+
+    // Normalise un vecteur (le ramène à une norme de 1)
+    Point normalize(const Point& p);
+
+    // Calcule le produit scalaire entre deux vecteurs
+    double scalaire(const Point& v1, const Point& v2);
+
+    // Réflexion d'un vecteur v par rapport à une normale n
+    Point reflect(const Point& v, const Point& n);
+
+    // Calcule la direction nominale pour un rebond sur un carré
+    Point compute_nominal_direction(const Circle& c, const Square& s);
+
+    // Calcule le nouveau delta après un choc élastique
+    Point compute_impulse(const Point& d1, double r1, const Point& c1,
+                         const Point& d2, double r2, const Point& c2);
+
 }
 #endif

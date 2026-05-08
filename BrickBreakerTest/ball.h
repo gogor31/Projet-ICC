@@ -27,9 +27,13 @@ public:
     void reverse_dx() {delta_.x = -delta_.x;};
     void reverse_dy() {delta_.y = -delta_.y;};
     
+    void backup_position();
+    void restore_position();
+
 private:
     tools::Circle circle_; 
     tools::Point  delta_;
+    tools::Point old_center_;
 };
 
 

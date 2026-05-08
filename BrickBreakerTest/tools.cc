@@ -83,4 +83,63 @@ namespace tools {
 
         return true;
     }
+
+    double tools::norm(const Point& p) {
+        double norm = std::sqrt(p.x * p.x + p.y * p.y);
+        return norm;
+    }
+
+    tools::Point tools::normalize(const Point& p) {
+        double n = norm(p);
+        if (n < epsil_zero) {
+            return {0, 0};
+        }
+        return {p.x / n, p.y / n};
+    }
+
+    double tools::scalaire(const Point& v1, const Point& v2) {
+        double scalaire = v1.x * v2.x + v1.y * v2.y;
+        return scalaire;
+    }
+
+    tools::Point tools::reflect(const Point& v, const Point& n) { //? Utilité de la normale ?
+    Point n_norm = normalize(n);
+    double dot = scalaire(v, n_norm);
+    return {v.x - 2.0 * dot * n_norm.x, v.y - 2.0 * dot * n_norm.y};
+    }
+
+    tools::Point tools::compute_nominal_direction(const Circle& c, const Square& s) {
+        // Différence réelle entre les centres
+        double diff_x = c.center.x - s.center.x;
+        double diff_y = c.center.y - s.center.y;
+
+        // Différence bornée à la moitié de la taille du carré
+        double half_s = s.side / 2.0;
+        double bounded_x = std::max(-half_s, std::min(diff_x, half_s));
+        double bounded_y = std::max(-half_s, std::min(diff_y, half_s));
+
+        // Direction nominale = différence réelle - différence bornée
+        return {diff_x - bounded_x, diff_y - bounded_y};
+    }
+
+    tools::Point tools::compute_impulse(const Point& d1, double r1, const Point& c1,
+                                    const Point& d2, double r2, const Point& c2) {
+    double dist = distance(c1, c2);
+    if (dist < epsil_zero) return d1;
+
+    // Vecteur normal reliant les centres
+    Point n = {(c1.x - c2.x) / dist, (c1.y - c2.y) / dist};
+
+    // Vitesse nominale (projection du delta sur la normale) 
+    double v1n = scalaire(d1, n);
+    double v2n = scalaire(d2, n);
+
+    // Formule de l'impulsion corrigée par les masses 
+    double m1 = r1 * r1;
+    double m2 = r2 * r2;
+    double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
+
+    return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
+    }
+
 }
