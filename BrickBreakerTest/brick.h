@@ -16,11 +16,15 @@ public:
     
     virtual bool hit() = 0;
 
+    bool is_dead() const {return dead_;}
+    void mark_as_dead() { dead_ = true; }
+
 protected:  
     Brick(tools::Square s, int type) : bounds_(s), type_(type) {}
     
     tools::Square bounds_; 
     int type_;
+    bool dead_ = false;
 };
 
 class RainbowBrick : public Brick {
