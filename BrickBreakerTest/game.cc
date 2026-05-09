@@ -296,37 +296,7 @@ void Game::draw() const {
 }
 
 void Game::update_paddle_pos(double target_x) {
-    double current_x = paddle_.get_circle().center.x;
-    double diff_x = target_x - current_x;
-
-    
-    double move_x = 0.0;
-    if (std::abs(diff_x) > delta_norm_max) {
-
-        move_x = (diff_x > 0 ? delta_norm_max : -delta_norm_max);
-    } else {
-        
-        move_x = diff_x; 
-    }
-
-    
-    tools::Circle next_circle = paddle_.get_circle();
-    next_circle.center.x += move_x; 
-
-    if (tools::is_paddle_in_arena(next_circle, arena_size)) { 
-        bool collision = false;
-        for (const auto& b : bricks_) {
-            if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), tools::epsil_zero)) {
-                collision = true;
-                break;
-            }
-        }
-        
-
-        if (!collision) {
-            paddle_.set_center(next_circle.center.x); 
-        }
-    }
+    paddle_.move(target_x, bricks_);
 }
 
 void Game::spawn_ball() {
@@ -343,7 +313,6 @@ void Game::spawn_ball() {
         balls_.push_back(Ball(ball_circle, initial_delta));
     }
 }
-
 
 
 bool Game::ball_arena_collisions(Ball& ball) { 

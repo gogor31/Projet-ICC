@@ -21,6 +21,7 @@ public:
         circle_.center.x = x; 
     }
 
+    void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};
     bool active;

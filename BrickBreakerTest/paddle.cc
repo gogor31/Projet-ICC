@@ -41,3 +41,30 @@ void Paddle::draw() const {
 
     graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::RED);
 }
+
+void Paddle::move(double target_x, const std::vector<Brick*>& bricks) {
+if (!active) return;
+
+    double current_x = circle_.center.x;
+    double diff_x = target_x - current_x;
+    
+    double move_x = (std::abs(diff_x) > delta_norm_max) ? 
+                    (diff_x > 0 ? delta_norm_max : -delta_norm_max) : diff_x;
+
+    tools::Circle next_circle = circle_;
+    next_circle.center.x += move_x;
+
+    if (tools::is_paddle_in_arena(next_circle, arena_size)) {
+        bool collision = false;
+        for (const auto& b : bricks) {
+            if (tools::intersects_Circle_Square(next_circle, b->get_bounds())) {
+                collision = true;
+                break;
+            }
+        }
+
+        if (!collision) {
+            circle_.center.x = next_circle.center.x;
+        }
+    }
+}

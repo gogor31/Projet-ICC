@@ -43,9 +43,12 @@ void Ball::set_delta(tools::Point new_delta) {
     double max_v2 = delta_norm_max * delta_norm_max;
 
     if (v2 > max_v2) {
-        double factor = delta_norm_max / sqrt(v2);
-        delta_.x = new_delta.x * factor; 
-        delta_.y = new_delta.y * factor; 
+        double delta_norm = tools::norm(new_delta);
+        if (delta_norm > tools::epsil_zero) { 
+            double factor = delta_norm_max / delta_norm;
+            delta_.x = new_delta.x * factor; 
+            delta_.y = new_delta.y * factor; 
+        }
     } else {
         delta_ = new_delta;
     }
