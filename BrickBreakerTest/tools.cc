@@ -142,4 +142,24 @@ namespace tools {
     return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
     }
 
+    void resolve_overlap(Point& p1, double r1, Point& p2, double r2) {
+        double dx = p1.x - p2.x;
+        double dy = p1.y - p2.y;
+        double distance = std::sqrt(dx*dx + dy*dy);
+        double min_dist = r1 + r2;
+
+        if (distance < min_dist && distance > 0) {
+            double overlap = min_dist - distance + epsil_zero;
+            
+            // Vecteur unitaire de direction (de p2 vers p1)
+            double nx = dx / distance;
+            double ny = dy / distance;
+
+            // On déplace chaque point de la moitié de l'overlap
+            p1.x += nx * (overlap / 2.0);
+            p1.y += ny * (overlap / 2.0);
+            p2.x -= nx * (overlap / 2.0);
+            p2.y -= ny * (overlap / 2.0);
+        }
+    }
 }

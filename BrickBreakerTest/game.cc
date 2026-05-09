@@ -330,9 +330,17 @@ void Game::handle_ball_ball_collisions() {
             if (tools::intersects_Circle_Circle(balls_[i].get_circle(), 
                                                balls_[j].get_circle())) {
                 
+                tools::Point p1 = balls_[i].get_circle().center;
+                tools::Point p2 = balls_[j].get_circle().center;
+
+                tools::resolve_overlap(p1, balls_[i].getRadius(), 
+                                       p2, balls_[j].getRadius());
+
+                balls_[i].set_center(p1);
+                balls_[j].set_center(p2);
+                
                 tools::Point v1 = balls_[i].get_delta();
                 tools::Point v2 = balls_[j].get_delta();
-                
 
                 tools::Point new_v1 = tools::compute_impulse(v1, balls_[i].getRadius(), 
                                        balls_[i].get_circle().center,
@@ -344,11 +352,9 @@ void Game::handle_ball_ball_collisions() {
                                        v1, balls_[i].getRadius(), 
                                        balls_[i].get_circle().center);
 
-
                 balls_[i].set_delta(new_v1);
                 balls_[j].set_delta(new_v2);
                 
-                // Note: On pourrait ajouter un ball.restore_position() si elles s'interpénètrent
             }
         }
     }
@@ -408,11 +414,7 @@ void Game::handle_bricks_collision(Ball& ball) {
             break;
         }
     }
-    
-
-
 }
-
 
 void Game::handle_paddle_collision(Ball& ball) {
     if (tools::intersects_Circle_Circle(ball.get_circle(), paddle_.get_circle())) {
@@ -421,26 +423,61 @@ void Game::handle_paddle_collision(Ball& ball) {
         tools::Point n = { ball.get_circle().center.x - paddle_.get_circle().center.x,
                            ball.get_circle().center.y - paddle_.get_circle().center.y };
         
+        double distance = tools::norm(n);
+        double target_dist = ball.getRadius() + paddle_.get_circle().radius + tools::epsil_zero;
+        
+        if (distance < target_dist) {
+            tools::Point n_norm = tools::normalize(n);
+            tools::Point safe_pos = {
+                paddle_.get_circle().center.x + n_norm.x * target_dist,
+                paddle_.get_circle().center.y + n_norm.y * target_dist
+            };
+            ball.set_center(safe_pos);
+        }
+
         ball.set_delta(tools::reflect(ball.get_delta(), n));
+        
+        // ACCÉLÉRATION DE LA BALLE APRÈS REBOND SUR LA RAQUETTE
+        tools::Point vel = ball.get_delta();
+        double current_speed = tools::norm(vel);
+        double factor = 1.10; // Augmente la vitesse de 10%
+        
+        if (current_speed * factor < delta_norm_max) {
+            vel.x *= factor;
+            vel.y *= factor;
+            ball.set_delta(vel);
+        }
     }
 }
 
 bool Game::handle_arena_collision(Ball& ball) { 
     tools::Circle ball_circ = ball.get_circle();
-    
+    tools::Point pos = ball_circ.center;
+    bool collided = false;
 
-    if (ball_circ.center.x - ball_circ.radius <= tools::epsil_zero || 
-        ball_circ.center.x + ball_circ.radius >= arena_size - tools::epsil_zero) {
+    if (pos.x - ball_circ.radius <= tools::epsil_zero) {
         ball.reverse_dx();
-        return true; 
+        pos.x = ball_circ.radius + 2 * tools::epsil_zero; // On la repousse un peu
+        collided = true;
     }
 
-    if (ball_circ.center.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
+    else if (pos.x + ball_circ.radius >= arena_size - tools::epsil_zero) {
+        ball.reverse_dx();
+        pos.x = arena_size - ball_circ.radius - 2 * tools::epsil_zero;
+        collided = true;
+    }
+
+    if (pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
         ball.reverse_dy();
-        return true;
+        pos.y = arena_size - ball_circ.radius - 2 * tools::epsil_zero;
+        collided = true;
     }
 
-    return false;
+    if (collided) {
+        ball.set_center(pos);
+    }
+
+    return collided;
 }
 
 
@@ -465,7 +502,6 @@ void Game::cleanup_dead_objects() {
         }
     }
 }
-
 
 
 void Game::update() {

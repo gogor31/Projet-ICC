@@ -100,7 +100,6 @@ void My_window::save_clicked()
 }
 void My_window::restart_clicked()
 {
-    cout << __func__ << endl; 
     if (!current_file.empty()) {
         game.load_file(current_file);
         drawing.queue_draw();
@@ -109,7 +108,7 @@ void My_window::restart_clicked()
 }
 void My_window::start_clicked()
 {
-    cout << __func__ << endl;
+
     if (loop_activated)
     {
         loop_conn.disconnect();
@@ -140,7 +139,6 @@ void My_window::step_clicked()
     game.update(); 
     drawing.queue_draw();
     update_infos();
-    cout << __func__ << endl;
 }
 void My_window::set_key_controller()
 {
@@ -256,14 +254,14 @@ bool My_window::loop()
 {
     if (loop_activated)
     {
-        if (game.is_over()) {
-            start_clicked(); // Simule un clic sur STOP
+        if (game.is_over() && game.get_lives() <= 0) {
+            start_clicked();
             return false;
         }
 
+        game.update();
         drawing.queue_draw();
         update_infos();
-        game.update();
         return true;
     }
     return false;
@@ -330,20 +328,26 @@ void My_window::set_mouse_controller()
     drawing.add_controller(left_click);
     drawing.add_controller(move);
 }
+
 void My_window::on_drawing_left_click(int n_press, double x, double y)
 {
     (void)n_press; (void)x; (void)y;
     
-    cout << __func__ << endl; 
 
     if (game.get_nb_balls() == 0 && game.get_lives() > 0) 
     {
         game.spawn_ball(); 
 
+        if (!loop_activated) 
+        {
+            start_clicked(); 
+        }
+        
         drawing.queue_draw();
         update_infos();
     }
 }
+
 void My_window::on_drawing_move(double x, double y)
 {
     if (!game.get_paddle().is_active()) {
@@ -360,5 +364,4 @@ void My_window::on_drawing_move(double x, double y)
 
     game.update_paddle_pos(model_x);
     drawing.queue_draw();
-    cout << __func__ << endl;
 }

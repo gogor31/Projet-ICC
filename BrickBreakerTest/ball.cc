@@ -54,6 +54,14 @@ void Ball::set_delta(tools::Point new_delta) {
     }
 }
 
+void Ball::reverse_dx() {
+    delta_.x = -delta_.x;
+}
+
+void Ball::reverse_dy() {
+    delta_.y = -delta_.y;
+}
+
 void Ball::backup_position() {
     old_center_ = circle_.center;
 }
@@ -66,6 +74,10 @@ void Ball::move() {
 
 void Ball::restore_position() {
     circle_.center = old_center_;
+}
+
+void Ball::set_center(tools::Point p) {
+    circle_.center = p;
 }
 
 

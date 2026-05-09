@@ -24,11 +24,13 @@ public:
 
     void set_delta(tools::Point new_delta);
     void move();
-    void reverse_dx() {delta_.x = -delta_.x;};
-    void reverse_dy() {delta_.y = -delta_.y;};
+    void reverse_dx();
+    void reverse_dy();
     
     void backup_position();
     void restore_position();
+
+    void set_center(tools::Point p);
 
 private:
     tools::Circle circle_; 

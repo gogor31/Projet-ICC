@@ -71,5 +71,7 @@ namespace tools {
     Point compute_impulse(const Point& d1, double r1, const Point& c1,
                          const Point& d2, double r2, const Point& c2);
 
+    void resolve_overlap(Point& p1, double r1, Point& p2, double r2);
+
 }
 #endif
