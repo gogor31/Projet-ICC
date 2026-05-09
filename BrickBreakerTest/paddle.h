@@ -1,8 +1,12 @@
 #ifndef PADDLE_H
 #define PADDLE_H
 
+#include <vector>
+#include <memory>
 #include "tools.h"
 #include "graphic.h"
+
+class Brick; // declaration anticipée pour éviter les dépendances circulaires
 
 class Paddle {
 public:
@@ -21,7 +25,7 @@ public:
         circle_.center.x = x; 
     }
 
-    void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
+    void move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};
     bool active;

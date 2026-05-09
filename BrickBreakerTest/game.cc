@@ -361,7 +361,8 @@ void Game::handle_brick_destruction_effects(const Brick& b,
             spawn_new_ball(b.get_bounds().center);
             break;
 
-        case 2: 
+        case 2:
+        { 
             double s = b.get_bounds().side;
             double small_s = (s - split_brick_gap) / 2.0;
 
@@ -377,7 +378,8 @@ void Game::handle_brick_destruction_effects(const Brick& b,
                 new_bricks.push_back(std::make_unique<RainbowBrick>(tools::Square{{cx+offset, cy+offset}, small_s}, 1));
             }
             break;
-
+        }
+        
         default:
             break;
     }

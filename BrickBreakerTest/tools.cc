@@ -84,12 +84,12 @@ namespace tools {
         return true;
     }
 
-    double tools::norm(const Point& p) {
+    double norm(const Point& p) {
         double norm = std::sqrt(p.x * p.x + p.y * p.y);
         return norm;
     }
 
-    tools::Point tools::normalize(const Point& p) {
+    Point normalize(const Point& p) {
         double n = norm(p);
         if (n < epsil_zero) {
             return {0, 0};
@@ -97,18 +97,18 @@ namespace tools {
         return {p.x / n, p.y / n};
     }
 
-    double tools::scalaire(const Point& v1, const Point& v2) {
+    double scalaire(const Point& v1, const Point& v2) {
         double scalaire = v1.x * v2.x + v1.y * v2.y;
         return scalaire;
     }
 
-    tools::Point tools::reflect(const Point& v, const Point& n) { //? Utilité de la normale ?
+    Point reflect(const Point& v, const Point& n) { //? Utilité de la normale ?
     Point n_norm = normalize(n);
     double dot = scalaire(v, n_norm);
     return {v.x - 2.0 * dot * n_norm.x, v.y - 2.0 * dot * n_norm.y};
     }
 
-    tools::Point tools::compute_nominal_direction(const Circle& c, const Square& s) {
+    Point compute_nominal_direction(const Circle& c, const Square& s) {
         // Différence réelle entre les centres
         double diff_x = c.center.x - s.center.x;
         double diff_y = c.center.y - s.center.y;
@@ -122,7 +122,7 @@ namespace tools {
         return {diff_x - bounded_x, diff_y - bounded_y};
     }
 
-    tools::Point tools::compute_impulse(const Point& d1, double r1, const Point& c1,
+    Point compute_impulse(const Point& d1, double r1, const Point& c1,
                                     const Point& d2, double r2, const Point& c2) {
     double dist = distance(c1, c2);
     if (dist < epsil_zero) return d1;

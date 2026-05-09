@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "message.h"
 #include "graphic.h"
+#include "brick.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void Paddle::draw() const {
     graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::RED);
 }
 
-void Paddle::move(double target_x, const std::vector<Brick*>& bricks) {
+void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks) {
 if (!active) return;
 
     double current_x = circle_.center.x;
