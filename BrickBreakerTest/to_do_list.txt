@@ -1,10 +1,8 @@
 A faire : 
-- Action de fin de partie (victoire ou défaite)
-- ficher à rendre
+- fiche à rendre
 - chercher des éventuels limite de fonctionnement pour la fiabilité du code
 
 Bug à corriger : 
 - Lag en plein écran 
 - vitesse max respecté 
-- vitesse incrementée à chaque collisions ou uniquement la raquette
 - conventions / consignes TOUTES respectées ? 

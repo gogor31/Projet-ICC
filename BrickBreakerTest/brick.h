@@ -11,6 +11,8 @@ public:
     virtual void draw() const = 0;
     virtual void write(std::ostream& out) const = 0;
 
+    virtual int get_hit_points() const = 0;
+
     const tools::Square& get_bounds() const { return bounds_; }
     int get_type() const { return type_; } 
     
@@ -35,6 +37,8 @@ public:
     void draw() const override;
     void write(std::ostream& out) const override;
 
+    int get_hit_points() const override { return hit_points_; }
+
     bool hit() override {
         --hit_points_;
         return (hit_points_ <= 0);
@@ -49,7 +53,8 @@ public:
     BallBrick(tools::Square s) : Brick(s, 1) {}
     void draw() const override;
     void write(std::ostream& out) const override;
-
+    
+    int get_hit_points() const override { return 1; }
     bool hit() override {
         return true; 
     }
@@ -57,13 +62,16 @@ public:
 
 class SplitBrick : public Brick {
 public: 
-    SplitBrick(tools::Square s) : Brick(s, 2) {}
+    SplitBrick(tools::Square s, int hp = 1) : Brick(s, 2), hit_points_(hp) {}
     void draw() const override;
     void write(std::ostream& out) const override;
 
+    int get_hit_points() const override { return hit_points_; }
     bool hit() override {
         return true; 
     }
+private:
+    int hit_points_;
 };
 
 

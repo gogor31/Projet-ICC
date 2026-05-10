@@ -40,11 +40,11 @@ bool Paddle::check() const {
 void Paddle::draw() const {
     if (!active) return;
 
-    graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::RED);
+    graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK);
 }
 
 void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks) {
-if (!active) return;
+    if (!active) return;
 
     double current_x = circle_.center.x;
     double diff_x = target_x - current_x;
@@ -55,17 +55,22 @@ if (!active) return;
     tools::Circle next_circle = circle_;
     next_circle.center.x += move_x;
 
+    bool collision = false;
     if (tools::is_paddle_in_arena(next_circle, arena_size)) {
-        bool collision = false;
         for (const auto& b : bricks) {
             if (tools::intersects_Circle_Square(next_circle, b->get_bounds())) {
                 collision = true;
                 break;
             }
         }
+    } else {
+        collision = true;
+    }
 
-        if (!collision) {
+    if (!collision) {
             circle_.center.x = next_circle.center.x;
-        }
+            delta_ = { circle_.center.x - current_x, 0.0 };
+    } else {
+            delta_ = {0.0, 0.0};
     }
 }

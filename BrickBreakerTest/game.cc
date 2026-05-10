@@ -37,6 +37,7 @@ void Game::clear() {
     balls_.clear();
     score_ = 0;
     lives_ = 0;
+    status_ = ONGOING;
     paddle_.set_active(false);
 }
 
@@ -144,26 +145,21 @@ bool Game::read_balls(std::ifstream& file) {
 
 bool Game::create_brick(int type, double x, double y, double s, 
                         std::stringstream& ss) {
-    Brick* new_ptr = nullptr;
+    std::unique_ptr<Brick> new_ptr = nullptr;
 
     // Factory simple pour le polymorphisme
     if (type == 0) {
         int hp;
         if (!(ss >> hp)) return false;
-        new_ptr = new RainbowBrick({{x, y}, s}, hp);
+        new_ptr = std::make_unique<RainbowBrick>(tools::Square{{x, y}, s}, hp);
     } else if (type == 1) {
-        new_ptr = new BallBrick({{x, y}, s});
+        new_ptr = std::make_unique<BallBrick>(tools::Square{{x, y}, s});
     } else if (type == 2) {
-        new_ptr = new SplitBrick({{x, y}, s});
+        new_ptr = std::make_unique<SplitBrick>(tools::Square{{x, y}, s}, 1); 
     }
 
-    if (new_ptr) {
-        // Appel polymorphique de check()
-        if (!new_ptr->check()) {
-            delete new_ptr;
-            return false;
-        }
-        bricks_.push_back(std::unique_ptr<Brick>(new_ptr));
+    if (new_ptr && new_ptr->check()) {
+        bricks_.push_back(std::move(new_ptr));
         return true;
     }
     return false;
@@ -307,13 +303,14 @@ void Game::add_ball_to_simulation(tools::Point pos, tools::Point velocity) {
 void Game::spawn_ball() {
     if (lives_ > 0 && balls_.empty()) {
         --lives_; 
-    
-        tools::Point pos = {paddle_.get_circle().center.x, 
-                            paddle_.get_circle().center.y + 
-                            paddle_.get_circle().radius + tools::epsil_zero};
+        
+        double spawn_y = paddle_.get_circle().center.y 
+                         + paddle_.get_circle().radius 
+                         + new_ball_radius 
+                         + tools::epsil_zero * 2;
 
-
-        tools::Point initial_delta = {0.0, new_ball_delta_norm};
+        tools::Point pos = { paddle_.get_circle().center.x, spawn_y };
+        tools::Point initial_delta = { 0.0, new_ball_delta_norm };
         
         add_ball_to_simulation(pos, initial_delta);
     }
@@ -376,77 +373,75 @@ void Game::handle_brick_destruction_effects(const Brick& b,
                 double offset = (small_s + split_brick_gap) / 2.0;
                 double cx = b.get_bounds().center.x;
                 double cy = b.get_bounds().center.y;
+                
+                // On passe hit_points + 1 pour changer la couleur récursivement
+                int next_hp = b.get_hit_points() + 1;
 
-    
-                new_bricks.push_back(std::make_unique<RainbowBrick>(tools::Square{{cx-offset, cy-offset}, small_s}, 1));
-                new_bricks.push_back(std::make_unique<RainbowBrick>(tools::Square{{cx+offset, cy-offset}, small_s}, 1));
-                new_bricks.push_back(std::make_unique<RainbowBrick>(tools::Square{{cx-offset, cy+offset}, small_s}, 1));
-                new_bricks.push_back(std::make_unique<RainbowBrick>(tools::Square{{cx+offset, cy+offset}, small_s}, 1));
+                new_bricks.push_back(std::make_unique<SplitBrick>(
+                    tools::Square{{cx-offset, cy-offset}, small_s}, next_hp));
+                new_bricks.push_back(std::make_unique<SplitBrick>(
+                    tools::Square{{cx+offset, cy-offset}, small_s}, next_hp));
+                new_bricks.push_back(std::make_unique<SplitBrick>(
+                    tools::Square{{cx-offset, cy+offset}, small_s}, next_hp));
+                new_bricks.push_back(std::make_unique<SplitBrick>(
+                    tools::Square{{cx+offset, cy+offset}, small_s}, next_hp));
             }
             break;
         }
-        
-        default:
-            break;
     }
 }
 
-void Game::handle_bricks_collision(Ball& ball) {
+bool Game::handle_bricks_collision(Ball& ball) {
+    bool collided = false;
+    std::vector<std::unique_ptr<Brick>> to_add;
+
     for (auto& brick : bricks_) {
-        if (!brick->is_dead() && tools::intersects_Circle_Square(ball.get_circle(), brick->get_bounds())) {
-            
+        if (!brick->is_dead() && tools::intersects_Circle_Square(ball.get_circle(), 
+                                                                brick->get_bounds(), 
+                                                                tools::epsil_zero)) {
+            collided = true;
             ball.restore_position();
-            tools::Point n = tools::compute_nominal_direction(ball.get_circle(), brick->get_bounds());
+
+            tools::Point n = tools::compute_nominal_direction(ball.get_circle(), 
+                                                              brick->get_bounds()); 
             ball.set_delta(tools::reflect(ball.get_delta(), n));
             
             score_ += score_per_hit;
-            
+
             if (brick->hit()) {
                 brick->mark_as_dead();
-                
-                std::vector<std::unique_ptr<Brick>> to_add;
-                handle_brick_destruction_effects(*brick, to_add); 
-                
-                for (auto& b : to_add) {
-                    bricks_.push_back(std::move(b));
-                }
+                handle_brick_destruction_effects(*brick, to_add);
             }
+            ball.move();
             break;
         }
     }
+
+    for (auto& new_b : to_add) {
+        bricks_.push_back(std::move(new_b));
+    }
+
+    return collided;
 }
 
 void Game::handle_paddle_collision(Ball& ball) {
-    if (tools::intersects_Circle_Circle(ball.get_circle(), paddle_.get_circle())) {
+    if (tools::intersects_Circle_Circle(ball.get_circle(), 
+                                        paddle_.get_circle(), 
+                                        tools::epsil_zero)) 
+    {
         ball.restore_position();
-        
-        tools::Point n = { ball.get_circle().center.x - paddle_.get_circle().center.x,
-                           ball.get_circle().center.y - paddle_.get_circle().center.y };
-        
-        double distance = tools::norm(n);
-        double target_dist = ball.getRadius() + paddle_.get_circle().radius + tools::epsil_zero;
-        
-        if (distance < target_dist) {
-            tools::Point n_norm = tools::normalize(n);
-            tools::Point safe_pos = {
-                paddle_.get_circle().center.x + n_norm.x * target_dist,
-                paddle_.get_circle().center.y + n_norm.y * target_dist
-            };
-            ball.set_center(safe_pos);
-        }
 
-        ball.set_delta(tools::reflect(ball.get_delta(), n));
-        
-        // ACCÉLÉRATION DE LA BALLE APRÈS REBOND SUR LA RAQUETTE
-        tools::Point vel = ball.get_delta();
-        double current_speed = tools::norm(vel);
-        double factor = 1.10; // Augmente la vitesse de 10%
-        
-        if (current_speed * factor < delta_norm_max) {
-            vel.x *= factor;
-            vel.y *= factor;
-            ball.set_delta(vel);
-        }
+        tools::Point v_ball = ball.get_delta();
+        tools::Point v_paddle = paddle_.get_delta();
+
+        tools::Point new_v = tools::compute_impulse_paddle(v_ball, 
+                                                           ball.get_circle().center,
+                                                           v_paddle, 
+                                                           paddle_.get_circle().center);
+
+        ball.set_delta(new_v);
+
+        ball.move();
     }
 }
 
@@ -455,47 +450,37 @@ bool Game::handle_arena_collision(Ball& ball) {
     tools::Point pos = ball_circ.center;
     bool collided = false;
 
-    if (pos.x - ball_circ.radius <= tools::epsil_zero) {
-        ball.reverse_dx();
-        pos.x = ball_circ.radius + 2 * tools::epsil_zero; // On la repousse un peu
+    if (pos.x - ball_circ.radius <= tools::epsil_zero || 
+        pos.x + ball_circ.radius >= arena_size - tools::epsil_zero ||
+        pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) 
+    {
         collided = true;
-    }
+        ball.restore_position();
 
-    else if (pos.x + ball_circ.radius >= arena_size - tools::epsil_zero) {
-        ball.reverse_dx();
-        pos.x = arena_size - ball_circ.radius - 2 * tools::epsil_zero;
-        collided = true;
+        if (pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
+            ball.reverse_dy(); 
+        } else {
+            ball.reverse_dx(); 
+        }
+        ball.move(); 
     }
-
-    if (pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
-        ball.reverse_dy();
-        pos.y = arena_size - ball_circ.radius - 2 * tools::epsil_zero;
-        collided = true;
-    }
-
-    if (collided) {
-        ball.set_center(pos);
-    }
-
     return collided;
+
 }
 
-
 void Game::cleanup_dead_objects() {
-    
     auto it_b = bricks_.begin();
     while (it_b != bricks_.end()) {
         if ((*it_b)->is_dead()) {
-            it_b = bricks_.erase(it_b);
+            it_b = bricks_.erase(it_b); 
         } else {
             ++it_b;
         }
     }
 
-    // 2. Suppression des balles sorties par le bas (y < 0)
     auto it_ball = balls_.begin();
     while (it_ball != balls_.end()) {
-        if (it_ball->get_circle().center.y + it_ball->getRadius() < 0) {
+        if (it_ball->is_dead() || it_ball->get_circle().center.y < 0) {
             it_ball = balls_.erase(it_ball);
         } else {
             ++it_ball;
@@ -503,19 +488,46 @@ void Game::cleanup_dead_objects() {
     }
 }
 
+void Game::check_game_status() {
+    if (bricks_.empty() && status_ == ONGOING) {
+        score_ += (lives_ * score_per_life);
+        status_ = WON;
+        std::cout << message::won();
+    } else if (balls_.empty() && lives_ == 0 && status_ == ONGOING) {
+        status_ = LOST;
+        std::cout << message::lost();
+    }
+}
 
 void Game::update() {
+    if (status_ != ONGOING) return;
+
     for (auto& ball : balls_) {
-        ball.backup_position();
-        ball.move();
-        
-        handle_arena_collision(ball);
-        handle_paddle_collision(ball);
-        handle_bricks_collision(ball);
+        ball.backup_position(); 
+        ball.move();           
+
+        if (ball.get_circle().center.y < 0) {
+            ball.mark_as_dead();
+            continue;
+        }
+
+        unsigned nb_rebonds = 0;
+        while (nb_rebonds < nb_bounce_max) {
+            if (handle_arena_collision(ball) || handle_bricks_collision(ball)) {
+                nb_rebonds++;
+            } else {
+                break;
+            }
+        }
     }
 
+    for (auto& ball : balls_) {
+        handle_paddle_collision(ball);
+    }
     handle_ball_ball_collisions();
 
+
     cleanup_dead_objects();
+    check_game_status();
 }
 

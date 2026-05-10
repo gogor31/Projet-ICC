@@ -24,11 +24,14 @@ public:
     void set_center(double x) { 
         circle_.center.x = x; 
     }
-
+    
+    tools::Point get_delta() const { return delta_; }
+    
     void move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};
-    bool active;
+    tools::Point delta_ = {0.0, 0.0};
+    bool active = false;
 };
 
 

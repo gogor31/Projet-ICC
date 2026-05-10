@@ -8,17 +8,21 @@
 #include "brick.h"
 #include "paddle.h"
 
+enum Status { ONGOING, WON, LOST };
 
 class Game {
 public:
     Game();
     ~Game();
 
+    void update();
+    void check_game_status();
+    
     bool load_file(const std::string& filename);
     void clear();
     void save(const std::string& filename) const;
 
-    void update();
+    
     void update_paddle_pos(double target_x); 
     void spawn_ball();
     void draw() const; 
@@ -32,7 +36,7 @@ public:
     int get_nb_balls() const { return balls_.size(); }
 
     Paddle get_paddle() const { return paddle_; }
-    
+
 
 
 private:
@@ -42,6 +46,7 @@ private:
     Paddle paddle_;
     std::vector<Ball> balls_;
     std::vector<std::unique_ptr<Brick>> bricks_; 
+    Status status_ = ONGOING;
 
     bool read_header(std::ifstream& file);
     bool read_paddle(std::ifstream& file);
@@ -60,7 +65,7 @@ private:
     void handle_ball_ball_collisions();
     void handle_paddle_collision(Ball& ball);
     bool handle_arena_collision(Ball& ball);
-    void handle_bricks_collision(Ball& ball);
+    bool handle_bricks_collision(Ball& ball);
     void handle_brick_destruction_effects(const Brick& b, 
                                           std::vector<std::unique_ptr<Brick>>& new_bricks);
     void cleanup_dead_objects();

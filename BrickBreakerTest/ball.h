@@ -31,11 +31,13 @@ public:
     void restore_position();
 
     void set_center(tools::Point p);
-
+    void mark_as_dead();
+    bool is_dead() const;
 private:
     tools::Circle circle_; 
     tools::Point  delta_;
     tools::Point old_center_;
+    bool dead_ = false;
 };
 
 

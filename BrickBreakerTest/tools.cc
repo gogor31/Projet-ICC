@@ -142,6 +142,21 @@ namespace tools {
     return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
     }
 
+    Point compute_impulse_paddle(const Point& d_ball, const Point& c_ball,
+                                const Point& d_paddle, const Point& c_paddle) {
+        double dist = distance(c_ball, c_paddle);
+        if (dist < epsil_zero) return d_ball;
+
+        Point n = {(c_ball.x - c_paddle.x) / dist, (c_ball.y - c_paddle.y) / dist};
+
+        double v1n = scalaire(d_ball, n);
+        double v2n = scalaire(d_paddle, n);
+                
+        double impulse_mag = 2.0 * (-v1n + v2n);
+
+        return {d_ball.x + impulse_mag * n.x, d_ball.y + impulse_mag * n.y};
+    }
+
     void resolve_overlap(Point& p1, double r1, Point& p2, double r2) {
         double dx = p1.x - p2.x;
         double dy = p1.y - p2.y;
@@ -162,4 +177,6 @@ namespace tools {
             p2.y -= ny * (overlap / 2.0);
         }
     }
+
+
 }
