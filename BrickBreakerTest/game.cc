@@ -155,7 +155,7 @@ bool Game::create_brick(int type, double x, double y, double s,
     } else if (type == 1) {
         new_ptr = std::make_unique<BallBrick>(tools::Square{{x, y}, s});
     } else if (type == 2) {
-        new_ptr = std::make_unique<SplitBrick>(tools::Square{{x, y}, s}, 1); 
+        new_ptr = std::make_unique<SplitBrick>(tools::Square{{x, y}, s}); 
     }
 
     if (new_ptr && new_ptr->check()) {
@@ -374,17 +374,17 @@ void Game::handle_brick_destruction_effects(const Brick& b,
                 double cx = b.get_bounds().center.x;
                 double cy = b.get_bounds().center.y;
                 
-                // On passe hit_points + 1 pour changer la couleur récursivement
-                int next_hp = b.get_hit_points() + 1;
-
-                new_bricks.push_back(std::make_unique<SplitBrick>(
-                    tools::Square{{cx-offset, cy-offset}, small_s}, next_hp));
-                new_bricks.push_back(std::make_unique<SplitBrick>(
-                    tools::Square{{cx+offset, cy-offset}, small_s}, next_hp));
-                new_bricks.push_back(std::make_unique<SplitBrick>(
-                    tools::Square{{cx-offset, cy+offset}, small_s}, next_hp));
-                new_bricks.push_back(std::make_unique<SplitBrick>(
-                    tools::Square{{cx+offset, cy+offset}, small_s}, next_hp));
+                int next_hp = b.get_hit_points() - 1;
+                if (next_hp >= 1) {
+                    new_bricks.push_back(std::make_unique<SplitBrick>(
+                        tools::Square{{cx-offset, cy-offset}, small_s}, next_hp));
+                    new_bricks.push_back(std::make_unique<SplitBrick>(
+                        tools::Square{{cx+offset, cy-offset}, small_s}, next_hp));
+                    new_bricks.push_back(std::make_unique<SplitBrick>(
+                        tools::Square{{cx-offset, cy+offset}, small_s}, next_hp));
+                    new_bricks.push_back(std::make_unique<SplitBrick>(
+                        tools::Square{{cx+offset, cy+offset}, small_s}, next_hp));
+                }
             }
             break;
         }

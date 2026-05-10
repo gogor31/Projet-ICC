@@ -62,15 +62,15 @@ public:
 
 class SplitBrick : public Brick {
 public: 
-    SplitBrick(tools::Square s, int hp = 1) : Brick(s, 2), hit_points_(hp) {}
+    SplitBrick(tools::Square s, int hp = -1);
     void draw() const override;
+    
     void write(std::ostream& out) const override;
 
     int get_hit_points() const override { return hit_points_; }
-    bool hit() override {
-        return true; 
-    }
+    bool hit() override { return true; }
 private:
+    void draw_recursive(tools::Square s, int hp) const;
     int hit_points_;
 };
 

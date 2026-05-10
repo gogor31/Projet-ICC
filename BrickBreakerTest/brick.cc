@@ -72,28 +72,45 @@ void BallBrick::write(std::ostream& out) const {
         << bounds_.side << std::endl;
 }
 
-void SplitBrick::draw() const {
-    bounds_.draw(graphic::RED); // Fond rouge
-    
-    double small_side = (bounds_.side - split_brick_gap) / 2.0;
-
-    if (small_side >= brick_size_min) {
-        double offset = (small_side + split_brick_gap) / 2.0;
+SplitBrick::SplitBrick(tools::Square s, int hp) : Brick(s, 2) {
+    if (hp != -1) {
+        hit_points_ = hp;
+    } else {
+        int levels = 1;
+        double current_side = s.side;
         
-        double corners_x[4] = {bounds_.center.x - offset, bounds_.center.x + offset, 
-                               bounds_.center.x - offset, bounds_.center.x + offset};
-        double corners_y[4] = {bounds_.center.y - offset, bounds_.center.y - offset, 
-                               bounds_.center.y + offset, bounds_.center.y + offset};
-
-        for (int i = 0; i < 4; ++i) {
-            tools::Square small_sq = {{corners_x[i], corners_y[i]}, small_side};
-            small_sq.draw(graphic::ORANGE);
+        while (((current_side - split_brick_gap) / 2.0) >= brick_size_min) {
+            levels++;
+            current_side = (current_side - split_brick_gap) / 2.0;
         }
+        hit_points_ = levels; 
+    }
+}
+
+void SplitBrick::draw() const {
+    draw_recursive(bounds_, hit_points_);
+}
+
+void SplitBrick::draw_recursive(tools::Square s, int hp) const {
+    int depth = hit_points_ - hp;
+    
+    graphic::Color current_color = static_cast<graphic::Color>(depth % 7);
+    
+    s.draw(current_color);
+
+    double small_s = (s.side - split_brick_gap) / 2.0;
+
+    if (small_s >= brick_size_min && hp > 1) {
+        double offset = (small_s + split_brick_gap) / 2.0;
+
+        draw_recursive({{s.center.x - offset, s.center.y - offset}, small_s}, hp - 1);
+        draw_recursive({{s.center.x + offset, s.center.y - offset}, small_s}, hp - 1);
+        draw_recursive({{s.center.x - offset, s.center.y + offset}, small_s}, hp - 1);
+        draw_recursive({{s.center.x + offset, s.center.y + offset}, small_s}, hp - 1);
     }
 }
 
 void SplitBrick::write(std::ostream& out) const {
-    // Format : type (2) x y side 
     out << type_ << " " 
         << bounds_.center.x << " " 
         << bounds_.center.y << " " 
