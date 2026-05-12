@@ -1,6 +1,7 @@
 A faire : 
 - fiche à rendre
 - chercher des éventuels limite de fonctionnement pour la fiabilité du code
+- affichage des vies après victoire 
 
 Bug à corriger : 
 - Lag en plein écran 
