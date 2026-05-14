@@ -1,11 +1,10 @@
 A faire : 
 - fiche à rendre
 - chercher des éventuels limite de fonctionnement pour la fiabilité du code
-- affichage des vies après victoire 
+- Enlever #region -> marche pas 
+- Ajout de commentaire 
 
 Bug à corriger : 
 - Lag en plein écran 
-- boutons "actifs" durant start, restart ? 
-- Masquer le superflux make 
-
--add_ball_to_simulation peut se mettre dans tools ? 
+ 
+ 
