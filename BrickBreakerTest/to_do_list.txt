@@ -5,5 +5,7 @@ A faire :
 
 Bug à corriger : 
 - Lag en plein écran 
-- vitesse max respecté 
-- conventions / consignes TOUTES respectées ? 
+- boutons "actifs" durant start, restart ? 
+- Masquer le superflux make 
+
+-add_ball_to_simulation peut se mettre dans tools ? 

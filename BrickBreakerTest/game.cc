@@ -8,41 +8,27 @@
 #include "message.h"
 #include "constants.h"
 
-
-// Lit la prochaine ligne qui n'est ni vide ni un commentaire 
-bool get_valid_line(std::ifstream& file, std::string& line) {
-    while (std::getline(file, line)) {
-        // Suppression des espaces blancs initiaux pour le test (L21)
-        size_t first_char = line.find_first_not_of(" \t\r\n");
-        
-        // On ignore les lignes vides ou commençant par '#' (O14)
-        if (first_char != std::string::npos && line[first_char] != '#') {
-            return true; 
+// #region UTILITAIRES ET NAVIGATION
+namespace {
+    bool get_valid_line(std::ifstream& file, std::string& line) {
+        while (std::getline(file, line)) {
+            size_t first_char = line.find_first_not_of(" \t\r\n");
+            if (first_char != std::string::npos && line[first_char] != '#') {
+                return true; 
+            }
         }
+        return false;
     }
-    return false;
 }
 
-
-
 Game::Game() {}
-
 
 Game::~Game() { 
     clear(); 
 }
+// #endregion
 
-void Game::clear() { 
-    bricks_.clear(); 
-    balls_.clear();
-    score_ = 0;
-    lives_ = 0;
-    status_ = ONGOING;
-    paddle_.set_active(false);
-}
-
-// --- LECTURE DU FICHIER ---
-
+// #region PHASE 1 : INITIALISATION ET ENTRÉES/SORTIES
 bool Game::load_file(const std::string& filename) {
     clear();
     std::ifstream file(filename);
@@ -57,14 +43,186 @@ bool Game::load_file(const std::string& filename) {
         return false;
     }
 
-    paddle_.set_active(true); // Active la raquette après validation réussie
+    paddle_.set_active(true);
     std::cout << message::success() << std::endl;
-    return true; // Affiche le message de succès et retourne true
+    return true;
 }
 
+void Game::clear() { 
+    bricks_.clear(); 
+    balls_.clear();
+    score_ = 0;
+    lives_ = 0;
+    status_ = ONGOING;
+    paddle_.set_active(false);
+}
+
+void Game::save(const std::string& filename) const {
+    std::ofstream file(filename);
+    if (!file) return;
+
+    file << "# score" << std::endl << score_ << std::endl << std::endl;
+    file << "# lives" << std::endl << lives_ << std::endl << std::endl;
+
+    if (paddle_.is_active()) {
+        file << "# paddle" << std::endl;
+        file << paddle_.get_circle().center.x << " " 
+             << paddle_.get_circle().center.y << " " 
+             << paddle_.get_circle().radius << std::endl << std::endl;
+    }
+
+    file << "# bricks" << std::endl << bricks_.size() << std::endl;
+    for (const auto& b : bricks_) {
+        b->write(file); 
+    }
+    file << std::endl;
+
+    file << "# balls" << std::endl << balls_.size() << std::endl;
+    for (const auto& ball : balls_) {
+        file << ball.get_circle().center.x << " " 
+             << ball.get_circle().center.y << " " 
+             << ball.get_circle().radius << " " 
+             << ball.get_delta().x << " " 
+             << ball.get_delta().y << std::endl;
+    }
+}
+// #endregion
+
+// #region PHASE 2 : BOUCLE DE SIMULATION (MISE À JOUR)
+void Game::update() {
+    if (status_ != ONGOING) return;
+    
+    std::vector<std::unique_ptr<Brick>> bricks_to_add;
+
+    for (auto& ball : balls_) {
+        ball.backup_position(); 
+        ball.move();           
+
+        if (ball.get_circle().center.y < 0) {
+            ball.mark_as_dead();
+            continue;
+        }
+
+        unsigned nb_rebonds = 0;
+        while (nb_rebonds < nb_bounce_max) {
+            if (handle_arena_collision(ball) || handle_bricks_collision(ball, bricks_to_add)) {
+                nb_rebonds++;
+            } else {
+                break;
+            }
+        }
+    }
+
+    for (auto& new_brick : bricks_to_add) {
+        bricks_.push_back(std::move(new_brick));
+    }
+
+    for (auto& ball : balls_) {
+        handle_paddle_collision(ball);
+    }
+    handle_ball_ball_collisions();
+
+    cleanup_dead_objects();
+    check_game_status();
+}
+
+void Game::check_game_status() {
+    if (bricks_.empty() && status_ == ONGOING) {
+        score_ += (lives_ * score_per_life);
+        status_ = WON;
+        std::cout << message::won();
+    } else if (balls_.empty() && lives_ == 0 && status_ == ONGOING) {
+        status_ = LOST;
+        std::cout << message::lost();
+    }
+}
+// #endregion
+
+// #region PHASE 3 : ACTIONS ET INTERACTIONS
+void Game::update_paddle_pos(double target_x) {
+    if (status_ != ONGOING) return;
+
+    double current_x = paddle_.get_circle().center.x;
+    double diff = target_x - current_x;
+
+    if (std::abs(diff) > delta_norm_max) {
+        diff = (diff > 0 ? delta_norm_max : -delta_norm_max);
+    }
+
+    double next_x = current_x + diff;
+    
+    
+    if (!paddle_.check_position(next_x)) {
+        double dy = std::abs(paddle_.get_circle().center.y);
+        double semi_width = std::sqrt(std::pow(paddle_.get_circle().radius, 2) - dy * dy);
+        
+        if (next_x < current_x) {
+            next_x = 0.0 + semi_width; 
+        } else {
+            next_x = arena_size - semi_width;
+        }
+        diff = next_x - current_x;
+    }
+
+    tools::Circle future_circle = paddle_.get_future_circle(next_x); 
+    bool collision_brick = false;
+    for (const auto& brick : bricks_) {
+        if (tools::intersects_Circle_Square(future_circle, brick->get_bounds(), tools::epsil_zero)) {
+            collision_brick = true;
+            break;
+        }
+    }
+
+    if (!collision_brick) {
+        paddle_.set_x(next_x);
+        paddle_.set_delta({diff, 0.0});
+    } else {
+        paddle_.set_delta({0.0, 0.0});
+    }
+}
+
+void Game::spawn_ball() {
+    if (lives_ > 0 && balls_.empty()) {
+        --lives_; 
+        
+        double spawn_y = paddle_.get_circle().center.y 
+                         + paddle_.get_circle().radius 
+                         + new_ball_radius 
+                         + tools::epsil_zero * 2;
+
+        tools::Point pos = { paddle_.get_circle().center.x, spawn_y };
+        tools::Point initial_delta = { 0.0, new_ball_delta_norm };
+        
+        add_ball_to_simulation(pos, initial_delta);
+    }
+}
+
+void Game::draw() const {
+    graphic::draw_arena();
+
+    for (const auto& b : bricks_) {
+        b->draw();
+    }
+
+    for (const auto& ball : balls_) {
+        ball.draw();
+    }
+
+    if (paddle_.is_active()) {
+        paddle_.draw(); 
+    }
+}
+// #endregion
+
+// #region PHASE 4 : ACCESSEURS
+bool Game::is_over() const {
+    return (status_ != ONGOING);
+}
+// #endregion
+
+// #region MÉTHODES PRIVÉES : LECTURE ET PARSING
 bool Game::read_header(std::ifstream& file) {
     std::string line;
-    
     if (!get_valid_line(file, line)) return false;
     std::stringstream ss_score(line);
     if (!(ss_score >> score_)) return false;
@@ -101,8 +259,7 @@ bool Game::read_bricks(std::ifstream& file) {
     if (!get_valid_line(file, line)) return false;
     
     int nb_bricks;
-    if (!(std::stringstream(line) >> nb_bricks)) return false;
-    if (nb_bricks < 0) return false; 
+    if (!(std::stringstream(line) >> nb_bricks) || nb_bricks < 0) return false;
 
     for (int i = 0; i < nb_bricks; ++i) {
         if (!get_valid_line(file, line)) return false;
@@ -147,7 +304,6 @@ bool Game::create_brick(int type, double x, double y, double s,
                         std::stringstream& ss) {
     std::unique_ptr<Brick> new_ptr = nullptr;
 
-    // Factory simple pour le polymorphisme
     if (type == 0) {
         int hp;
         if (!(ss >> hp)) return false;
@@ -164,10 +320,18 @@ bool Game::create_brick(int type, double x, double y, double s,
     }
     return false;
 }
+// #endregion
 
-// --- VALIDATIONS GÉOMÉTRIQUES ---
+// #region MÉTHODES PRIVÉES : VALIDATIONS
+bool Game::validate_initial_state() const {
+    return (check_bricks_intersections() &&
+            check_paddle_brick_intersections() &&
+            check_balls_intersections() &&
+            check_ball_brick_intersections() &&
+            check_ball_paddle_intersections());
+}
 
-bool Game::check_bricks_intersections() {
+bool Game::check_bricks_intersections() const {
     for (size_t i = 0; i < bricks_.size(); ++i) {
         for (size_t j = i + 1; j < bricks_.size(); ++j) {
             if (intersects_Square_Square(bricks_[i]->get_bounds(), 
@@ -180,7 +344,7 @@ bool Game::check_bricks_intersections() {
     return true;
 }
 
-bool Game::check_paddle_brick_intersections() {
+bool Game::check_paddle_brick_intersections() const {
     for (size_t i = 0; i < bricks_.size(); ++i) {
         if (intersects_Circle_Square(paddle_.get_circle(), 
                                         bricks_[i]->get_bounds(), 0.0)) {
@@ -191,7 +355,7 @@ bool Game::check_paddle_brick_intersections() {
     return true;
 }
 
-bool Game::check_balls_intersections() {
+bool Game::check_balls_intersections() const {
     for (size_t i = 0; i < balls_.size(); ++i) {
         for (size_t j = i + 1; j < balls_.size(); ++j) {
             if (intersects_Circle_Circle(balls_[i].get_circle(), 
@@ -204,7 +368,7 @@ bool Game::check_balls_intersections() {
     return true;
 }
 
-bool Game::check_ball_brick_intersections() {
+bool Game::check_ball_brick_intersections() const {
     for (size_t i = 0; i < balls_.size(); ++i) {
         for (size_t j = 0; j < bricks_.size(); ++j) {
             if (intersects_Circle_Square(balls_[i].get_circle(), 
@@ -217,7 +381,7 @@ bool Game::check_ball_brick_intersections() {
     return true;
 }
 
-bool Game::check_ball_paddle_intersections() {
+bool Game::check_ball_paddle_intersections() const {
     for (size_t i = 0; i < balls_.size(); ++i) {
         if (intersects_Circle_Circle(balls_[i].get_circle(), 
                                         paddle_.get_circle(), 0.0)) {
@@ -227,100 +391,9 @@ bool Game::check_ball_paddle_intersections() {
     }
     return true;
 }
+// #endregion
 
-bool Game::validate_initial_state() {
-    return (check_bricks_intersections() &&
-            check_paddle_brick_intersections() &&
-            check_balls_intersections() &&
-            check_ball_brick_intersections() &&
-            check_ball_paddle_intersections());
-}
-
-
-
-void Game::save(const std::string& filename) const {
-    std::ofstream file(filename);
-    if (!file) return;
-
-    file << "# score" << std::endl << score_ << std::endl << std::endl;
-    file << "# lives" << std::endl << lives_ << std::endl << std::endl;
-
-    if (paddle_.is_active()) {
-        file << "# paddle" << std::endl;
-        file << paddle_.get_circle().center.x << " " 
-             << paddle_.get_circle().center.y << " " 
-             << paddle_.get_circle().radius << std::endl << std::endl;
-    }
-
-    file << "# bricks" << std::endl << bricks_.size() << std::endl;
-    for (const auto& b : bricks_) {
-
-        b->write(file); 
-    }
-    file << std::endl;
-
-    file << "# balls" << std::endl << balls_.size() << std::endl;
-    for (const auto& ball : balls_) {
-        file << ball.get_circle().center.x << " " 
-             << ball.get_circle().center.y << " " 
-             << ball.get_circle().radius << " " 
-             << ball.get_delta().x << " " 
-             << ball.get_delta().y << std::endl;
-    }
-}
-
-bool Game::is_over() const {
-    return (balls_.empty() || bricks_.empty() || lives_ < 0);
-}
-
-void Game::draw() const {
-    graphic::draw_arena();
-
-    // 2. Dessiner les briques (appel polymorphique)
-    for (const auto& b : bricks_) {
-        b->draw();
-    }
-
-    // 3. Dessiner les balles
-    for (const auto& ball : balls_) {
-        ball.draw();
-    }
-
-    if (paddle_.is_active()) {
-        paddle_.draw(); 
-    }
-}
-
-void Game::update_paddle_pos(double target_x) {
-    paddle_.move(target_x, bricks_);
-}
-
-void Game::add_ball_to_simulation(tools::Point pos, tools::Point velocity) {
-    tools::Circle ball_circle = {pos, new_ball_radius};
-    balls_.push_back(Ball(ball_circle, velocity));
-}
-
-void Game::spawn_ball() {
-    if (lives_ > 0 && balls_.empty()) {
-        --lives_; 
-        
-        double spawn_y = paddle_.get_circle().center.y 
-                         + paddle_.get_circle().radius 
-                         + new_ball_radius 
-                         + tools::epsil_zero * 2;
-
-        tools::Point pos = { paddle_.get_circle().center.x, spawn_y };
-        tools::Point initial_delta = { 0.0, new_ball_delta_norm };
-        
-        add_ball_to_simulation(pos, initial_delta);
-    }
-}
-
-void Game::spawn_new_ball(tools::Point pos) {
-    tools::Point vel = {0.0, new_ball_delta_norm};
-    add_ball_to_simulation(pos, vel);
-}
-
+// #region MÉTHODES PRIVÉES : PHYSIQUE ET COLLISIONS
 void Game::handle_ball_ball_collisions() {
     for (size_t i = 0; i < balls_.size(); ++i) {
         for (size_t j = i + 1; j < balls_.size(); ++j) {
@@ -339,22 +412,95 @@ void Game::handle_ball_ball_collisions() {
                 tools::Point v1 = balls_[i].get_delta();
                 tools::Point v2 = balls_[j].get_delta();
 
-                tools::Point new_v1 = tools::compute_impulse(v1, balls_[i].getRadius(), 
-                                       balls_[i].get_circle().center,
-                                       v2, balls_[j].getRadius(), 
-                                       balls_[j].get_circle().center);
+                tools::Point new_v1 = tools::compute_impulse(v1, balls_[i].getRadius(), p1, 
+                                                            v2, balls_[j].getRadius(), p2);
                                        
-                tools::Point new_v2 = tools::compute_impulse(v2, balls_[j].getRadius(), 
-                                       balls_[j].get_circle().center,
-                                       v1, balls_[i].getRadius(), 
-                                       balls_[i].get_circle().center);
-
+                tools::Point new_v2 = tools::compute_impulse(v2, balls_[j].getRadius(), p2,
+                                                            v1, balls_[i].getRadius(), p1);
                 balls_[i].set_delta(new_v1);
                 balls_[j].set_delta(new_v2);
-                
             }
         }
     }
+}
+
+void Game::handle_paddle_collision(Ball& ball) {
+    if (tools::intersects_Circle_Circle(ball.get_circle(), 
+                                        paddle_.get_circle(), 
+                                        tools::epsil_zero)) 
+    {
+        ball.restore_position();
+
+        tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), 
+                                                           ball.get_circle().center,
+                                                           paddle_.get_delta(), 
+                                                           paddle_.get_circle().center);
+
+        ball.set_delta(new_v);
+        ball.move();
+    }
+}
+
+bool Game::handle_arena_collision(Ball& ball) { 
+    const tools::Circle& ball_circ = ball.get_circle();
+    const tools::Point& pos = ball_circ.center;
+    const double r = ball_circ.radius;
+    
+    const bool hit_top = (pos.y + r >= arena_size - tools::epsil_zero);
+    const bool hit_left = (pos.x - r <= tools::epsil_zero);
+    const bool hit_right = (pos.x + r >= arena_size - tools::epsil_zero);
+
+    if (hit_top || hit_left || hit_right) {
+        ball.restore_position(); 
+
+        if (hit_top && (hit_left || hit_right)) {
+            double intrusion_y = std::abs((pos.y + r) - arena_size);
+            double intrusion_x = hit_left ? std::abs(pos.x - r) 
+                                          : std::abs((pos.x + r) - arena_size);
+
+            if (intrusion_y > intrusion_x) {
+                ball.reverse_dy();
+            } else {
+                ball.reverse_dx();
+            }
+        } 
+        else if (hit_top) {
+            ball.reverse_dy();
+        } else {
+            ball.reverse_dx();
+        }
+
+        ball.move(); 
+        return true;
+    }
+    return false;
+}
+
+bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick>>& to_add) {
+    bool collided = false;
+
+    for (const auto& brick : bricks_) {
+        if (!brick->is_dead() && tools::intersects_Circle_Square(ball.get_circle(), 
+                                                                brick->get_bounds(), 
+                                                                tools::epsil_zero)) {
+            collided = true;
+            ball.restore_position();
+
+            const tools::Point n = tools::compute_nominal_direction(ball.get_circle(), 
+                                                                    brick->get_bounds()); 
+            ball.set_delta(tools::reflect(ball.get_delta(), n));
+            
+            score_ += score_per_hit;
+
+            if (brick->hit()) {
+                brick->mark_as_dead();
+                handle_brick_destruction_effects(*brick, to_add);
+            }
+            ball.move();
+            break; 
+        }
+    }
+    return collided;
 }
 
 void Game::handle_brick_destruction_effects(const Brick& b, 
@@ -363,7 +509,6 @@ void Game::handle_brick_destruction_effects(const Brick& b,
         case 1: 
             spawn_new_ball(b.get_bounds().center);
             break;
-
         case 2:
         { 
             double s = b.get_bounds().side;
@@ -391,83 +536,6 @@ void Game::handle_brick_destruction_effects(const Brick& b,
     }
 }
 
-bool Game::handle_bricks_collision(Ball& ball) {
-    bool collided = false;
-    std::vector<std::unique_ptr<Brick>> to_add;
-
-    for (auto& brick : bricks_) {
-        if (!brick->is_dead() && tools::intersects_Circle_Square(ball.get_circle(), 
-                                                                brick->get_bounds(), 
-                                                                tools::epsil_zero)) {
-            collided = true;
-            ball.restore_position();
-
-            tools::Point n = tools::compute_nominal_direction(ball.get_circle(), 
-                                                              brick->get_bounds()); 
-            ball.set_delta(tools::reflect(ball.get_delta(), n));
-            
-            score_ += score_per_hit;
-
-            if (brick->hit()) {
-                brick->mark_as_dead();
-                handle_brick_destruction_effects(*brick, to_add);
-            }
-            ball.move();
-            break;
-        }
-    }
-
-    for (auto& new_b : to_add) {
-        bricks_.push_back(std::move(new_b));
-    }
-
-    return collided;
-}
-
-void Game::handle_paddle_collision(Ball& ball) {
-    if (tools::intersects_Circle_Circle(ball.get_circle(), 
-                                        paddle_.get_circle(), 
-                                        tools::epsil_zero)) 
-    {
-        ball.restore_position();
-
-        tools::Point v_ball = ball.get_delta();
-        tools::Point v_paddle = paddle_.get_delta();
-
-        tools::Point new_v = tools::compute_impulse_paddle(v_ball, 
-                                                           ball.get_circle().center,
-                                                           v_paddle, 
-                                                           paddle_.get_circle().center);
-
-        ball.set_delta(new_v);
-
-        ball.move();
-    }
-}
-
-bool Game::handle_arena_collision(Ball& ball) { 
-    tools::Circle ball_circ = ball.get_circle();
-    tools::Point pos = ball_circ.center;
-    bool collided = false;
-
-    if (pos.x - ball_circ.radius <= tools::epsil_zero || 
-        pos.x + ball_circ.radius >= arena_size - tools::epsil_zero ||
-        pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) 
-    {
-        collided = true;
-        ball.restore_position();
-
-        if (pos.y + ball_circ.radius >= arena_size - tools::epsil_zero) {
-            ball.reverse_dy(); 
-        } else {
-            ball.reverse_dx(); 
-        }
-        ball.move(); 
-    }
-    return collided;
-
-}
-
 void Game::cleanup_dead_objects() {
     auto it_b = bricks_.begin();
     while (it_b != bricks_.end()) {
@@ -488,46 +556,13 @@ void Game::cleanup_dead_objects() {
     }
 }
 
-void Game::check_game_status() {
-    if (bricks_.empty() && status_ == ONGOING) {
-        score_ += (lives_ * score_per_life);
-        status_ = WON;
-        std::cout << message::won();
-    } else if (balls_.empty() && lives_ == 0 && status_ == ONGOING) {
-        status_ = LOST;
-        std::cout << message::lost();
-    }
+void Game::add_ball_to_simulation(tools::Point pos, tools::Point velocity) {
+    tools::Circle ball_circle = {pos, new_ball_radius};
+    balls_.push_back(Ball(ball_circle, velocity));
 }
 
-void Game::update() {
-    if (status_ != ONGOING) return;
-
-    for (auto& ball : balls_) {
-        ball.backup_position(); 
-        ball.move();           
-
-        if (ball.get_circle().center.y < 0) {
-            ball.mark_as_dead();
-            continue;
-        }
-
-        unsigned nb_rebonds = 0;
-        while (nb_rebonds < nb_bounce_max) {
-            if (handle_arena_collision(ball) || handle_bricks_collision(ball)) {
-                nb_rebonds++;
-            } else {
-                break;
-            }
-        }
-    }
-
-    for (auto& ball : balls_) {
-        handle_paddle_collision(ball);
-    }
-    handle_ball_ball_collisions();
-
-
-    cleanup_dead_objects();
-    check_game_status();
+void Game::spawn_new_ball(tools::Point pos) {
+    tools::Point vel = {0.0, new_ball_delta_norm};
+    add_ball_to_simulation(pos, vel);
 }
-
+// #endregion

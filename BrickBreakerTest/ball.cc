@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "ball.h"
 #include "tools.h"
 #include "constants.h"
@@ -9,19 +10,21 @@ using namespace std;
 Ball::Ball(tools::Circle c, tools::Point d) : circle_(c), delta_(d) {}
 
 bool Ball::check() const {
-    double v_norm = tools::norm(delta_);
+    const double v_norm = tools::norm(delta_);
 
     if (v_norm > delta_norm_max) {
         std::cout << message::invalid_delta(delta_.x, delta_.y);
         return false;
     }
 
-    double r = circle_.radius;
-    double x = circle_.center.x;
-    double y = circle_.center.y;
+    const double r = circle_.radius;
+    const double x = circle_.center.x;
+    const double y = circle_.center.y;
 
-    bool out = (x - r < 0) || (x + r > arena_size) || 
-                  (y + r > arena_size) || (y < 0);
+    bool out = (x - r < -tools::epsil_zero) || 
+                (x + r > arena_size + tools::epsil_zero) || 
+                (y + r > arena_size + tools::epsil_zero) || 
+                (y < -tools::epsil_zero);
 
     if (out) {
         std::cout << message::ball_outside(x, y);
@@ -31,7 +34,7 @@ bool Ball::check() const {
 }
 
 void Ball::draw() const {
-    circle_.draw(graphic::BLACK, true);
+    graphic::draw_circle(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK, true);
 }
 
 tools::Circle Ball::get_circle_next() const { //cercle de la balle a la prochaine (potentielle) position
@@ -39,11 +42,14 @@ tools::Circle Ball::get_circle_next() const { //cercle de la balle a la prochain
 }
 
 void Ball::set_delta(tools::Point new_delta) {
-    double v = tools::norm(new_delta);
+    const double v_sq = new_delta.x * new_delta.x + new_delta.y * new_delta.y;
+    const double max_sq = delta_norm_max * delta_norm_max;
 
-    if (v > delta_norm_max) {
-        delta_ = { (new_delta.x / v) * delta_norm_max, 
-                   (new_delta.y / v) * delta_norm_max };
+    if (v_sq > max_sq + tools::epsil_zero) {
+        const double v = std::sqrt(v_sq);
+        const double inv_v = delta_norm_max / v;
+        delta_ = { new_delta.x * inv_v, new_delta.y * inv_v };
+
     } else {
         delta_ = new_delta;
     }
@@ -58,11 +64,11 @@ bool Ball::is_dead() const {
 }
 
 void Ball::reverse_dx() {
-    delta_.x = -delta_.x;
+    delta_.x *= -1;
 }
 
 void Ball::reverse_dy() {
-    delta_.y = -delta_.y;
+    delta_.y *= -1;
 }
 
 void Ball::backup_position() {

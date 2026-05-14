@@ -12,37 +12,47 @@ OFILES = project.o game.o ball.o brick.o paddle.o tools.o message.o gui.o graphi
 
 # Règle principale : lie les fichiers objets pour créer l'exécutable
 $(TARGET): $(OFILES)
-	$(CXX) $(CXXFLAGS) $(OFILES) -o $(TARGET) $(LDLIBS)
+	@echo "Linking $(TARGET)..."
+	@$(CXX) $(CXXFLAGS) $(OFILES) -o $(TARGET) $(LDLIBS)
 
-# Règles de compilation pour chaque module (création des .o)
-# Les dépendances (.h) assurent que si un header est modifié, le .o est recompilé
+# Règles de compilation pour chaque module
 project.o: project.cc game.h
-	$(CXX) $(CXXFLAGS) -c project.cc
+	@echo "Compiling project.cc..."
+	@$(CXX) $(CXXFLAGS) -c project.cc
 
 game.o: game.cc game.h ball.h brick.h paddle.h message.h constants.h
-	$(CXX) $(CXXFLAGS) -c game.cc
+	@echo "Compiling game.cc..."
+	@$(CXX) $(CXXFLAGS) -c game.cc
 
 ball.o: ball.cc ball.h tools.h constants.h message.h
-	$(CXX) $(CXXFLAGS) -c ball.cc
+	@echo "Compiling ball.cc..."
+	@$(CXX) $(CXXFLAGS) -c ball.cc
 
 brick.o: brick.cc brick.h tools.h constants.h
-	$(CXX) $(CXXFLAGS) -c brick.cc
+	@echo "Compiling brick.cc..."
+	@$(CXX) $(CXXFLAGS) -c brick.cc
 
 paddle.o: paddle.cc paddle.h tools.h constants.h
-	$(CXX) $(CXXFLAGS) -c paddle.cc
+	@echo "Compiling paddle.cc..."
+	@$(CXX) $(CXXFLAGS) -c paddle.cc
 
 tools.o: tools.cc tools.h
-	$(CXX) $(CXXFLAGS) -c tools.cc
+	@echo "Compiling tools.cc..."
+	@$(CXX) $(CXXFLAGS) -c tools.cc
 
 message.o: message.cc message.h
-	$(CXX) $(CXXFLAGS) -c message.cc
+	@echo "Compiling message.cc..."
+	@$(CXX) $(CXXFLAGS) -c message.cc
 
 gui.o: gui.cc gui.h game.h graphic.h
-	$(CXX) $(CXXFLAGS) -c gui.cc
+	@echo "Compiling gui.cc..."
+	@$(CXX) $(CXXFLAGS) -c gui.cc
 
 graphic.o: graphic.cc graphic.h graphic_gui.h
-	$(CXX) $(CXXFLAGS) -c graphic.cc
+	@echo "Compiling graphic.cc..."
+	@$(CXX) $(CXXFLAGS) -c graphic.cc
 
-# Règle pour nettoyer le répertoire (supprime les .o et l'exécutable)
+# Règle pour nettoyer
 clean:
-	rm -f $(OFILES) $(TARGET)
+	@echo "Cleaning up..."
+	@rm -f $(OFILES) $(TARGET)

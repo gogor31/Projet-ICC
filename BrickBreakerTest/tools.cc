@@ -1,21 +1,16 @@
 #include <cmath>
 #include <algorithm>
 #include "tools.h"
-#include "graphic.h"
 
 namespace tools {
-    void Square::draw(graphic::Color color) const {
-        graphic::draw_square(center.x, center.y, side, color);
-    }
-
-    void Circle::draw(graphic::Color color, bool filled) const {
-        graphic::draw_circle(center.x, center.y, radius, color, filled);
+    double distance_carre(const Point& p1, const Point& p2) {
+        const double dx = p2.x - p1.x;//! pas sur du const
+        const double dy = p2.y - p1.y;//! pas sur du const
+        return dx * dx + dy * dy;
     }
 
     double distance(const Point& p1, const Point& p2) {
-        double dx = p2.x - p1.x;
-        double dy = p2.y - p1.y;
-        return std::sqrt(dx * dx + dy * dy);
+        return std::sqrt(distance_carre(p1, p2));
     }
 
     double calculer_delta_x(double radius, double x_center) {
@@ -35,29 +30,30 @@ namespace tools {
     }
 
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, double epsilon) {
-        double dist_centers = distance(c1.center, c2.center);
-        return (dist_centers - (c1.radius + c2.radius)) < epsilon;
+        const double dist_centers = distance_carre(c1.center, c2.center);
+        const double radius_sum = c1.radius + c2.radius + epsilon;
+        return dist_centers < (radius_sum * radius_sum);
+
     }
 
     bool intersects_Square_Square(const Square& s1, const Square& s2, double epsilon) {
-        double dist_x = std::abs(s1.center.x - s2.center.x);
-        double dist_y = std::abs(s1.center.y - s2.center.y);
-        double min_dist = (s1.side + s2.side) / 2.0;
+        const double dist_x = std::abs(s1.center.x - s2.center.x);
+        const double dist_y = std::abs(s1.center.y - s2.center.y);
+        const double min_dist = (s1.side + s2.side) / 2.0;
         
         return (dist_x - min_dist < epsilon) && (dist_y - min_dist < epsilon);
     }
 
     bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) {
-        double half_s = s.side / 2.0;
+        const double half_s = s.side * 0.5;
         
-        double closest_x = std::max(s.center.x - half_s, 
-                                    std::min(c.center.x, s.center.x + half_s));
-        double closest_y = std::max(s.center.y - half_s, 
-                                    std::min(c.center.y, s.center.y + half_s));
+        const double closest_x = std::clamp(c.center.x, s.center.x - half_s, s.center.x + half_s); //! fonction clamp
+        const double closest_y = std::clamp(c.center.y, s.center.y - half_s, s.center.y + half_s);
         
-        Point closest_point = {closest_x, closest_y};
-        return (distance(c.center, closest_point) - c.radius) < epsilon;
-    }
+        const double d2 = distance_carre(c.center, {closest_x, closest_y});
+        const double r_eps = c.radius + epsilon;
+        return d2 < (r_eps * r_eps);    
+}
 
     bool is_circle_in_square(const Circle& c, double square_side) {
         bool hors_limite_x = (c.center.x < c.radius - epsil_zero) || (c.center.x > (square_side - c.radius) + epsil_zero);
@@ -124,20 +120,23 @@ namespace tools {
 
     Point compute_impulse(const Point& d1, double r1, const Point& c1,
                                     const Point& d2, double r2, const Point& c2) {
-    double dist = distance(c1, c2);
-    if (dist < epsil_zero) return d1;
+    const double dist_sq = distance_carre(c1, c2);
+    if (dist_sq < (epsil_zero * epsil_zero)) return d1;
 
-    // Vecteur normal reliant les centres
-    Point n = {(c1.x - c2.x) / dist, (c1.y - c2.y) / dist};
+    const double dist = distance(c1, c2);
+    const double inv_dist = 1.0 / dist;
 
+    Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
+    
     // Vitesse nominale (projection du delta sur la normale) 
-    double v1n = scalaire(d1, n);
-    double v2n = scalaire(d2, n);
+    const double v1n = scalaire(d1, n);
+    const double v2n = scalaire(d2, n);
 
     // Formule de l'impulsion corrigée par les masses 
-    double m1 = r1 * r1;
-    double m2 = r2 * r2;
-    double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
+    const double m1 = r1 * r1;
+    const double m2 = r2 * r2;
+
+    const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
 
     return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
     }
@@ -158,25 +157,24 @@ namespace tools {
     }
 
     void resolve_overlap(Point& p1, double r1, Point& p2, double r2) {
-        double dx = p1.x - p2.x;
-        double dy = p1.y - p2.y;
-        double distance = std::sqrt(dx*dx + dy*dy);
-        double min_dist = r1 + r2;
+        const double dx = p1.x - p2.x;
+        const double dy = p1.y - p2.y;
+        const double dist_sq = dx * dx + dy * dy;
+        const double min_dist = r1 + r2;
 
-        if (distance < min_dist && distance > 0) {
-            double overlap = min_dist - distance + epsil_zero;
+        if (dist_sq < (min_dist * min_dist) && dist_sq > 0) {
+            const double distance = std::sqrt(dist_sq);
+            const double overlap = (min_dist - distance + epsil_zero);
+            const double inv_dist = 1.0 / distance;
             
-            // Vecteur unitaire de direction (de p2 vers p1)
-            double nx = dx / distance;
-            double ny = dy / distance;
+            const double nx = dx * inv_dist;
+            const double ny = dy * inv_dist;
 
             // On déplace chaque point de la moitié de l'overlap
-            p1.x += nx * (overlap / 2.0);
-            p1.y += ny * (overlap / 2.0);
-            p2.x -= nx * (overlap / 2.0);
-            p2.y -= ny * (overlap / 2.0);
+            p1.x += nx * overlap * 0.5;
+            p1.y += ny * overlap * 0.5;
+            p2.x -= nx * overlap * 0.5;
+            p2.y -= ny * overlap * 0.5;
         }
     }
-
-
 }

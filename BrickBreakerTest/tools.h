@@ -1,10 +1,8 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include <gtkmm.h>
-#include "graphic.h"
 #include "constants.h"
-#include <cairomm/context.h>
+
 
 namespace tools {    
     constexpr double epsil_zero = 0.125;
@@ -20,14 +18,12 @@ namespace tools {
         Point center;
         double side;
 
-        void draw(graphic::Color color) const;
     };
 
     struct Circle {
         Point center;
         double radius;
 
-        void draw(graphic::Color color, bool filled = true) const;
     };
     
     // --- Fonctions utilitaires ---
@@ -35,6 +31,7 @@ namespace tools {
     // Calcul de la distance euclidienne entre deux points
     double distance(const Point& p1, const Point& p2);
 
+    double distance_carre(const Point& p1, const Point& p2);
     // Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
     double calculer_delta_x(double radius, double x_center);
 

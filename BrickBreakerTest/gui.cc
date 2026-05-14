@@ -149,6 +149,8 @@ void My_window::set_key_controller()
 }
 bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state)
 {
+    (void)keycode, (void)state;
+
     switch (keyval)
     {
     case '1':
@@ -221,7 +223,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
 
     case OPEN_FILE:
         if (file_name.extension() == ".txt"){
-            cout << "open file " << file_name << endl;
+            cout << "open file: [" << file_name.filename().string() << "]" << endl;
             current_file = file_name.string();
             if (!game.load_file(current_file)) {
                 current_file = "";
@@ -234,11 +236,11 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
         break;
 
     case SAVE_FILE:
-        if (file_name.extension() != ".txt")
-        {
+        if (file_name.extension() != ".txt") {
             file_name += ".txt";
         }
-        cout << "save file " << file_name << endl;
+
+        cout << "save file: [" << file_name.filename().string() << "]" << endl;
         game.save(file_name.string());
         dialog->hide();
         delete dialog;
@@ -307,9 +309,12 @@ void My_window::set_drawing()
 }
 void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int height)
 {
+    cr->set_antialias(Cairo::Antialias::ANTIALIAS_NONE); //! saccade en plein écran (personnel)
+    cr->set_operator(Cairo::Context::Operator::SOURCE); //!
+
     graphic_set_context(cr);
     double side(min(width, height));
-    cr->translate((width - side) / 2, (height + side) / 2);
+    cr->translate((width - side) * 0.5, (height + side) * 0.5);
     cr->scale(side / (arena_size), -side / (arena_size));
     game.draw();
 }
@@ -334,14 +339,8 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
     (void)n_press; (void)x; (void)y;
     
 
-    if (game.get_nb_balls() == 0 && game.get_lives() > 0) 
-    {
+    if (game.get_nb_balls() == 0 && game.get_lives() > 0) {
         game.spawn_ball(); 
-
-        if (!loop_activated) 
-        {
-            start_clicked(); 
-        }
         
         drawing.queue_draw();
         update_infos();
@@ -350,6 +349,8 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
 
 void My_window::on_drawing_move(double x, double y)
 {
+    (void)y;
+    
     if (!game.get_paddle().is_active()) {
         return; 
     }
@@ -358,10 +359,9 @@ void My_window::on_drawing_move(double x, double y)
     int height = drawing.get_height();
     double side = min(width, height);
     
-    double x_offset = (width - side) / 2.0;
+    double x_offset = (width - side) * 0.5;
 
     double model_x = (x - x_offset) * (arena_size / side);
 
     game.update_paddle_pos(model_x);
-    drawing.queue_draw();
 }

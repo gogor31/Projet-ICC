@@ -9,12 +9,10 @@ class Ball {
 public:
     Ball(tools::Circle c, tools::Point d);
 
-    // Vérifie la validité de la balle (vitesse et position)
     bool check() const;
 
     void draw() const;
 
-    // Méthodes getters
     double getPos_x(){return circle_.center.x;}
     double getPos_y(){return circle_.center.y;}
     double getRadius(){return circle_.radius;}
@@ -33,6 +31,7 @@ public:
     void set_center(tools::Point p);
     void mark_as_dead();
     bool is_dead() const;
+
 private:
     tools::Circle circle_; 
     tools::Point  delta_;

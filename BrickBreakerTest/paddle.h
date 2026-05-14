@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include "tools.h"
 #include "graphic.h"
 
@@ -15,11 +16,13 @@ public:
     Paddle(tools::Circle c);
 
     bool check() const;
+    bool check_position(double next_x) const;
     void draw() const;
-    
+    tools::Circle get_future_circle(double x) const;
     bool is_active() const { return active; }
     void set_active(bool state) { active = state; }
-
+    void set_x(double x);
+    void set_delta(tools::Point d);
     const tools::Circle& get_circle() const { return circle_; }
     void set_center(double x) { 
         circle_.center.x = x; 
