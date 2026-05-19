@@ -32,8 +32,6 @@ namespace tools {
     double distance(const Point& p1, const Point& p2);
 
     double distance_carre(const Point& p1, const Point& p2);
-    // Calcule l'écart horizontal entre le centre et l'intersection avec l'axe X
-    double calculer_delta_x(double radius, double x_center);
 
     // Détection d'intersections avec une marge d'erreur epsilon
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, 
@@ -60,6 +58,8 @@ namespace tools {
 
     // Réflexion d'un vecteur v par rapport à une normale n
     Point reflect(const Point& v, const Point& n);
+
+    void clamp_vector(Point& v, double max_norm);
 
     // Calcule la direction nominale pour un rebond sur un carré
     Point compute_nominal_direction(const Circle& c, const Square& s);

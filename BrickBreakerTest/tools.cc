@@ -4,29 +4,13 @@
 
 namespace tools {
     double distance_carre(const Point& p1, const Point& p2) {
-        const double dx = p2.x - p1.x;//! pas sur du const
-        const double dy = p2.y - p1.y;//! pas sur du const
+        const double dx = p2.x - p1.x;
+        const double dy = p2.y - p1.y;
         return dx * dx + dy * dy;
     }
 
     double distance(const Point& p1, const Point& p2) {
         return std::sqrt(distance_carre(p1, p2));
-    }
-
-    double calculer_delta_x(double radius, double x_center) {
-        double r_sq = radius * radius;
-        double x_sq = x_center * x_center;
-        double diff = r_sq - x_sq;
-        
-        double delta_x = 0.0;
-        
-        if (diff > 0.0) {
-            delta_x = std::sqrt(diff);
-        } else {
-            delta_x = 0.0;
-        }
-        
-        return delta_x;
     }
 
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, double epsilon) {
@@ -47,7 +31,7 @@ namespace tools {
     bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) {
         const double half_s = s.side * 0.5;
         
-        const double closest_x = std::clamp(c.center.x, s.center.x - half_s, s.center.x + half_s); //! fonction clamp
+        const double closest_x = std::clamp(c.center.x, s.center.x - half_s, s.center.x + half_s);
         const double closest_y = std::clamp(c.center.y, s.center.y - half_s, s.center.y + half_s);
         
         const double d2 = distance_carre(c.center, {closest_x, closest_y});
@@ -104,13 +88,21 @@ namespace tools {
     return {v.x - 2.0 * dot * n_norm.x, v.y - 2.0 * dot * n_norm.y};
     }
 
+    void clamp_vector(Point& v, double max_norm) {
+    double n = norm(v);
+    if (n > max_norm) {
+        v.x = (v.x / n) * max_norm;
+        v.y = (v.y / n) * max_norm;
+    }
+    }
+
     Point compute_nominal_direction(const Circle& c, const Square& s) {
         // Différence réelle entre les centres
         double diff_x = c.center.x - s.center.x;
         double diff_y = c.center.y - s.center.y;
 
         // Différence bornée à la moitié de la taille du carré
-        double half_s = s.side / 2.0;
+        double half_s = s.side * 0.5;
         double bounded_x = std::max(-half_s, std::min(diff_x, half_s));
         double bounded_y = std::max(-half_s, std::min(diff_y, half_s));
 
@@ -120,25 +112,28 @@ namespace tools {
 
     Point compute_impulse(const Point& d1, double r1, const Point& c1,
                                     const Point& d2, double r2, const Point& c2) {
-    const double dist_sq = distance_carre(c1, c2);
-    if (dist_sq < (epsil_zero * epsil_zero)) return d1;
+        const double dist_sq = distance_carre(c1, c2);
+        if (dist_sq < (epsil_zero * epsil_zero)) return d1;
 
-    const double dist = distance(c1, c2);
-    const double inv_dist = 1.0 / dist;
+        const double dist = distance(c1, c2);
+        const double inv_dist = 1.0 / dist;
 
-    Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
-    
-    // Vitesse nominale (projection du delta sur la normale) 
-    const double v1n = scalaire(d1, n);
-    const double v2n = scalaire(d2, n);
+        Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
+        
+        const double v1n = scalaire(d1, n);
+        const double v2n = scalaire(d2, n);
 
-    // Formule de l'impulsion corrigée par les masses 
-    const double m1 = r1 * r1;
-    const double m2 = r2 * r2;
+        if (v1n >= v2n) return d1;
 
-    const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
+        const double m1 = r1 * r1;
+        const double m2 = r2 * r2;
 
-    return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
+        const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
+
+        Point new_d1 = {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
+        clamp_vector(new_d1, delta_norm_max);
+
+        return new_d1;
     }
 
     Point compute_impulse_paddle(const Point& d_ball, const Point& c_ball,
@@ -151,9 +146,14 @@ namespace tools {
         double v1n = scalaire(d_ball, n);
         double v2n = scalaire(d_paddle, n);
                 
+        if (v1n >= v2n) return d_ball;
+
         double impulse_mag = 2.0 * (-v1n + v2n);
 
-        return {d_ball.x + impulse_mag * n.x, d_ball.y + impulse_mag * n.y};
+        Point new_d_ball = {d_ball.x + impulse_mag * n.x, d_ball.y + impulse_mag * n.y};
+        clamp_vector(new_d_ball, delta_norm_max);
+
+        return new_d_ball;
     }
 
     void resolve_overlap(Point& p1, double r1, Point& p2, double r2) {

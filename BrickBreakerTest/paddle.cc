@@ -50,7 +50,8 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     double next_x = current_x + move_x;
 
     double dy = std::abs(circle_.center.y);
-    double semi_width = std::sqrt((circle_.radius * circle_.radius) - (dy * dy));
+    double val = (circle_.radius * circle_.radius) - (dy * dy);
+    double semi_width = std::sqrt(std::max(0.0, val));
     
     next_x = std::clamp(next_x, semi_width, arena_size - semi_width);
 
@@ -67,9 +68,32 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
 
     if (!collision_brick) {
         circle_.center.x = next_circle.center.x;
-        delta_ = { circle_.center.x - current_x, 0.0 }; 
+        delta_ = { move_x, 0.0 }; 
     } else {
-        delta_ = { 0.0, 0.0 };
+        double low = 0.0;
+        double high = move_x;
+        
+        for (int i = 0; i < 5; ++i) { 
+            double mid = low + (high - low) * 0.5;
+            next_circle.center.x = current_x + mid;
+            
+            bool hit = false;
+            for (const auto& b : bricks) {
+                if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), tools::epsil_zero)) {
+                    hit = true;
+                    break;
+                }
+            }
+            
+            if (hit) {
+                high = mid; 
+            } else {
+                low = mid;  
+            }
+        }
+        
+        circle_.center.x = current_x + low;
+        delta_ = { low, 0.0 };
     }
 }
 

@@ -105,25 +105,37 @@ void Game::update() {
 
         unsigned nb_rebonds = 0;
         while (nb_rebonds < nb_bounce_max) {
-            if (handle_arena_collision(ball) || handle_bricks_collision(ball, bricks_to_add)) {
+            if (handle_arena_collision(ball) || 
+                handle_bricks_collision(ball, bricks_to_add) || 
+                handle_paddle_collision(ball)) {
                 nb_rebonds++;
             } else {
                 break;
             }
         }
     }
+    paddle_.move(target_paddle_x_, bricks_);
+
+    for (auto& ball : balls_) {
+        if (handle_paddle_collision(ball)) { 
+            unsigned nb_rebonds = 0;
+            while (nb_rebonds < nb_bounce_max) {
+                if (handle_arena_collision(ball) || 
+                    handle_bricks_collision(ball, bricks_to_add) || 
+                    handle_paddle_collision(ball)) {
+                    nb_rebonds++;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    handle_ball_ball_collisions(); 
 
     for (auto& new_brick : bricks_to_add) {
         bricks_.push_back(std::move(new_brick));
     }
-
-    paddle_.move(target_paddle_x_, bricks_);
-
-    for (auto& ball : balls_) {
-        handle_paddle_collision(ball);
-    }
-
-    handle_ball_ball_collisions();
 
     cleanup_dead_objects();
     check_game_status();
@@ -392,21 +404,33 @@ void Game::handle_ball_ball_collisions() {
     }
 }
 
-void Game::handle_paddle_collision(Ball& ball) {
+bool Game::handle_paddle_collision(Ball& ball) {
     if (tools::intersects_Circle_Circle(ball.get_circle(), 
                                         paddle_.get_circle(), 
                                         tools::epsil_zero)) 
     {
-        ball.restore_position();
+        tools::Point c_ball = ball.get_circle().center;
+        tools::Point c_pad = paddle_.get_circle().center;
+        double dist = tools::distance(c_ball, c_pad);
+        
+        if (dist > 0) { 
+            double overlap = (ball.get_circle().radius + paddle_.get_circle().radius + tools::epsil_zero) - dist;
+            tools::Point n = {(c_ball.x - c_pad.x) / dist, (c_ball.y - c_pad.y) / dist};
+            
+            c_ball.x += n.x * overlap;
+            c_ball.y += n.y * overlap;
+            ball.set_center(c_ball); 
+        }
+        
+        ball.backup_position();
 
-        tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), 
-                                                           ball.get_circle().center,
-                                                           paddle_.get_delta(), 
-                                                           paddle_.get_circle().center);
-
+        tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), c_ball,
+                                                           paddle_.get_delta(), c_pad);
         ball.set_delta(new_v);
         ball.move();
+        return true;
     }
+    return false;
 }
 
 bool Game::handle_arena_collision(Ball& ball) { 
@@ -421,20 +445,10 @@ bool Game::handle_arena_collision(Ball& ball) {
     if (hit_top || hit_left || hit_right) {
         ball.restore_position(); 
 
-        if (hit_top && (hit_left || hit_right)) {
-            double intrusion_y = std::abs((pos.y + r) - arena_size);
-            double intrusion_x = hit_left ? std::abs(pos.x - r) 
-                                          : std::abs((pos.x + r) - arena_size);
-
-            if (intrusion_y > intrusion_x) {
-                ball.reverse_dy();
-            } else {
-                ball.reverse_dx();
-            }
-        } 
-        else if (hit_top) {
+        if (hit_top) {
             ball.reverse_dy();
-        } else {
+        }
+        if (hit_left || hit_right) {
             ball.reverse_dx();
         }
 

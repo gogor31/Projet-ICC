@@ -85,7 +85,7 @@ private:
     // --- MÉTHODES PRIVÉES : PHYSIQUE ET COLLISIONS ---
     // Gestion des rebonds et impulsions 
     void handle_ball_ball_collisions();
-    void handle_paddle_collision(Ball& ball);
+    bool handle_paddle_collision(Ball& ball);
     bool handle_arena_collision(Ball& ball);
     bool handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick>>& to_add);
     

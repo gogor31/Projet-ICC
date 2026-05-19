@@ -42,17 +42,8 @@ tools::Circle Ball::get_circle_next() const { //cercle de la balle a la prochain
 }
 
 void Ball::set_delta(tools::Point new_delta) {
-    const double v_sq = new_delta.x * new_delta.x + new_delta.y * new_delta.y;
-    const double max_sq = delta_norm_max * delta_norm_max;
-
-    if (v_sq > max_sq + tools::epsil_zero) {
-        const double v = std::sqrt(v_sq);
-        const double inv_v = delta_norm_max / v;
-        delta_ = { new_delta.x * inv_v, new_delta.y * inv_v };
-
-    } else {
-        delta_ = new_delta;
-    }
+    tools::clamp_vector(new_delta, delta_norm_max);
+    delta_ = new_delta;
 }
 
 void Ball::mark_as_dead() {
@@ -76,7 +67,6 @@ void Ball::backup_position() {
 }
 
 void Ball::move() {
-    old_center_ = circle_.center;
     circle_.center.x += delta_.x;
     circle_.center.y += delta_.y;
 }

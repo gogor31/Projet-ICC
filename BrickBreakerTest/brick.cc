@@ -12,8 +12,8 @@ bool is_square_outside_arena(const tools::Square& s) {
     double half = s.side * 0.5;
     bool hors_gauche = (s.center.x - half) < -tools::epsil_zero;
     bool hors_droite = (s.center.x + half) > arena_size + tools::epsil_zero;
-    bool hors_haut   = (s.center.y - half) < -tools::epsil_zero;
-    bool hors_bas    = (s.center.y + half) > arena_size + tools::epsil_zero;
+    bool hors_bas   = (s.center.y - half) < -tools::epsil_zero;
+    bool hors_haut    = (s.center.y + half) > arena_size + tools::epsil_zero;
 
     return (hors_gauche || hors_droite || hors_haut || hors_bas);
 }

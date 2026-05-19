@@ -13,8 +13,8 @@ public:
 
     void draw() const;
 
-    double getPos_x(){return circle_.center.x;}
-    double getPos_y(){return circle_.center.y;}
+    double get_pos_x(){return circle_.center.x;}
+    double get_pos_y(){return circle_.center.y;}
     double getRadius(){return circle_.radius;}
     const tools::Circle& get_circle() const { return circle_; }
     const tools::Point& get_delta() const { return delta_; }

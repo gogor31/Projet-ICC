@@ -24,13 +24,11 @@ public:
     void set_x(double x);
     void set_delta(tools::Point d);
     const tools::Circle& get_circle() const { return circle_; }
-    void set_center(double x) { 
-        circle_.center.x = x; 
-    }
-    
+
     tools::Point get_delta() const { return delta_; }
     
     void move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
+    
 private:
     tools::Circle circle_ = {{0.0, 0.0}, 0.0};
     tools::Point delta_ = {0.0, 0.0};

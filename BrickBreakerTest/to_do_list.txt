@@ -7,7 +7,8 @@ A faire :
 
 Bug à corriger : 
 - Lag en plein écran  
-- tunneling 
-- quelques pixel de paddle dépasse du brod de l'arène 
+- tunneling (normalement OK) 
+- quelques pixel de paddle dépasse du brod de l'arène (regler par IA a voir si ok)
+- physique rebond ball brique ? 
  
  
