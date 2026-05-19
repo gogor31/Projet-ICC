@@ -62,6 +62,7 @@ private:
     std::vector<Ball> balls_;
     std::vector<std::unique_ptr<Brick>> bricks_; 
     Status status_ = ONGOING;
+    double target_paddle_x_ = 50.0;
 
     // --- MÉTHODES PRIVÉES : LECTURE ET PARSING ---
     bool read_header(std::ifstream& file);

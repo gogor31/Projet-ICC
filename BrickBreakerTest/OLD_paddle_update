@@ -1,0 +1,41 @@
+void Game::update_paddle_pos(double target_x) {
+    if (status_ != ONGOING) return;
+
+    double current_x = paddle_.get_circle().center.x;
+    double diff = target_x - current_x;
+
+    if (std::abs(diff) > delta_norm_max) {
+        diff = (diff > 0 ? delta_norm_max : -delta_norm_max);
+    }
+
+    double next_x = current_x + diff;
+    
+    
+    if (!paddle_.check_position(next_x)) {
+        double dy = std::abs(paddle_.get_circle().center.y);
+        double semi_width = std::sqrt(std::pow(paddle_.get_circle().radius, 2) - dy * dy);
+        
+        if (next_x < current_x) {
+            next_x = 0.0 + semi_width; 
+        } else {
+            next_x = arena_size - semi_width;
+        }
+        diff = next_x - current_x;
+    }
+
+    tools::Circle future_circle = paddle_.get_future_circle(next_x); 
+    bool collision_brick = false;
+    for (const auto& brick : bricks_) {
+        if (tools::intersects_Circle_Square(future_circle, brick->get_bounds(), tools::epsil_zero)) {
+            collision_brick = true;
+            break;
+        }
+    }
+
+    if (!collision_brick) {
+        paddle_.set_x(next_x);
+        paddle_.set_delta({diff, 0.0});
+    } else {
+        paddle_.set_delta({0.0, 0.0});
+    }
+}

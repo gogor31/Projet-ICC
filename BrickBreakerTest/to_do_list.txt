@@ -4,7 +4,10 @@ A faire :
 - Enlever #region -> marche pas 
 - Ajout de commentaire 
 
+
 Bug à corriger : 
-- Lag en plein écran 
+- Lag en plein écran  
+- tunneling 
+- quelques pixel de paddle dépasse du brod de l'arène 
  
  

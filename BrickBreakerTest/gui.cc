@@ -309,8 +309,6 @@ void My_window::set_drawing()
 }
 void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int height)
 {
-    cr->set_antialias(Cairo::Antialias::ANTIALIAS_NONE); //! saccade en plein écran (personnel)
-    cr->set_operator(Cairo::Context::Operator::SOURCE); //!
 
     graphic_set_context(cr);
     double side(min(width, height));
