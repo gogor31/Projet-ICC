@@ -116,26 +116,16 @@ void Game::update() {
     }
     paddle_.move(target_paddle_x_, bricks_);
 
-    for (auto& ball : balls_) {
-        if (handle_paddle_collision(ball)) { 
-            unsigned nb_rebonds = 0;
-            while (nb_rebonds < nb_bounce_max) {
-                if (handle_arena_collision(ball) || 
-                    handle_bricks_collision(ball, bricks_to_add) || 
-                    handle_paddle_collision(ball)) {
-                    nb_rebonds++;
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-
     handle_ball_ball_collisions(); 
 
     for (auto& new_brick : bricks_to_add) {
         bricks_.push_back(std::move(new_brick));
     }
+
+    for (auto& new_ball : balls_to_add_) {
+        balls_.push_back(std::move(new_ball));
+    }
+    balls_to_add_.clear();
 
     cleanup_dead_objects();
     check_game_status();
@@ -409,25 +399,17 @@ bool Game::handle_paddle_collision(Ball& ball) {
                                         paddle_.get_circle(), 
                                         tools::epsil_zero)) 
     {
+        ball.restore_position();
+
         tools::Point c_ball = ball.get_circle().center;
-        tools::Point c_pad = paddle_.get_circle().center;
-        double dist = tools::distance(c_ball, c_pad);
-        
-        if (dist > 0) { 
-            double overlap = (ball.get_circle().radius + paddle_.get_circle().radius + tools::epsil_zero) - dist;
-            tools::Point n = {(c_ball.x - c_pad.x) / dist, (c_ball.y - c_pad.y) / dist};
-            
-            c_ball.x += n.x * overlap;
-            c_ball.y += n.y * overlap;
-            ball.set_center(c_ball); 
-        }
-        
-        ball.backup_position();
+        tools::Point c_pad  = paddle_.get_circle().center;
 
         tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), c_ball,
                                                            paddle_.get_delta(), c_pad);
+        
         ball.set_delta(new_v);
         ball.move();
+        
         return true;
     }
     return false;
@@ -494,10 +476,10 @@ void Game::handle_brick_destruction_effects(const Brick& b,
         case 2:
         { 
             double s = b.get_bounds().side;
-            double small_s = (s - split_brick_gap) / 2.0;
+            double small_s = (s - split_brick_gap) * 0.5;
 
             if (small_s >= brick_size_min) {
-                double offset = (small_s + split_brick_gap) / 2.0;
+                double offset = (small_s + split_brick_gap) * 0.5;
                 double cx = b.get_bounds().center.x;
                 double cy = b.get_bounds().center.y;
                 
@@ -540,7 +522,7 @@ void Game::cleanup_dead_objects() {
 
 void Game::add_ball_to_simulation(tools::Point pos, tools::Point velocity) {
     tools::Circle ball_circle = {pos, new_ball_radius};
-    balls_.push_back(Ball(ball_circle, velocity));
+    balls_to_add_.push_back(Ball(ball_circle, velocity));
 }
 
 void Game::spawn_new_ball(tools::Point pos) {

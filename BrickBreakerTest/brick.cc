@@ -79,9 +79,9 @@ SplitBrick::SplitBrick(tools::Square s, int hp) : Brick(s, 2) {
         int levels = 1;
         double current_side = s.side;
         
-        while (((current_side - split_brick_gap) / 2.0) >= brick_size_min) {
+        while (((current_side - split_brick_gap) * 0.5) >= brick_size_min) {
             levels++;
-            current_side = (current_side - split_brick_gap) / 2.0;
+            current_side = (current_side - split_brick_gap) * 0.5;
         }
         hit_points_ = levels; 
     }

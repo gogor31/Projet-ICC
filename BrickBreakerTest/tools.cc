@@ -23,7 +23,7 @@ namespace tools {
     bool intersects_Square_Square(const Square& s1, const Square& s2, double epsilon) {
         const double dist_x = std::abs(s1.center.x - s2.center.x);
         const double dist_y = std::abs(s1.center.y - s2.center.y);
-        const double min_dist = (s1.side + s2.side) / 2.0;
+        const double min_dist = (s1.side + s2.side) * 0.5;
         
         return (dist_x - min_dist < epsilon) && (dist_y - min_dist < epsilon);
     }
@@ -164,7 +164,7 @@ namespace tools {
 
         if (dist_sq < (min_dist * min_dist) && dist_sq > 0) {
             const double distance = std::sqrt(dist_sq);
-            const double overlap = (min_dist - distance + epsil_zero);
+            const double overlap = (min_dist - distance);
             const double inv_dist = 1.0 / distance;
             
             const double nx = dx * inv_dist;
