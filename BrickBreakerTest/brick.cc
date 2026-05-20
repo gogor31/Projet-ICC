@@ -7,6 +7,9 @@
 
 using namespace std;
 
+// ==========================================
+// FONCTIONS UTILITAIRES LOCALES
+// ==========================================
 
 bool is_square_outside_arena(const tools::Square& s) {
     double half = s.side * 0.5;
@@ -18,7 +21,9 @@ bool is_square_outside_arena(const tools::Square& s) {
     return (hors_gauche || hors_droite || hors_haut || hors_bas);
 }
 
-
+// ==========================================
+// MÉTHODES DE LA CLASSE DE BASE (BRICK)
+// ==========================================
 
 bool Brick::check() const {
     if (bounds_.side < brick_size_min) {
@@ -32,6 +37,10 @@ bool Brick::check() const {
     }
     return true;
 }
+
+// ==========================================
+// MÉTHODES DE RAINBOWBRICK (TYPE 0)
+// ==========================================
 
 bool RainbowBrick::check() const {
     if (!Brick::check()) {
@@ -51,7 +60,6 @@ void RainbowBrick::draw() const {
 }
 
 void RainbowBrick::write(std::ostream& out) const {
-    // Format : type (0) x y side hit_points 
     out << type_ << " " 
         << bounds_.center.x << " " 
         << bounds_.center.y << " " 
@@ -59,18 +67,25 @@ void RainbowBrick::write(std::ostream& out) const {
         << hit_points_ << std::endl;
 }
 
+// ==========================================
+// MÉTHODES DE BALLBRICK (TYPE 1)
+// ==========================================
+
 void BallBrick::draw() const {
     graphic::draw_square(bounds_.center.x, bounds_.center.y, bounds_.side, graphic::RED);
     graphic::draw_circle(bounds_.center.x, bounds_.center.y, new_ball_radius, graphic::BLACK, true);
 }
 
 void BallBrick::write(std::ostream& out) const {
-    // Format : type (1) x y side 
     out << type_ << " " 
         << bounds_.center.x << " " 
         << bounds_.center.y << " " 
         << bounds_.side << std::endl;
 }
+
+// ==========================================
+// MÉTHODES DE SPLITBRICK (TYPE 2)
+// ==========================================
 
 SplitBrick::SplitBrick(tools::Square s, int hp) : Brick(s, 2) {
     if (hp != -1) {
@@ -93,7 +108,6 @@ void SplitBrick::draw() const {
 
 void SplitBrick::draw_recursive(tools::Square s, int hp) const {
     int color_idx = (hit_points_ - hp) % 7;
-    
     graphic::Color current_color = static_cast<graphic::Color>(color_idx);
     
     graphic::draw_square(s.center.x, s.center.y, s.side, current_color);

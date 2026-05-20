@@ -7,7 +7,40 @@
 
 using namespace std;
 
+// ==========================================
+// CONSTRUCTEURS
+// ==========================================
+
 Ball::Ball(tools::Circle c, tools::Point d) : circle_(c), delta_(d) {}
+
+// ==========================================
+// ACCESSEURS ET MUTATEURS
+// ==========================================
+
+tools::Circle Ball::get_circle_next() const {
+    return tools::Circle{circle_.center + delta_, circle_.radius};
+}
+
+void Ball::set_delta(tools::Point new_delta) {
+    tools::clamp_vector(new_delta, delta_norm_max);
+    delta_ = new_delta;
+}
+
+void Ball::set_center(tools::Point p) {
+    circle_.center = p;
+}
+
+void Ball::mark_as_dead() {
+    dead_ = true;
+}
+
+bool Ball::is_dead() const {
+    return dead_;
+}
+
+// ==========================================
+// VÉRIFICATIONS ET LIMITES
+// ==========================================
 
 bool Ball::check() const {
     const double v_norm = tools::norm(delta_);
@@ -22,9 +55,9 @@ bool Ball::check() const {
     const double y = circle_.center.y;
 
     bool out = (x - r < -tools::epsil_zero) || 
-                (x + r > arena_size + tools::epsil_zero) || 
-                (y + r > arena_size + tools::epsil_zero) || 
-                (y < -tools::epsil_zero);
+               (x + r > arena_size + tools::epsil_zero) || 
+               (y + r > arena_size + tools::epsil_zero) || 
+               (y < -tools::epsil_zero);
 
     if (out) {
         std::cout << message::ball_outside(x, y);
@@ -33,25 +66,13 @@ bool Ball::check() const {
     return true;
 }
 
-void Ball::draw() const {
-    graphic::draw_circle(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK, true);
-}
+// ==========================================
+// CINÉMATIQUE ET SIMULATION
+// ==========================================
 
-tools::Circle Ball::get_circle_next() const { //cercle de la balle a la prochaine (potentielle) position
-    return tools::Circle{circle_.center + delta_, circle_.radius};
-}
-
-void Ball::set_delta(tools::Point new_delta) {
-    tools::clamp_vector(new_delta, delta_norm_max);
-    delta_ = new_delta;
-}
-
-void Ball::mark_as_dead() {
-    dead_ = true;
-}
-
-bool Ball::is_dead() const {
-    return dead_;
+void Ball::move() {
+    circle_.center.x += delta_.x;
+    circle_.center.y += delta_.y;
 }
 
 void Ball::reverse_dx() {
@@ -66,17 +87,14 @@ void Ball::backup_position() {
     old_center_ = circle_.center;
 }
 
-void Ball::move() {
-    circle_.center.x += delta_.x;
-    circle_.center.y += delta_.y;
-}
-
 void Ball::restore_position() {
     circle_.center = old_center_;
 }
 
-void Ball::set_center(tools::Point p) {
-    circle_.center = p;
+// ==========================================
+// AFFICHAGE
+// ==========================================
+
+void Ball::draw() const {
+    graphic::draw_circle(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK, true);
 }
-
-

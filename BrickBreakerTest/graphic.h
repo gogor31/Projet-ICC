@@ -3,6 +3,10 @@
 
 namespace graphic {
 
+    // ==========================================
+    // ENUMERATION DES COULEURS DU JEU
+    // ==========================================
+
     enum Color
     {
         RED,
@@ -17,12 +21,23 @@ namespace graphic {
         WHITE,
     };
 
-    void graphic_prepare_canvas(double width, double height);
-    void draw_arena();
-    void draw_square(double x, double y, double size, Color color);
-    void draw_circle(double x, double y, double radius, Color color, bool filled = true);
-    void draw_arc(double x, double y, double radius, Color color);
+    // ==========================================
+    // CONFIGURATION ET INITIALISATION DU CANVAS
+    // ==========================================
 
+    void graphic_prepare_canvas(double width, double height);
+
+    // ==========================================
+    // FONCTIONS DE DESSIN DES ENTITÉS
+    // ==========================================
+
+    void draw_arena();
+    
+    void draw_square(double x, double y, double size, Color color);
+    
+    void draw_circle(double x, double y, double radius, Color color, bool filled = true);
+    
+    void draw_arc(double x, double y, double radius, Color color);
 }
 
 #endif

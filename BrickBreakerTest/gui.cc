@@ -7,12 +7,17 @@
 
 using namespace std;
 
+// ==========================================
+// CONSTANTES ET ENUMS LOCALES
+// ==========================================
+
 enum Response
 {
     CANCEL,
     OPEN_FILE,
     SAVE_FILE
 };
+
 enum Buttons
 {
     EXIT,
@@ -24,6 +29,10 @@ enum Buttons
 };
 
 constexpr unsigned drawing_size(500);
+
+// ==========================================
+// CONSTRUCTEUR ET CONFIGURATION GLOBALE
+// ==========================================
 
 My_window::My_window(string file_name)
     : current_file(""), main_box(Gtk::Orientation::HORIZONTAL),
@@ -54,7 +63,6 @@ My_window::My_window(string file_name)
         if(game.load_file(file_name)) {
             current_file = file_name;
         }
-
     }
     update_infos();
 }
@@ -82,22 +90,29 @@ void My_window::set_commands()
         sigc::mem_fun(*this, &My_window::step_clicked));
 }
 
+// ==========================================
+// GESTION DES CLICKS SUR BOUTONS
+// ==========================================
+
 void My_window::exit_clicked()
 {
     hide();
 }
+
 void My_window::open_clicked()
 {
     auto dialog = new Gtk::FileChooserDialog("Choose a text file",
                                              Gtk::FileChooserDialog::Action::OPEN);
     set_dialog(dialog);
 }
+
 void My_window::save_clicked()
 {
     auto dialog = new Gtk::FileChooserDialog("Choose a text file",
                                              Gtk::FileChooserDialog::Action::SAVE);
     set_dialog(dialog);
 }
+
 void My_window::restart_clicked()
 {
     if (!current_file.empty()) {
@@ -106,9 +121,9 @@ void My_window::restart_clicked()
         update_infos();
     }
 }
+
 void My_window::start_clicked()
 {
-
     if (loop_activated)
     {
         loop_conn.disconnect();
@@ -134,12 +149,18 @@ void My_window::start_clicked()
         buttons[STEP].set_sensitive(false);
     }
 }
+
 void My_window::step_clicked()
 {
     game.update(); 
     drawing.queue_draw();
     update_infos();
 }
+
+// ==========================================
+// GESTION DES ENTRÉES CLAVIER ET SOURIS
+// ==========================================
+
 void My_window::set_key_controller()
 {
     auto contr = Gtk::EventControllerKey::create();
@@ -147,6 +168,7 @@ void My_window::set_key_controller()
                                         false);
     add_controller(contr);
 }
+
 bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state)
 {
     (void)keycode, (void)state;
@@ -167,6 +189,110 @@ bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state
     }
     return false;
 }
+
+void My_window::set_mouse_controller()
+{
+    auto left_click = Gtk::GestureClick::create();
+    auto move = Gtk::EventControllerMotion::create();
+
+    left_click->set_button(GDK_BUTTON_PRIMARY);
+
+    left_click->signal_pressed().connect(
+        sigc::mem_fun(*this, &My_window::on_drawing_left_click));
+    move->signal_motion().connect(sigc::mem_fun(*this, &My_window::on_drawing_move));
+
+    drawing.add_controller(left_click);
+    drawing.add_controller(move);
+}
+
+void My_window::on_drawing_left_click(int n_press, double x, double y)
+{
+    (void)n_press; (void)x; (void)y;
+    
+    if (game.get_nb_balls() == 0 && game.get_lives() > 0) {
+        game.spawn_ball(); 
+        
+        drawing.queue_draw();
+        update_infos();
+    }
+}
+
+void My_window::on_drawing_move(double x, double y)
+{
+    (void)y;
+    
+    if (!game.get_paddle().is_active()) {
+        return; 
+    }
+
+    int width = drawing.get_width();
+    int height = drawing.get_height();
+    double side = min(width, height);
+    
+    double x_offset = (width - side) * 0.5;
+    double model_x = (x - x_offset) * (arena_size / side);
+
+    game.update_paddle_pos(model_x);
+}
+
+// ==========================================
+// BOUCLE DE RAFRAÎCHISSEMENT AUTOMATIQUE
+// ==========================================
+
+bool My_window::loop()
+{
+    if (loop_activated)
+    {
+        if (game.is_over() && game.get_lives() <= 0) {
+            start_clicked();
+            return false;
+        }
+
+        game.update();
+        drawing.queue_draw();
+        update_infos();
+        return true;
+    }
+    return false;
+}
+
+// ==========================================
+// COMPTEURS ET MISES À JOUR NUMÉRIQUES
+// ==========================================
+
+void My_window::set_infos()
+{
+    info_frame.set_child(info_grid);
+    info_grid.set_column_homogeneous(true);
+    for (size_t i(0); i < info_text.size(); ++i)
+    {
+        info_grid.attach(info_text[i], 0, i, 1, 1);
+        info_grid.attach(info_value[i], 1, i, 1, 1);
+        info_text[i].set_halign(Gtk::Align::START);
+        info_value[i].set_halign(Gtk::Align::END);
+        info_text[i].set_margin(3);
+        info_value[i].set_margin(3);
+    }
+}
+
+void My_window::update_infos()
+{
+    unsigned short i(0);
+    for (auto &value : info_value)
+    {
+        switch (i++)
+        {
+            case 0: value.set_text(to_string(game.get_score()));      break;
+            case 1: value.set_text(to_string(game.get_lives()));      break;
+            case 2: value.set_text(to_string(game.get_nb_bricks()));  break;
+            case 3: value.set_text(to_string(game.get_nb_balls()));   break;
+        }
+    }
+}
+
+// ==========================================
+// BOÎTES DE DIALOGUE (FILE CHOOSER)
+// ==========================================
 
 void My_window::set_dialog(Gtk::FileChooserDialog *dialog)
 {
@@ -201,6 +327,7 @@ void My_window::set_dialog(Gtk::FileChooserDialog *dialog)
 
     dialog->show();
 }
+
 void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
 {
     filesystem::path file_name = "";
@@ -252,53 +379,9 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
     }
 }
 
-bool My_window::loop()
-{
-    if (loop_activated)
-    {
-        if (game.is_over() && game.get_lives() <= 0) {
-            start_clicked();
-            return false;
-        }
-
-        game.update();
-        drawing.queue_draw();
-        update_infos();
-        return true;
-    }
-    return false;
-}
-
-void My_window::set_infos()
-{
-    info_frame.set_child(info_grid);
-    info_grid.set_column_homogeneous(true);
-    for (size_t i(0); i < info_text.size(); ++i)
-    {
-        info_grid.attach(info_text[i], 0, i, 1, 1);
-        info_grid.attach(info_value[i], 1, i, 1, 1);
-        info_text[i].set_halign(Gtk::Align::START);
-        info_value[i].set_halign(Gtk::Align::END);
-        info_text[i].set_margin(3);
-        info_value[i].set_margin(3);
-    }
-}
-
-void My_window::update_infos()
-
-{
-    unsigned short i(0);
-    for (auto &value : info_value)
-    {
-        switch (i++)
-        {
-            case 0: value.set_text(to_string(game.get_score()));      break;
-            case 1: value.set_text(to_string(game.get_lives()));      break;
-            case 2: value.set_text(to_string(game.get_nb_bricks()));  break;
-            case 3: value.set_text(to_string(game.get_nb_balls()));   break;
-        }
-    }
-}
+// ==========================================
+// RENDU GRAPHIQUE (CAIRO)
+// ==========================================
 
 void My_window::set_drawing()
 {
@@ -307,59 +390,12 @@ void My_window::set_drawing()
     drawing.set_expand();
     drawing.set_draw_func(sigc::mem_fun(*this, &My_window::on_draw));
 }
+
 void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int height)
 {
-
     graphic_set_context(cr);
     double side(min(width, height));
     cr->translate((width - side) * 0.5, (height + side) * 0.5);
     cr->scale(side / (arena_size), -side / (arena_size));
     game.draw();
-}
-
-void My_window::set_mouse_controller()
-{
-    auto left_click = Gtk::GestureClick::create();
-    auto move = Gtk::EventControllerMotion::create();
-
-    left_click->set_button(GDK_BUTTON_PRIMARY);
-
-    left_click->signal_pressed().connect(
-        sigc::mem_fun(*this, &My_window::on_drawing_left_click));
-    move->signal_motion().connect(sigc::mem_fun(*this, &My_window::on_drawing_move));
-
-    drawing.add_controller(left_click);
-    drawing.add_controller(move);
-}
-
-void My_window::on_drawing_left_click(int n_press, double x, double y)
-{
-    (void)n_press; (void)x; (void)y;
-    
-
-    if (game.get_nb_balls() == 0 && game.get_lives() > 0) {
-        game.spawn_ball(); 
-        
-        drawing.queue_draw();
-        update_infos();
-    }
-}
-
-void My_window::on_drawing_move(double x, double y)
-{
-    (void)y;
-    
-    if (!game.get_paddle().is_active()) {
-        return; 
-    }
-
-    int width = drawing.get_width();
-    int height = drawing.get_height();
-    double side = min(width, height);
-    
-    double x_offset = (width - side) * 0.5;
-
-    double model_x = (x - x_offset) * (arena_size / side);
-
-    game.update_paddle_pos(model_x);
 }

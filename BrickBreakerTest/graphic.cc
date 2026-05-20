@@ -8,12 +8,21 @@
 using namespace std;
 using namespace graphic;
 
+// ==========================================
+// VARIABLES STATIQUES ET CONTEXTE CAIRO
+// ==========================================
+
 static const Cairo::RefPtr<Cairo::Context> *ptcr(nullptr);
 
-// graphic_gui.h
+static double current_scale = 1.0; 
+
 void graphic_set_context(const Cairo::RefPtr<Cairo::Context> &cr){
     ptcr = &cr;
 }
+
+// ==========================================
+// CONFIGURATION ET INITIALISATION DU CANVAS
+// ==========================================
 
 void set_color(Color color)
 {
@@ -61,20 +70,23 @@ void set_color(Color color)
     (*ptcr)->set_source_rgb(r, g, b);
 }
 
-static double current_scale = 1.0; // Variable statique pour mémoriser l'échelle
-
 void graphic_prepare_canvas(double width, double height) {
     if (!ptcr) return;
 
     double side = std::min(width, height);
-    current_scale = side / arena_size; // On mémorise l'échelle ici
+    current_scale = side / arena_size; 
 
     (*ptcr)->translate((width - side) * 0.5, (height - side) * 0.5); 
     (*ptcr)->scale(current_scale, -current_scale);
     (*ptcr)->translate(0, -arena_size); 
 }
 
+// ==========================================
+// FONCTIONS DE DESSIN DES ENTITÉS
+// ==========================================
+
 namespace graphic {
+
     void draw_arena() {
         if (!ptcr) return;
 
@@ -107,41 +119,28 @@ namespace graphic {
         if (filled) {
             (*ptcr)->fill();
         } else {
-            (*ptcr)->stroke();}
+            (*ptcr)->stroke();
+        }
     }
 
-void draw_arc(double x, double y, double radius, Color color) { // AI pour la rectification purement graphique de la raquette
+    void draw_arc(double x, double y, double radius, Color color) { 
         if (!ptcr) return;
 
-        // On sauvegarde le contexte pour que notre masque ne casse pas le reste du jeu
         (*ptcr)->save(); 
 
-        // 1. LA COUPURE HORIZONTALE : On crée un masque strictly positif (Y >= 0)
-        // Cela va couper la raquette de manière parfaitement nette au niveau du sol.
         (*ptcr)->rectangle(0, 0, arena_size, arena_size);
         (*ptcr)->clip();
 
-        // 2. CONFIGURATION DU TRAIT
-        double lw = 1.0 / current_scale; // Épaisseur du trait de la raquette
+        double lw = 1.0 / current_scale; 
         (*ptcr)->set_line_width(lw);
 
-        // 3. L'INNER STROKE (LE SECRET POUR NE PAS DÉBORDER SUR LE MUR)
-        // On réduit le rayon de dessin de la moitié de l'épaisseur du trait.
-        // Ainsi, le bord extérieur de l'encre correspondra EXACTEMENT au rayon physique (R).
         double visual_radius = radius - (lw / 2.0);
 
         set_color(color);
 
-        // 4. DESSIN
-        // On dessine un cercle entier. 
-        // - Le masque (clip) supprimera la moitié basse pour faire l'arc.
-        // - L'Inner stroke garantit que les côtés viennent effleurer le mur sans baver.
         (*ptcr)->arc(x, y, visual_radius, 0, 2 * M_PI);
         (*ptcr)->stroke();
 
-        // On restaure le contexte pour annuler le masque
         (*ptcr)->restore(); 
     }
 }
-
-

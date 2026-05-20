@@ -9,7 +9,33 @@
 
 using namespace std;
 
+// ==========================================
+// CONSTRUCTEURS
+// ==========================================
+
 Paddle::Paddle(tools::Circle c) : circle_(c), active(true) {} 
+
+// ==========================================
+// ACCESSEURS ET MUTATEURS
+// ==========================================
+
+void Paddle::set_x(double x) {
+    circle_.center.x = x;
+}
+
+void Paddle::set_delta(tools::Point d) {
+    delta_ = d;
+}
+
+tools::Circle Paddle::get_future_circle(double x) const {
+    tools::Circle future = circle_;
+    future.center.x = x;
+    return future;
+}
+
+// ==========================================
+// VÉRIFICATIONS ET LIMITES
+// ==========================================
 
 bool Paddle::check() const {
     if(!active) return true;
@@ -27,17 +53,9 @@ bool Paddle::check_position(double next_x) const {
     return tools::is_paddle_in_arena(future_circle, arena_size);
 }
 
-tools::Circle Paddle::get_future_circle(double x) const {
-    tools::Circle future = circle_;
-    future.center.x = x;
-    return future;
-}
-
-void Paddle::draw() const {
-    if (!active) return;
-
-    graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK);
-}
+// ==========================================
+// DYNAMIQUE ET SIMULATION
+// ==========================================
 
 void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks) {
     if (!active) return;
@@ -45,7 +63,7 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     const double current_x = circle_.center.x;
     double move_x = target_x - current_x;
     
-    move_x = std::clamp(move_x, -delta_norm_max, delta_norm_max);
+    move_x = tools::clamp(move_x, -delta_norm_max, delta_norm_max);
     
     double next_x = current_x + move_x;
 
@@ -53,7 +71,7 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     double val = (circle_.radius * circle_.radius) - (dy * dy);
     double semi_width = std::sqrt(std::max(0.0, val));
     
-    next_x = std::clamp(next_x, semi_width, arena_size - semi_width);
+    next_x = tools::clamp(next_x, semi_width, arena_size - semi_width);
 
     tools::Circle next_circle = circle_;
     next_circle.center.x = next_x;
@@ -93,14 +111,16 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
         }
         
         circle_.center.x = current_x + low;
-        delta_ = { low, 0.0 };
+        delta_ = { 0.0, 0.0 };
     }
 }
 
-void Paddle::set_x(double x) {
-    circle_.center.x = x;
-}
+// ==========================================
+// AFFICHAGE
+// ==========================================
 
-void Paddle::set_delta(tools::Point d) {
-    delta_ = d;
+void Paddle::draw() const {
+    if (!active) return;
+
+    graphic::draw_arc(circle_.center.x, circle_.center.y, circle_.radius, graphic::BLACK);
 }
