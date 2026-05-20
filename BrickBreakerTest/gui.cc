@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : gui.cc
+// Description : Implémentation des mécanismes d'interaction, mapping des 
+//               coordonnées pixel/modèle et boucle événementielle synchrone.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #include <filesystem>
 #include <iostream>
 #include "constants.h"
@@ -28,7 +40,7 @@ enum Buttons
     STEP
 };
 
-constexpr unsigned drawing_size(500);
+constexpr unsigned drawing_size(500); // Dimension carrée par défaut de la DrawingArea
 
 // ==========================================
 // CONSTRUCTEUR ET CONFIGURATION GLOBALE
@@ -52,13 +64,13 @@ My_window::My_window(string file_name)
     panel_box.append(command_box);
     panel_box.append(info_frame);
 
+    // Initialisation séquentielle de tous les sous-systèmes UI
     set_commands();
     set_key_controller();
     set_mouse_controller();
     set_infos();
     set_drawing();
 
-    // Initialisation du jeu
     if (!file_name.empty()) {
         if(game.load_file(file_name)) {
             current_file = file_name;
@@ -76,6 +88,7 @@ void My_window::set_commands()
         button.set_margin(1);
     }
 
+    // Association de chaque signal de clic vers sa méthode déléguée
     buttons[EXIT].signal_clicked().connect(
         sigc::mem_fun(*this, &My_window::exit_clicked));
     buttons[OPEN].signal_clicked().connect(
@@ -96,7 +109,7 @@ void My_window::set_commands()
 
 void My_window::exit_clicked()
 {
-    hide();
+    hide(); // Provoque la fermeture de la fenêtre et l'arrêt propre de l'application
 }
 
 void My_window::open_clicked()
@@ -117,7 +130,7 @@ void My_window::restart_clicked()
 {
     if (!current_file.empty()) {
         game.load_file(current_file);
-        drawing.queue_draw();
+        drawing.queue_draw(); // Force l'invalidation graphique pour rafraîchir l'écran
         update_infos();
     }
 }
@@ -126,6 +139,7 @@ void My_window::start_clicked()
 {
     if (loop_activated)
     {
+        // Passage en mode PAUSE : Déconnexion sûre du rafraîchissement périodique
         loop_conn.disconnect();
         loop_activated = false;
         buttons[EXIT].set_sensitive(true);
@@ -138,6 +152,7 @@ void My_window::start_clicked()
     }
     else 
     {
+        // Passage en mode JEU ACTIF : Armement du timer
         loop_conn =
             Glib::signal_timeout().connect(sigc::mem_fun(*this, &My_window::loop), dt);
         loop_activated = true;
@@ -173,6 +188,7 @@ bool My_window::key_pressed(guint keyval, guint keycode, Gdk::ModifierType state
 {
     (void)keycode, (void)state;
 
+    // Raccourcis clavier calqués sur le comportement des boutons
     switch (keyval)
     {
     case '1':
@@ -195,7 +211,7 @@ void My_window::set_mouse_controller()
     auto left_click = Gtk::GestureClick::create();
     auto move = Gtk::EventControllerMotion::create();
 
-    left_click->set_button(GDK_BUTTON_PRIMARY);
+    left_click->set_button(GDK_BUTTON_PRIMARY); // Capture du clic gauche
 
     left_click->signal_pressed().connect(
         sigc::mem_fun(*this, &My_window::on_drawing_left_click));
@@ -209,6 +225,7 @@ void My_window::on_drawing_left_click(int n_press, double x, double y)
 {
     (void)n_press; (void)x; (void)y;
     
+    // Autorise le relancement d'une balle uniquement si aucune n'est en cours
     if (game.get_nb_balls() == 0 && game.get_lives() > 0) {
         game.spawn_ball(); 
         
@@ -229,7 +246,9 @@ void My_window::on_drawing_move(double x, double y)
     int height = drawing.get_height();
     double side = min(width, height);
     
+    // Calcul de l'offset pour conserver le ratio carré au centre du widget étendu
     double x_offset = (width - side) * 0.5;
+    // Mapping direct pixel écran -> coordonnée normalisée de l'arène logique
     double model_x = (x - x_offset) * (arena_size / side);
 
     game.update_paddle_pos(model_x);
@@ -243,15 +262,16 @@ bool My_window::loop()
 {
     if (loop_activated)
     {
+        // Arrêt automatique si la partie se termine
         if (game.is_over() && game.get_lives() <= 0) {
             start_clicked();
-            return false;
+            return false; // Stoppe définitivement les itérations de signal_timeout
         }
 
         game.update();
         drawing.queue_draw();
         update_infos();
-        return true;
+        return true; // Demande à signal_timeout de reprogrammer le prochain tick
     }
     return false;
 }
@@ -291,7 +311,7 @@ void My_window::update_infos()
 }
 
 // ==========================================
-// BOÎTES DE DIALOGUE (FILE CHOOSER)
+// BOÎTES DE DIALOGUE
 // ==========================================
 
 void My_window::set_dialog(Gtk::FileChooserDialog *dialog)
@@ -315,6 +335,7 @@ void My_window::set_dialog(Gtk::FileChooserDialog *dialog)
         break;
     }
 
+    // Configuration des filtres d'extension de fichier autorisés (.txt)
     auto filter_text = Gtk::FileFilter::create();
     filter_text->set_name("Text files");
     filter_text->add_pattern("*.txt");
@@ -353,7 +374,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
             cout << "open file: [" << file_name.filename().string() << "]" << endl;
             current_file = file_name.string();
             if (!game.load_file(current_file)) {
-                current_file = "";
+                current_file = ""; // Invalidation si le contenu logique viole les règles
             }
             drawing.queue_draw();    
             update_infos();          
@@ -364,7 +385,7 @@ void My_window::dialog_response(int response, Gtk::FileChooserDialog *dialog)
 
     case SAVE_FILE:
         if (file_name.extension() != ".txt") {
-            file_name += ".txt";
+            file_name += ".txt"; // Forçage du suffixe .txt si omis par l'étudiant/utilisateur
         }
 
         cout << "save file: [" << file_name.filename().string() << "]" << endl;
@@ -393,9 +414,12 @@ void My_window::set_drawing()
 
 void My_window::on_draw(const Cairo::RefPtr<Cairo::Context> &cr, int width, int height)
 {
-    graphic_set_context(cr);
+    graphic_set_context(cr); // Injection du contexte courant dans le module graphique global
     double side(min(width, height));
+    
+    // Application de la matrice de transformation géométrique
     cr->translate((width - side) * 0.5, (height + side) * 0.5);
-    cr->scale(side / (arena_size), -side / (arena_size));
+    cr->scale(side / (arena_size), -side / (arena_size)); // Y inversé
+    
     game.draw();
 }

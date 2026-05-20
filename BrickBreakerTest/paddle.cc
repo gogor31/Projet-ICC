@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : paddle.cc
+// Description : Implémentation des mouvements mécaniques et des validations
+//               géométriques du paddle.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #include <iostream>
 #include <cmath>
 #include "paddle.h"
@@ -63,19 +75,23 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     const double current_x = circle_.center.x;
     double move_x = target_x - current_x;
     
+    // Limitation de la vitesse maximale du paddle
     move_x = tools::clamp(move_x, -delta_norm_max, delta_norm_max);
     
     double next_x = current_x + move_x;
 
+    // Calcul de la demi-largeur de l'intersection du disque avec la base de l'arène
     double dy = std::abs(circle_.center.y);
     double val = (circle_.radius * circle_.radius) - (dy * dy);
     double semi_width = std::sqrt(std::max(0.0, val));
     
+    // Contraint le paddle à rester à l'intérieur des murs latéraux
     next_x = tools::clamp(next_x, semi_width, arena_size - semi_width);
 
     tools::Circle next_circle = circle_;
     next_circle.center.x = next_x;
 
+    // Détection d'une collision bloquante avec une brique
     bool collision_brick = false;
     for (const auto& b : bricks) {
         if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), tools::epsil_zero)) {
@@ -84,10 +100,12 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
         }
     }
 
+    // Application du mouvement ou calcul par dichotomie en cas d'obstacle
     if (!collision_brick) {
         circle_.center.x = next_circle.center.x;
         delta_ = { move_x, 0.0 }; 
     } else {
+        // Recherche dichotomique pour approcher la brique au plus près sans intersection
         double low = 0.0;
         double high = move_x;
         

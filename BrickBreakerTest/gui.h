@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : gui.h
+// Description : Définition de la classe My_window gérant l'interface graphique 
+//               Gtkmm (widgets, agencement, événements clavier/souris/timers).
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #ifndef GUI_H
 #define GUI_H
 
@@ -14,6 +26,7 @@ public:
     // CONSTRUCTEUR ET DESTRUCTEUR
     // ==========================================
 
+    // Initialise la fenêtre principale et tente de charger le fichier passé en paramètre
     My_window(std::string file_name);
 
     virtual ~My_window() = default; 
@@ -23,26 +36,26 @@ private:
     // STRUCTURES DE CONTRÔLE INTERNE
     // ==========================================
     
-    Game game;
-    std::string current_file;
+    Game game;               
+    std::string current_file;  
 
-    // Interface widgets
+    // Conteneurs d'agencement structurels
     Gtk::Box main_box, panel_box, command_box;
     Gtk::Grid info_grid;
     Gtk::Frame info_frame;
-    Gtk::DrawingArea drawing;
+    Gtk::DrawingArea drawing;   // Zone dédiée au dessin vectoriel Cairo
 
-    // Boutons et labels
+    // Widgets interactifs et textuels
     std::array<Gtk::Button, 6> buttons;
     std::array<Gtk::Label, 4> info_text, info_value;
 
-    // Boucle de rafraîchissement
+    // Gestion du rafraîchissement périodique
     bool loop_activated;
     sigc::connection loop_conn;
     bool loop();
 
     // ==========================================
-    // CONFIGURATION DES CONTÔLEURS (INIT)
+    // CONFIGURATION DES CONTÔLEURS
     // ==========================================
 
     void set_commands();
@@ -74,10 +87,11 @@ private:
     // COMPTEURS ET MISES À JOUR NUMÉRIQUES
     // ==========================================
 
+    // Lit l'état de la simulation pour actualiser les labels textuels (Scores, Vies, etc.)
     void update_infos();
 
     // ==========================================
-    // BOÎTES DE DIALOGUE (FILE CHOOSER)
+    // BOÎTES DE DIALOGUE
     // ==========================================
 
     void set_dialog(Gtk::FileChooserDialog *dialog);

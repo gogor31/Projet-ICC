@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : game.cc
+// Description : Implémentation de la boucle de rafraîchissement physique, 
+//               des routines de lecture syntaxique et de la détection de chocs.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -13,6 +25,7 @@
 // ==========================================
 
 namespace {
+    // Filtre et extrait la prochaine ligne utile en ignorant les blancs et les lignes de commentaire (#)
     bool get_valid_line(std::ifstream& file, std::string& line) {
         while (std::getline(file, line)) {
             size_t first_char = line.find_first_not_of(" \t\r\n");
@@ -22,6 +35,7 @@ namespace {
         }
         return false;
     }
+    constexpr int NB_SUBSTEPS = 4;
 }
 
 // ==========================================
@@ -43,12 +57,13 @@ bool Game::load_file(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) return false;
     
+    // Exécution stricte du chargement guidé par la syntaxe du fichier
     bool success = read_header(file) && read_paddle(file) && 
                    read_bricks(file) && read_balls(file) &&
                    validate_initial_state();
 
     if (!success) {
-        clear(); 
+        clear(); // Annulation et isolation de l'état en cas d'erreur
         return false;
     }
 
@@ -104,31 +119,51 @@ void Game::update() {
     if (status_ != ONGOING) return;
     
     std::vector<std::unique_ptr<Brick>> bricks_to_add;
-
-    for (auto& ball : balls_) {
-        ball.backup_position(); 
-        ball.move();           
-
-        if (ball.get_circle().center.y < 0) {
-            ball.mark_as_dead();
-            continue;
-        }
-
-        unsigned nb_rebonds = 0;
-        while (nb_rebonds < nb_bounce_max) {
-            if (handle_arena_collision(ball) || 
-                handle_bricks_collision(ball, bricks_to_add) || 
-                handle_paddle_collision(ball)) {
-                nb_rebonds++;
-            } else {
-                break;
-            }
-        }
-    }
+    
     paddle_.move(target_paddle_x_, bricks_);
 
-    handle_ball_ball_collisions(); 
+    const double inv_substeps = 1.0 / NB_SUBSTEPS;
+    
+    for (int step = 0; step < NB_SUBSTEPS; ++step) {
 
+        // Déplacement partiel et vérification pour chaque balle
+        for (auto& ball : balls_) {
+            if (ball.is_dead()) continue;
+
+            ball.backup_position(); // Sauvegarde de la micro-position de départ
+            
+            // On applique seulement 1/NB_SUBSTEPS du déplacement total
+            tools::Point fractional_delta = { ball.get_delta().x * inv_substeps, 
+                                              ball.get_delta().y * inv_substeps };
+            
+            // Déplacement manuel partiel de la balle pour ce micro-pas
+            ball.set_center({ ball.get_circle().center.x + fractional_delta.x,
+                              ball.get_circle().center.y + fractional_delta.y });
+
+            // Sortie immédiate par le bas
+            if (ball.get_circle().center.y < 0) {
+                ball.mark_as_dead();
+                continue;
+            }
+
+            // Gestion des rebonds sur cette micro-position
+            unsigned nb_rebonds = 0;
+            while (nb_rebonds < nb_bounce_max) {
+                if (handle_arena_collision(ball) || 
+                    handle_bricks_collision(ball, bricks_to_add) || 
+                    handle_paddle_collision(ball)) {
+                    nb_rebonds++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // Traitement des collisions entre balles à cette micro-étape
+        handle_ball_ball_collisions();
+    }
+
+    // Les ajouts d'objets et nettoyages se font une seule fois à la fin du tick complet
     for (auto& new_brick : bricks_to_add) {
         bricks_.push_back(std::move(new_brick));
     }
@@ -166,6 +201,7 @@ void Game::spawn_ball() {
     if (lives_ > 0 && balls_.empty()) {
         --lives_; 
         
+        // Calcul du décalage pour positionner la balle de manière tangente au sommet du paddle
         double spawn_y = paddle_.get_circle().center.y 
                          + paddle_.get_circle().radius 
                          + new_ball_radius 
@@ -194,7 +230,7 @@ void Game::draw() const {
     graphic::draw_arena();
 
     for (const auto& b : bricks_) {
-        b->draw();
+        b->draw(); 
     }
 
     for (const auto& ball : balls_) {
@@ -295,6 +331,7 @@ bool Game::create_brick(int type, double x, double y, double s,
                         std::stringstream& ss) {
     std::unique_ptr<Brick> new_ptr = nullptr;
 
+    // Résolution du type lors de l'instanciation
     if (type == 0) {
         int hp;
         if (!(ss >> hp)) return false;
@@ -306,7 +343,7 @@ bool Game::create_brick(int type, double x, double y, double s,
     }
 
     if (new_ptr && new_ptr->check()) {
-        bricks_.push_back(std::move(new_ptr));
+        bricks_.push_back(std::move(new_ptr)); // Transfert de propriété unique dans le vecteur de base
         return true;
     }
     return false;
@@ -386,7 +423,7 @@ bool Game::check_ball_paddle_intersections() const {
 }
 
 // ==========================================
-// PHYSIQUE AND COLLISIONS
+// PHYSIQUE ET COLLISIONS
 // ==========================================
 
 void Game::handle_ball_ball_collisions() {
@@ -398,12 +435,14 @@ void Game::handle_ball_ball_collisions() {
                 tools::Point p1 = balls_[i].get_circle().center;
                 tools::Point p2 = balls_[j].get_circle().center;
 
+                // Correction géométrique de la pénétration mutuelle
                 tools::resolve_overlap(p1, balls_[i].get_radius(), 
                                        p2, balls_[j].get_radius());
 
                 balls_[i].set_center(p1);
                 balls_[j].set_center(p2);
                 
+                // Calcul et application de l'impulsion physique sur la vitesse
                 tools::Point v1 = balls_[i].get_delta();
                 tools::Point v2 = balls_[j].get_delta();
 
@@ -424,22 +463,32 @@ bool Game::handle_paddle_collision(Ball& ball) {
                                         paddle_.get_circle(), 
                                         tools::epsil_zero)) 
     {
-        ball.restore_position();
+        ball.restore_position(); // Retour à la position sûre pré-cinématique
 
-        tools::Point c_ball = ball.get_circle().center;
-        tools::Point c_pad  = paddle_.get_circle().center;
+        tools::Point ball_position = ball.get_circle().center;
+        double ball_radius = ball.get_radius();
+        tools::Point paddle_position = paddle_.get_circle().center;
+        double paddle_radius = paddle_.get_circle().radius;
 
-        tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), c_ball,
-                                                           paddle_.get_delta(), c_pad);
+        // Écarte physiquement la balle de la raquette pour éviter les cas de blocage ou de rebonds multiples indésirables
+        tools::resolve_overlap(ball_position, ball_radius, 
+                               paddle_position, paddle_radius);
+        ball.set_center(ball_position);
+
+        // Réflexion dynamique basée sur la vitesse propre du paddle
+        tools::Point new_v = tools::compute_impulse_paddle(ball.get_delta(), ball_position,
+                                                           paddle_.get_delta(), paddle_.get_circle().center);
         
+        if (new_v.y < 0) { 
+            new_v.y = std::abs(ball.get_delta().y); // Assure une expulsion vers le haut 
+        }
+
         ball.set_delta(new_v);
-        
         // --- BLOC DE DEBUG TEMPORAIRE ---
         tools::Point current_delta = ball.get_delta();
         double vitesse = std::sqrt(current_delta.x * current_delta.x + current_delta.y * current_delta.y);
         std::cout << "[DEBUG] Collision Raquette ! Vitesse de la balle = " << vitesse << std::endl;
         // --------------------------------
-        
         ball.move();
         return true;
     }
@@ -487,12 +536,13 @@ bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick
             
             score_ += score_per_hit;
 
+            // Déclenchement de la destruction si la brique épuise ses HP
             if (brick->hit()) {
                 brick->mark_as_dead();
                 handle_brick_destruction_effects(*brick, to_add);
             }
             ball.move();
-            break; 
+            break; // Une balle ne traite qu'une collision de brique par itération
         }
     }
     return collided;
@@ -501,10 +551,10 @@ bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick
 void Game::handle_brick_destruction_effects(const Brick& b, 
                                             std::vector<std::unique_ptr<Brick>>& new_bricks) {
     switch (b.get_type()) {
-        case 1: 
+        case 1: // BallBrick : Génération instantanée d'une nouvelle balle au centre de l'impact
             spawn_new_ball(b.get_bounds().center);
             break;
-        case 2:
+        case 2: // SplitBrick : Division géométrique en 4 sous-briques de niveau inférieur
         { 
             double s = b.get_bounds().side;
             double small_s = (s - split_brick_gap) * 0.5;
@@ -532,10 +582,11 @@ void Game::handle_brick_destruction_effects(const Brick& b,
 }
 
 void Game::cleanup_dead_objects() {
+    // Nettoyage
     auto it_b = bricks_.begin();
     while (it_b != bricks_.end()) {
         if ((*it_b)->is_dead()) {
-            it_b = bricks_.erase(it_b); 
+            it_b = bricks_.erase(it_b); // Libération automatique de la mémoire par le unique_ptr
         } else {
             ++it_b;
         }

@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : tools.cc
+// Description : Bibliothèque d'utilitaires géométriques, physiques et mathématiques
+//               pour la gestion des collisions et des mouvements de l'arène.
+//
+// Auteur(s) : Legio Ilhan (SCPIER N° : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #include <cmath>
 #include <algorithm>
 #include "tools.h"
@@ -21,7 +33,7 @@ namespace tools {
     Point normalize(const Point& p) {
         double n = norm(p);
         if (n < epsil_zero) {
-            return {0, 0};
+            return {0, 0}; // Évite la division par zéro pour un vecteur quasi-nul
         }
         return {p.x / n, p.y / n};
     }
@@ -53,7 +65,7 @@ namespace tools {
     }
 
     // ==========================================
-    // DÉTECTION DES INTERSECTIONS (COLLISIONS)
+    // DÉTECTION DES INTERSECTIONS
     // ==========================================
 
     bool intersects_Circle_Circle(const Circle& c1, const Circle& c2, double epsilon) {
@@ -73,6 +85,7 @@ namespace tools {
     bool intersects_Circle_Square(const Circle& c, const Square& s, double epsilon) {
         const double half_s = s.side * 0.5;
         
+        // Trouve le point du carré le plus proche du centre du cercle
         const double closest_x = clamp(c.center.x, s.center.x - half_s, s.center.x + half_s);
         const double closest_y = clamp(c.center.y, s.center.y - half_s, s.center.y + half_s);
         
@@ -85,6 +98,7 @@ namespace tools {
     // ==========================================
 
     bool is_circle_in_square(const Circle& c, double square_side) {
+        // Validation par rapport aux parois
         bool hors_limite_x = (c.center.x < c.radius - epsil_zero) || (c.center.x > (square_side - c.radius) + epsil_zero);
         bool hors_limite_y = (c.center.y < -epsil_zero) || (c.center.y > (square_side - c.radius) + epsil_zero);
         
@@ -137,16 +151,20 @@ namespace tools {
         const double dist = distance(c1, c2);
         const double inv_dist = 1.0 / dist;
 
+        // Vecteur normal unitaire entre les deux centres
         Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
         
         const double v1n = scalaire(d1, n);
         const double v2n = scalaire(d2, n);
 
+        // Si les entités s'éloignent déjà, pas besoin de collision
         if (v1n >= v2n) return d1;
 
+        // Modélisation de la masse proportionnelle à la surface
         const double m1 = r1 * r1;
         const double m2 = r2 * r2;
 
+        // Formule de la quantité de mouvement
         const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
 
         return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
@@ -164,6 +182,7 @@ namespace tools {
                 
         if (v1n >= v2n) return d_ball;
 
+        // Choc élastique contre un objet de masse considérée infinie (raquette)
         double impulse_mag = 2.0 * (-v1n + v2n);
 
         return {d_ball.x + impulse_mag * n.x, d_ball.y + impulse_mag * n.y};
@@ -175,6 +194,7 @@ namespace tools {
         const double dist_sq = dx * dx + dy * dy;
         const double min_dist = r1 + r2;
 
+        // Correction géométrique pour l'interpénétration
         if (dist_sq < (min_dist * min_dist) && dist_sq > 0) {
             const double distance = std::sqrt(dist_sq);
             const double overlap = (min_dist - distance);

@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : paddle.h
+// Description : Définition de la classe Paddle, gérant ses dimensions,
+//               son état et ses déplacements.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #ifndef PADDLE_H
 #define PADDLE_H
 
@@ -42,26 +54,30 @@ public:
     // VÉRIFICATIONS ET LIMITES
     // ==========================================
 
+    // Valide la conformité de la raquette 
     bool check() const;
 
+    // Vérifie si une futur coordonnée maintient la raquette dans l'arène
     bool check_position(double next_x) const;
 
     // ==========================================
     // DYNAMIQUE ET SIMULATION
     // ==========================================
     
+    // Déplace la raquette en intégrant l'inertie et les collisions avec les briques
     void move(double target_x, const std::vector<std::unique_ptr<Brick>>& bricks);
     
     // ==========================================
     // AFFICHAGE
     // ==========================================
 
+    // Dessine l'arc de cercle représentant la raquette
     void draw() const;
 
 private:
-    tools::Circle circle_ = {{0.0, 0.0}, 0.0};
+    tools::Circle circle_ = {{0.0, 0.0}, 0.0}; 
     tools::Point delta_ = {0.0, 0.0};
-    bool active = false;
+    bool active = false;                       
 };
 
 #endif
