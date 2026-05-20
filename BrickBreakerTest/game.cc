@@ -398,8 +398,8 @@ void Game::handle_ball_ball_collisions() {
                 tools::Point p1 = balls_[i].get_circle().center;
                 tools::Point p2 = balls_[j].get_circle().center;
 
-                tools::resolve_overlap(p1, balls_[i].getRadius(), 
-                                       p2, balls_[j].getRadius());
+                tools::resolve_overlap(p1, balls_[i].get_radius(), 
+                                       p2, balls_[j].get_radius());
 
                 balls_[i].set_center(p1);
                 balls_[j].set_center(p2);
@@ -407,11 +407,11 @@ void Game::handle_ball_ball_collisions() {
                 tools::Point v1 = balls_[i].get_delta();
                 tools::Point v2 = balls_[j].get_delta();
 
-                tools::Point new_v1 = tools::compute_impulse(v1, balls_[i].getRadius(), p1, 
-                                                            v2, balls_[j].getRadius(), p2);
+                tools::Point new_v1 = tools::compute_impulse(v1, balls_[i].get_radius(), p1, 
+                                                            v2, balls_[j].get_radius(), p2);
                                                
-                tools::Point new_v2 = tools::compute_impulse(v2, balls_[j].getRadius(), p2,
-                                                            v1, balls_[i].getRadius(), p1);
+                tools::Point new_v2 = tools::compute_impulse(v2, balls_[j].get_radius(), p2,
+                                                            v1, balls_[i].get_radius(), p1);
                 balls_[i].set_delta(new_v1);
                 balls_[j].set_delta(new_v2);
             }
