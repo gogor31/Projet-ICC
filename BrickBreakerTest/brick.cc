@@ -13,12 +13,12 @@ using namespace std;
 
 bool is_square_outside_arena(const tools::Square& s) {
     double half = s.side * 0.5;
-    bool hors_gauche = (s.center.x - half) < -tools::epsil_zero;
-    bool hors_droite = (s.center.x + half) > arena_size + tools::epsil_zero;
-    bool hors_bas   = (s.center.y - half) < -tools::epsil_zero;
-    bool hors_haut    = (s.center.y + half) > arena_size + tools::epsil_zero;
+    bool out_left   = (s.center.x - half) < -tools::epsil_zero;
+    bool out_right  = (s.center.x + half) > arena_size + tools::epsil_zero;
+    bool out_bottom = (s.center.y - half) < -tools::epsil_zero;
+    bool out_top    = (s.center.y + half) > arena_size + tools::epsil_zero;
 
-    return (hors_gauche || hors_droite || hors_haut || hors_bas);
+    return (out_left || out_right || out_top || out_bottom);
 }
 
 // ==========================================

@@ -10,6 +10,7 @@
 class Brick; 
 
 class Paddle {
+    
 public:
     // ==========================================
     // CONSTRUCTEURS
