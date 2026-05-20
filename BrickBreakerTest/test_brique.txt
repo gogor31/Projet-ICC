@@ -1,17 +1,17 @@
-# output: "Correct file"
+# Nom du scenario de test
+#Test Plafonnement Vitesse
+
 # score
 0
-
 # lives
-3
+1
 
 # paddle
-50 -16 20
+50.0 -5.0 12.0
 
 # bricks
-2
-0 92 4 5 1
-0 8 4 5 1
+0
 
 # balls
-0
+1
+50.0 50.0 1.0 5.0 5.0

@@ -8,12 +8,21 @@
 using namespace std;
 using namespace graphic;
 
+// ==========================================
+// VARIABLES STATIQUES ET CONTEXTE CAIRO
+// ==========================================
+
 static const Cairo::RefPtr<Cairo::Context> *ptcr(nullptr);
 
-// graphic_gui.h
+static double current_scale = 1.0; 
+
 void graphic_set_context(const Cairo::RefPtr<Cairo::Context> &cr){
     ptcr = &cr;
 }
+
+// ==========================================
+// CONFIGURATION ET INITIALISATION DU CANVAS
+// ==========================================
 
 void set_color(Color color)
 {
@@ -61,20 +70,23 @@ void set_color(Color color)
     (*ptcr)->set_source_rgb(r, g, b);
 }
 
-static double current_scale = 1.0; // Variable statique pour mémoriser l'échelle
-
 void graphic_prepare_canvas(double width, double height) {
     if (!ptcr) return;
 
     double side = std::min(width, height);
-    current_scale = side / arena_size; // On mémorise l'échelle ici
+    current_scale = side / arena_size; 
 
-    (*ptcr)->translate((width - side) / 2.0, (height - side) / 2.0);
+    (*ptcr)->translate((width - side) * 0.5, (height - side) * 0.5); 
     (*ptcr)->scale(current_scale, -current_scale);
     (*ptcr)->translate(0, -arena_size); 
 }
 
+// ==========================================
+// FONCTIONS DE DESSIN DES ENTITÉS
+// ==========================================
+
 namespace graphic {
+
     void draw_arena() {
         if (!ptcr) return;
 
@@ -92,8 +104,8 @@ namespace graphic {
         if (!ptcr) return;
         set_color(color);
 
-        double top_left_x = x - (size / 2.0);
-        double top_left_y = y - (size / 2.0);
+        double top_left_x = x - (size * 0.5);
+        double top_left_y = y - (size * 0.5);
         (*ptcr)->rectangle(top_left_x, top_left_y, size, size);
         (*ptcr)->fill();
     }
@@ -107,17 +119,28 @@ namespace graphic {
         if (filled) {
             (*ptcr)->fill();
         } else {
-            (*ptcr)->stroke();}
+            (*ptcr)->stroke();
+        }
     }
 
-    void draw_arc(double x, double y, double radius, Color color) {
+    void draw_arc(double x, double y, double radius, Color color) { 
         if (!ptcr) return;
-        set_color(color);
-        (*ptcr)->set_line_width(1.0 / current_scale);
 
-        (*ptcr)->arc(x, y, radius, 0, M_PI);
+        (*ptcr)->save(); 
+
+        (*ptcr)->rectangle(0, 0, arena_size, arena_size);
+        (*ptcr)->clip();
+
+        double lw = 1.0 / current_scale; 
+        (*ptcr)->set_line_width(lw);
+
+        double visual_radius = radius - (lw / 2.0);
+
+        set_color(color);
+
+        (*ptcr)->arc(x, y, visual_radius, 0, 2 * M_PI);
         (*ptcr)->stroke();
+
+        (*ptcr)->restore(); 
     }
 }
-
-
