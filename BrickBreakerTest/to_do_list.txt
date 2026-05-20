@@ -5,6 +5,4 @@ A faire :
 - Ajout de commentaire 
 
 Bug à corriger : 
-- Lag en plein écran 
- 
- 
+- Lag en plein écran

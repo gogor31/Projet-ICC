@@ -120,25 +120,25 @@ namespace tools {
 
     Point compute_impulse(const Point& d1, double r1, const Point& c1,
                                     const Point& d2, double r2, const Point& c2) {
-    const double dist_sq = distance_carre(c1, c2);
-    if (dist_sq < (epsil_zero * epsil_zero)) return d1;
+        const double dist_sq = distance_carre(c1, c2);
+        if (dist_sq < (epsil_zero * epsil_zero)) return d1;
 
-    const double dist = distance(c1, c2);
-    const double inv_dist = 1.0 / dist;
+        const double dist = distance(c1, c2);
+        const double inv_dist = 1.0 / dist;
 
-    Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
-    
-    // Vitesse nominale (projection du delta sur la normale) 
-    const double v1n = scalaire(d1, n);
-    const double v2n = scalaire(d2, n);
+        Point n = {(c1.x - c2.x) * inv_dist, (c1.y - c2.y) * inv_dist};
+        
+        // Vitesse nominale (projection du delta sur la normale) 
+        const double v1n = scalaire(d1, n);
+        const double v2n = scalaire(d2, n);
 
-    // Formule de l'impulsion corrigée par les masses 
-    const double m1 = r1 * r1;
-    const double m2 = r2 * r2;
+        // Formule de l'impulsion corrigée par les masses 
+        const double m1 = r1 * r1;
+        const double m2 = r2 * r2;
 
-    const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
+        const double impulse_mag = (-v1n + v2n) * (2.0 * m2) / (m1 + m2);
 
-    return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
+        return {d1.x + impulse_mag * n.x, d1.y + impulse_mag * n.y};
     }
 
     Point compute_impulse_paddle(const Point& d_ball, const Point& c_ball,
