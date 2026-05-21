@@ -8,3 +8,7 @@ A faire :
 Bug à corriger : 
 - Lag en plein écran   
 - quelques pixel de paddle dépasse du brod de l'arène (regler par IA a voir si ok) 
+- avec le paddle au bord et la souris en dehors de l'arène, les balles on tendance à accélerer
+    -> explication: si on met le paddle à un bout de l'arène puis immédiatement vers l'autre, 
+    alors même à l'arrêt, le paddle aura la norme de vitesse maximale
+

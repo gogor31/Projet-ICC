@@ -127,6 +127,14 @@ void Game::update() {
     }
     paddle_.move(target_paddle_x_, bricks_);
 
+    // --- BLOC DE DEBUG TEMPORAIRE ---
+    //affiche la position du paddle à chaque màj, enelevr le commentaire pour activer
+    //std::cout << "[DEBUG] Position Raquette !" << target_paddle_x_ << std::endl;
+    // --------------------------------
+
+
+
+
     handle_ball_ball_collisions(); 
 
     for (auto& new_brick : bricks_to_add) {
