@@ -10,13 +10,15 @@
 // Date : Mai 2026
 // ============================================================================
 
+#include <cstdlib>
 #include <iostream>
 #include "game.h"
 #include "gui.h"
 
 int main(int argc, char* argv[]) {
     
-    setenv("GSK_RENDERER", "cairo", 1);
+    setenv("GSK_RENDERER", "cairo", 1); //? cairo ou ngl
+
     // Création de l'application GTKMM avec un identifiant unique
     auto app = Gtk::Application::create("org.gtkmm.brickbreaker");
     
