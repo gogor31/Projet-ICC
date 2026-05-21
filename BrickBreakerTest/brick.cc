@@ -1,3 +1,15 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : brick.cc
+// Description : Implémentation des mécanismes de brique, calculs de niveaux 
+//               de subdivision et rendu graphique récursif.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #include <iostream>
 #include "brick.h"
 #include "constants.h"
@@ -11,6 +23,7 @@ using namespace std;
 // FONCTIONS UTILITAIRES LOCALES
 // ==========================================
 
+// Vérifie si l'un des quatre bords du carré dépasse les limites de l'arène
 bool is_square_outside_arena(const tools::Square& s) {
     double half = s.side * 0.5;
     bool out_left   = (s.center.x - half) < -tools::epsil_zero;
@@ -22,7 +35,7 @@ bool is_square_outside_arena(const tools::Square& s) {
 }
 
 // ==========================================
-// MÉTHODES DE LA CLASSE DE BASE (BRICK)
+// MÉTHODES DE LA CLASSE DE BASE
 // ==========================================
 
 bool Brick::check() const {
@@ -47,6 +60,7 @@ bool RainbowBrick::check() const {
         return false;
     } 
     
+    // Validation stricte des limites de HP
     if (hit_points_ < 1 || hit_points_ > 7) {
         cout << message::invalid_hit_points(hit_points_);
         return false;
@@ -55,6 +69,7 @@ bool RainbowBrick::check() const {
 }
 
 void RainbowBrick::draw() const {
+    // La couleur dépend directement des HP restants
     graphic::Color c = static_cast<graphic::Color>(hit_points_ - 1);
     graphic::draw_square(bounds_.center.x, bounds_.center.y, bounds_.side, c); 
 }
@@ -91,6 +106,7 @@ SplitBrick::SplitBrick(tools::Square s, int hp) : Brick(s, 2) {
     if (hp != -1) {
         hit_points_ = hp;
     } else {
+        // Détermination automatique du niveau maximal de subdivision possible
         int levels = 1;
         double current_side = s.side;
         
@@ -107,6 +123,7 @@ void SplitBrick::draw() const {
 }
 
 void SplitBrick::draw_recursive(tools::Square s, int hp) const {
+    // Détermination de la couleur basée sur la profondeur courante du motif
     int color_idx = (hit_points_ - hp) % 7;
     graphic::Color current_color = static_cast<graphic::Color>(color_idx);
     
@@ -114,9 +131,11 @@ void SplitBrick::draw_recursive(tools::Square s, int hp) const {
 
     const double small_s = (s.side - split_brick_gap) * 0.5;
 
+    // Condition d'arrêt : arrêt si la taille limite est atteinte ou fin des niveaux de profondeur
     if (small_s >= brick_size_min && hp > 1) {
         const double offset = (small_s + split_brick_gap) * 0.5;
 
+        // Subdivision géométrique dans les 4 quadrants (Bas-Gauche, Bas-Droite, Haut-Gauche, Haut-Droite)
         draw_recursive({{s.center.x - offset, s.center.y - offset}, small_s}, hp - 1);
         draw_recursive({{s.center.x + offset, s.center.y - offset}, small_s}, hp - 1);
         draw_recursive({{s.center.x - offset, s.center.y + offset}, small_s}, hp - 1);

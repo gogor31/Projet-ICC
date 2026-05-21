@@ -1,3 +1,16 @@
+// ============================================================================
+// École Polytechnique Fédérale de Lausanne (EPFL)
+// Cours : Programmation orientée objet / Projet C++
+// 
+// Fichier : game.h
+// Description : Définition du cœur logique du simulateur.
+//               Gère l'orchestration des collisions, la synchronisation du cycle 
+//               de vie des objets et le chargement/sauvegarde de fichiers.
+//
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Date : Mai 2026
+// ============================================================================
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -12,7 +25,7 @@
 #include "paddle.h"
 
 // ==========================================
-// ÉNUMÉRATIONS ET ÉTATS DU JEU
+// ÉNUMÉRATIONS DES ÉTATS DU JEU
 // ==========================================
 
 enum Status { ONGOING, WON, LOST };
@@ -30,18 +43,23 @@ public:
     // INITIALISATION ET ENTRÉES/SORTIES
     // ==========================================
 
+    // Charge la configuration initiale, alloue les briques et initialise les balles
     bool load_file(const std::string& filename);
     
+    // Réinitialise complètement l'état interne de la simulation
     void clear();
     
+    // Exporte l'état courant de l'arène dans un fichier au format texte spécifié
     void save(const std::string& filename) const;
 
     // ==========================================
     // BOUCLE DE SIMULATION ET STATUT
     // ==========================================
 
+    // Met à jour la physique globale : cinématique, gestion de collisions, spawn et nettoyage
     void update();
     
+    // Analyse les conditions de victoire ou d'échec pour modifier le statut du jeu
     void check_game_status();
 
     // ==========================================
@@ -50,6 +68,7 @@ public:
 
     void update_paddle_pos(double target_x); 
     
+    // Injecte une nouvelle balle de service au-dessus de la raquette si le joueur a des vies
     void spawn_ball();
 
     // ==========================================
@@ -67,6 +86,7 @@ public:
     // RENDU GRAPHIQUE
     // ==========================================
 
+    // Dessine l'ensemble des entités actives du jeu dans la fenêtre graphique
     void draw() const; 
 
 private:
@@ -78,10 +98,10 @@ private:
     int lives_ = 0;
     Paddle paddle_;
     std::vector<Ball> balls_;
-    std::vector<std::unique_ptr<Brick>> bricks_; 
+    std::vector<std::unique_ptr<Brick>> bricks_;
     Status status_ = ONGOING;
     double target_paddle_x_ = 50.0;
-    std::vector<Ball> balls_to_add_;
+    std::vector<Ball> balls_to_add_;            
 
     // ==========================================
     // LECTURE ET PARSING
@@ -97,6 +117,7 @@ private:
     // VALIDATIONS INITIALES
     // ==========================================
 
+    // Valide l'absence complète d'interpénétration de toutes les entités chargées
     bool validate_initial_state() const;
     bool check_bricks_intersections() const;
     bool check_paddle_brick_intersections() const;
@@ -113,6 +134,8 @@ private:
     bool handle_arena_collision(Ball& ball);
     bool handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick>>& to_add);
     void handle_brick_destruction_effects(const Brick& b, std::vector<std::unique_ptr<Brick>>& new_bricks);
+    
+    // Supprime de la mémoire les briques détruites et les balles hors de l'arène
     void cleanup_dead_objects();
     
     // ==========================================
