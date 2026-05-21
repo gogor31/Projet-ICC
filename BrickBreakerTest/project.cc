@@ -15,6 +15,8 @@
 #include "gui.h"
 
 int main(int argc, char* argv[]) {
+    
+    setenv("GSK_RENDERER", "cairo", 1);
     // Création de l'application GTKMM avec un identifiant unique
     auto app = Gtk::Application::create("org.gtkmm.brickbreaker");
     

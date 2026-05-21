@@ -1,7 +1,7 @@
 # Compilateur et options de compilation
 CXX = g++
 PKG_CONFIG = pkg-config
-CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O2 $(shell $(PKG_CONFIG) --cflags gtkmm-4.0)
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -O3 $(shell $(PKG_CONFIG) --cflags gtkmm-4.0)
 LDLIBS = $(shell $(PKG_CONFIG) --libs gtkmm-4.0)
 
 # Nom de l'exécutable
