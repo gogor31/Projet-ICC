@@ -76,7 +76,7 @@ My_window::My_window(string file_name)
             current_file = file_name;
         }
     }
-    update_infos();
+    //update_infos(); //cette ligne etait (peut-être) inutile et cause du lag
 }
 
 void My_window::set_commands()
@@ -148,7 +148,7 @@ void My_window::start_clicked()
         buttons[RESTART].set_sensitive(true);
         buttons[START].set_label("start");
         buttons[STEP].set_sensitive(true);
-        loop();
+        //loop();
     }
     else 
     {
@@ -270,7 +270,7 @@ bool My_window::loop()
 
         game.update();
         drawing.queue_draw();
-        update_infos();
+        update_infos(); 
         return true; // Demande à signal_timeout de reprogrammer le prochain tick
     }
     return false;
