@@ -35,7 +35,7 @@ namespace {
         }
         return false;
     }
-    constexpr int NB_SUBSTEPS = 4;
+    constexpr int NB_SUBSTEPS = 4; //pouurait etre plus petit si necessaire
 }
 
 // ==========================================
@@ -118,9 +118,16 @@ void Game::save(const std::string& filename) const {
 void Game::update() {
     if (status_ != ONGOING) return;
     
-    std::vector<std::unique_ptr<Brick>> bricks_to_add;
+
     
+    std::vector<std::unique_ptr<Brick>> bricks_to_add; 
     paddle_.move(target_paddle_x_, bricks_);
+
+    // --- BLOC DE DEBUG TEMPORAIRE ---
+    
+    //std::cout << "[DEBUG] Vitesse Raquette = " << paddle_.get_delta().x << std::endl;
+    // --------------------------------
+
 
     const double inv_substeps = 1.0 / NB_SUBSTEPS;
     
@@ -485,9 +492,9 @@ bool Game::handle_paddle_collision(Ball& ball) {
 
         ball.set_delta(new_v);
         // --- BLOC DE DEBUG TEMPORAIRE ---
-        tools::Point current_delta = ball.get_delta();
-        double vitesse = std::sqrt(current_delta.x * current_delta.x + current_delta.y * current_delta.y);
-        std::cout << "[DEBUG] Collision Raquette ! Vitesse de la balle = " << vitesse << std::endl;
+        //tools::Point current_delta = ball.get_delta();
+        //double vitesse = std::sqrt(current_delta.x * current_delta.x + current_delta.y * current_delta.y);
+        //std::cout << "[DEBUG] Collision Raquette ! Vitesse de la balle = " << vitesse << std::endl;
         // --------------------------------
         ball.move();
         return true;
