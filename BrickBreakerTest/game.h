@@ -133,7 +133,8 @@ private:
     bool handle_paddle_collision(Ball& ball);
     bool handle_arena_collision(Ball& ball);
     bool handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick>>& to_add);
-    void handle_brick_destruction_effects(const Brick& b, std::vector<std::unique_ptr<Brick>>& new_bricks);
+    void handle_brick_destruction_effects(const Brick& b, std::vector<std::unique_ptr<Brick>>& new_bricks,
+                                            tools::Point ball_delta);
     
     // Supprime de la mémoire les briques détruites et les balles hors de l'arène
     void cleanup_dead_objects();
@@ -143,7 +144,7 @@ private:
     // ==========================================
 
     void add_ball_to_simulation(tools::Point pos, tools::Point velocity);
-    void spawn_new_ball(tools::Point pos);
+    void spawn_new_ball(tools::Point pos, tools::Point delta);
 };
 
 #endif

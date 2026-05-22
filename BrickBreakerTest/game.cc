@@ -533,7 +533,7 @@ bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick
             // Déclenchement de la destruction si la brique épuise ses HP
             if (brick->hit()) {
                 brick->mark_as_dead();
-                handle_brick_destruction_effects(*brick, to_add);
+                handle_brick_destruction_effects(*brick, to_add, ball.get_delta());
             }
             ball.move();
             return true; // Une balle ne traite qu'une collision de brique par itération
@@ -543,10 +543,11 @@ bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick
 }
 
 void Game::handle_brick_destruction_effects(const Brick& b, 
-                                            std::vector<std::unique_ptr<Brick>>& new_bricks) {
+                                            std::vector<std::unique_ptr<Brick>>& new_bricks, 
+                                            tools::Point ball_delta) {
     switch (b.get_type()) {
         case 1: // BallBrick : Génération instantanée d'une nouvelle balle au centre de l'impact
-            spawn_new_ball(b.get_bounds().center);
+            spawn_new_ball(b.get_bounds().center, ball_delta);
             break;
         case 2: // SplitBrick : Division géométrique en 4 sous-briques de niveau inférieur
         { 
@@ -605,7 +606,7 @@ void Game::add_ball_to_simulation(tools::Point pos, tools::Point velocity) {
     balls_to_add_.push_back(Ball(ball_circle, velocity));
 }
 
-void Game::spawn_new_ball(tools::Point pos) {
-    tools::Point vel = {0.0, new_ball_delta_norm};
-    add_ball_to_simulation(pos, vel);
+void Game::spawn_new_ball(tools::Point pos, tools::Point delta) {
+    tools::Point spawn_delta = {-delta.x, -delta.y};
+    add_ball_to_simulation(pos, spawn_delta);
 }
