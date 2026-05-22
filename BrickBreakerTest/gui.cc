@@ -76,7 +76,7 @@ My_window::My_window(string file_name)
             current_file = file_name;
         }
     }
-    //update_infos(); //cette ligne etait (peut-être) inutile et cause du lag
+    update_infos();
 }
 
 void My_window::set_commands()
@@ -297,16 +297,32 @@ void My_window::set_infos()
 
 void My_window::update_infos()
 {
-    unsigned short i(0);
-    for (auto &value : info_value)
-    {
-        switch (i++)
-        {
-            case 0: value.set_text(to_string(game.get_score()));      break;
-            case 1: value.set_text(to_string(game.get_lives()));      break;
-            case 2: value.set_text(to_string(game.get_nb_bricks()));  break;
-            case 3: value.set_text(to_string(game.get_nb_balls()));   break;
-        }
+    // Mise à jour du Score (Index 0)
+    int current_score = game.get_score();
+    if (current_score != last_displayed_score) {
+        last_displayed_score = current_score;
+        info_value[0].set_text(std::to_string(current_score));
+    }
+
+    // Mise à jour des Vies (Index 1)
+    int current_lives = game.get_lives();
+    if (current_lives != last_displayed_lives) {
+        last_displayed_lives = current_lives;
+        info_value[1].set_text(std::to_string(current_lives));
+    }
+
+    // Mise à jour des Briques (Index 2)
+    int current_bricks = game.get_nb_bricks(); 
+    if (current_bricks != last_displayed_bricks) {
+        last_displayed_bricks = current_bricks;
+        info_value[2].set_text(std::to_string(current_bricks));
+    }
+
+    // Mise à jour des Balles (Index 3)
+    int current_balls = game.get_nb_balls(); 
+    if (current_balls != last_displayed_balls) {
+        last_displayed_balls = current_balls;
+        info_value[3].set_text(std::to_string(current_balls));
     }
 }
 
@@ -323,13 +339,16 @@ void My_window::set_dialog(Gtk::FileChooserDialog *dialog)
         sigc::bind(sigc::mem_fun(*this, &My_window::dialog_response), dialog));
 
     dialog->add_button("_Cancel", CANCEL);
+
     switch (dialog->get_action())
     {
     case Gtk::FileChooserDialog::Action::OPEN:
         dialog->add_button("_Open", OPEN_FILE);
+        dialog->set_default_response(OPEN_FILE);
         break;
     case Gtk::FileChooserDialog::Action::SAVE:
         dialog->add_button("_Save", SAVE_FILE);
+        dialog->set_default_response(SAVE_FILE);
         break;
     default:
         break;

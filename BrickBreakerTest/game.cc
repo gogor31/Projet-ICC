@@ -117,17 +117,9 @@ void Game::save(const std::string& filename) const {
 
 void Game::update() {
     if (status_ != ONGOING) return;
-    
 
-    
     std::vector<std::unique_ptr<Brick>> bricks_to_add; 
     paddle_.move(target_paddle_x_, bricks_);
-
-    // --- BLOC DE DEBUG TEMPORAIRE ---
-    
-    //std::cout << "[DEBUG] Vitesse Raquette = " << paddle_.get_delta().x << std::endl;
-    // --------------------------------
-
 
     const double inv_substeps = 1.0 / NB_SUBSTEPS;
     
@@ -140,12 +132,10 @@ void Game::update() {
             ball.backup_position(); // Sauvegarde de la micro-position de départ
             
             // On applique seulement 1/NB_SUBSTEPS du déplacement total
-            tools::Point fractional_delta = { ball.get_delta().x * inv_substeps, 
-                                              ball.get_delta().y * inv_substeps };
-            
-            // Déplacement manuel partiel de la balle pour ce micro-pas
-            ball.set_center({ ball.get_circle().center.x + fractional_delta.x,
-                              ball.get_circle().center.y + fractional_delta.y });
+            ball.set_center({ 
+                ball.get_circle().center.x + (ball.get_delta().x * inv_substeps),
+                ball.get_circle().center.y + (ball.get_delta().y * inv_substeps) 
+            });
 
             // Sortie immédiate par le bas
             if (ball.get_circle().center.y < 0) {
@@ -171,14 +161,16 @@ void Game::update() {
     }
 
     // Les ajouts d'objets et nettoyages se font une seule fois à la fin du tick complet
+    if (!balls_to_add_.empty()) {
+        for (auto& new_ball : balls_to_add_) {
+        balls_.push_back(std::move(new_ball));
+        }
+    balls_to_add_.clear();
+    }   
+    
     for (auto& new_brick : bricks_to_add) {
         bricks_.push_back(std::move(new_brick));
     }
-
-    for (auto& new_ball : balls_to_add_) {
-        balls_.push_back(std::move(new_ball));
-    }
-    balls_to_add_.clear();
 
     cleanup_dead_objects();
     check_game_status();
@@ -491,11 +483,6 @@ bool Game::handle_paddle_collision(Ball& ball) {
         }
 
         ball.set_delta(new_v);
-        // --- BLOC DE DEBUG TEMPORAIRE ---
-        //tools::Point current_delta = ball.get_delta();
-        //double vitesse = std::sqrt(current_delta.x * current_delta.x + current_delta.y * current_delta.y);
-        //std::cout << "[DEBUG] Collision Raquette ! Vitesse de la balle = " << vitesse << std::endl;
-        // --------------------------------
         ball.move();
         return true;
     }
@@ -528,13 +515,13 @@ bool Game::handle_arena_collision(Ball& ball) {
 }
 
 bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick>>& to_add) {
-    bool collided = false;
-
     for (const auto& brick : bricks_) {
-        if (!brick->is_dead() && tools::intersects_Circle_Square(ball.get_circle(), 
-                                                                brick->get_bounds(), 
-                                                                tools::epsil_zero)) {
-            collided = true;
+    
+        if (brick->is_dead()) continue;
+
+        if (tools::intersects_Circle_Square(ball.get_circle(), 
+                                            brick->get_bounds(), 
+                                            tools::epsil_zero)) {
             ball.restore_position();
 
             const tools::Point n = tools::compute_nominal_direction(ball.get_circle(), 
@@ -549,10 +536,10 @@ bool Game::handle_bricks_collision(Ball& ball, std::vector<std::unique_ptr<Brick
                 handle_brick_destruction_effects(*brick, to_add);
             }
             ball.move();
-            break; // Une balle ne traite qu'une collision de brique par itération
+            return true; // Une balle ne traite qu'une collision de brique par itération
         }
     }
-    return collided;
+    return false;
 }
 
 void Game::handle_brick_destruction_effects(const Brick& b, 

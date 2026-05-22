@@ -89,6 +89,11 @@ private:
 
     // Lit l'état de la simulation pour actualiser les labels textuels (Scores, Vies, etc.)
     void update_infos();
+    
+    int last_displayed_score = -1; // Initialisé à -1 pour forcer le premier affichage
+    int last_displayed_lives = -1;
+    int last_displayed_bricks = -1;
+    int last_displayed_balls = -1;
 
     // ==========================================
     // BOÎTES DE DIALOGUE
