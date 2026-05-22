@@ -6,7 +6,7 @@
 // Description : Implémentation de la boucle de rafraîchissement physique, 
 //               des routines de lecture syntaxique et de la détection de chocs.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

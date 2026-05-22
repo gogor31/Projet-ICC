@@ -6,7 +6,7 @@
 // Description : Bibliothèque d'utilitaires géométriques, physiques et mathématiques
 //               pour la gestion des collisions et des mouvements de l'arène.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

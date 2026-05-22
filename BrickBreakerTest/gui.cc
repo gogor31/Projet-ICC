@@ -6,7 +6,7 @@
 // Description : Implémentation des mécanismes d'interaction, mapping des 
 //               coordonnées pixel/modèle et boucle événementielle synchrone.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 
@@ -148,7 +148,6 @@ void My_window::start_clicked()
         buttons[RESTART].set_sensitive(true);
         buttons[START].set_label("start");
         buttons[STEP].set_sensitive(true);
-        //loop();
     }
     else 
     {

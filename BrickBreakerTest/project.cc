@@ -6,7 +6,7 @@
 // Description : Point d'entrée principal de l'application Brick Breaker.
 //               Initialise le contexte Gtk::Application et lance la GUI.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

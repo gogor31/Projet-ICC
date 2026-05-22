@@ -6,7 +6,7 @@
 // Description : Implémentation des mouvements mécaniques et des validations
 //               géométriques du paddle.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

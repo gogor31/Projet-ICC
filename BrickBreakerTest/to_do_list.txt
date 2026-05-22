@@ -4,9 +4,4 @@ A faire :
 
 
 Bug à corriger :  
-- avec le paddle au bord et la souris en dehors de l'arène, les balles on tendance à accélerer
-    -> explication: si on met le paddle à un bout de l'arène puis immédiatement vers l'autre, 
-    alors même à l'arrêt, le paddle aura la norme de vitesse maximale
-    -> techniquement pas un "vrai" bug, selon le cahier de charge
-- lag!!!
 

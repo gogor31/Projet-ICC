@@ -6,7 +6,7 @@
 // Description : Définition de la classe Ball représentant une balle mobile 
 //               et gérant sa cinématique ainsi que son cycle de vie.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

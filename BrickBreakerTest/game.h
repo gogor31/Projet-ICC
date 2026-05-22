@@ -7,7 +7,7 @@
 //               Gère l'orchestration des collisions, la synchronisation du cycle 
 //               de vie des objets et le chargement/sauvegarde de fichiers.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

@@ -6,7 +6,7 @@
 // Description : Implémentation de la cinématique, des inversions de trajectoire
 //               et des contrôles d'intégrité de la balle.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)       
 // Date : Mai 2026
 // ============================================================================
 

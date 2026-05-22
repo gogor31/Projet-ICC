@@ -6,7 +6,7 @@
 // Description : Implémentation des mécanismes de brique, calculs de niveaux 
 //               de subdivision et rendu graphique récursif.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

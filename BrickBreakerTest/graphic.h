@@ -6,7 +6,7 @@
 // Description : Bibliothèque d'encapsulation graphique pour l'environnement Cairo.
 //               Définit les palettes chromatiques et l'interface de rendu.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

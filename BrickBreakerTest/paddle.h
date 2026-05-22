@@ -6,7 +6,7 @@
 // Description : Définition de la classe Paddle, gérant ses dimensions,
 //               son état et ses déplacements.
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 

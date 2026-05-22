@@ -6,7 +6,7 @@
 // Description : Définition de la classe My_window gérant l'interface graphique 
 //               Gtkmm (widgets, agencement, événements clavier/souris/timers).
 //
-// Auteur(s) : Legio Ilhan (N° SCPIER : 397526)
+// Auteur(s) : Legio Ilhan (N° SCPIER : 397526), Nadav Solomon (N° SCPIER : 398747)  
 // Date : Mai 2026
 // ============================================================================
 
