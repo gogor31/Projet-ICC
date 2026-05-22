@@ -86,7 +86,9 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     double semi_width = std::sqrt(std::max(0.0, val));
     
     // Contraint le paddle à rester à l'intérieur des murs latéraux
-    next_x = tools::clamp(next_x, semi_width, arena_size - semi_width);
+    double clamped_x = tools::clamp(next_x, semi_width, arena_size - semi_width);
+    bool hit_wall = (clamped_x != next_x); // Vrai si le paddle a essayé de dépasser le mur
+    next_x = clamped_x;
 
     tools::Circle next_circle = circle_;
     next_circle.center.x = next_x;
@@ -103,7 +105,11 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
     // Application du mouvement ou calcul par dichotomie en cas d'obstacle
     if (!collision_brick) {
         circle_.center.x = next_circle.center.x;
-        delta_ = { move_x, 0.0 }; 
+        if (hit_wall) {
+            delta_ = { 0.0, 0.0 };
+        } else {
+            delta_ = { move_x, 0.0 }; 
+        }
     } else {
         // Recherche dichotomique pour approcher la brique au plus près sans intersection
         double low = 0.0;
@@ -115,6 +121,7 @@ void Paddle::move(double target_x, const std::vector<std::unique_ptr<Brick>>& br
             
             bool hit = false;
             for (const auto& b : bricks) {
+                if(b->is_dead()) continue; // Ignorer les briques déjà détruites
                 if (tools::intersects_Circle_Square(next_circle, b->get_bounds(), tools::epsil_zero)) {
                     hit = true;
                     break;

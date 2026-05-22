@@ -1,8 +1,6 @@
 A faire : 
 - fiche à rendre
 - chercher des éventuels limite de fonctionnement pour la fiabilité du code
-- Enlever #region -> marche pas 
-- Ajout de commentaire 
 
 
 Bug à corriger :  
