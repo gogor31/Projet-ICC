@@ -35,7 +35,7 @@ namespace {
         }
         return false;
     }
-    constexpr int NB_SUBSTEPS = 4; //pouurait etre plus petit si necessaire
+    constexpr int NB_SUBSTEPS = 4;
 }
 
 // ==========================================
